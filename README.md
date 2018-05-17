@@ -43,3 +43,25 @@ p-value: 0.208413
 Kendall's tau: 0.550633
 p-value: 0.0557333
 ```
+
+### How to use the library
+
+There are two options: 
+
+1. Either copy the header files in your project.
+2. Install the headers globally using the CMake project. To do that go to the 
+   root repository of this repo and run:
+   ```shell
+   mkdir build && cd build         # open build folder
+   cmake .. && sudo make install   # install library
+   cd .. && rm -rf build           # leave and remove build folder
+   ```
+
+You can then include the header containing all functionality
+``` cpp
+#include <wdm.hpp>
+``` 
+or include only specific headers, e.g.
+``` cpp
+#include <wdm/ktau.hpp>
+``` 
