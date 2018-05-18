@@ -11,7 +11,7 @@
 
 namespace wdm_eigen {
 
-std::vector<double> convert_vec(const Eigen::VectorXd& x)
+inline std::vector<double> convert_vec(const Eigen::VectorXd& x)
 {
     std::vector<double> xx(x.size());
     Eigen::VectorXd::Map(&xx[0], x.size()) = x;
