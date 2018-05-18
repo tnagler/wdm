@@ -12,6 +12,7 @@
 #include "wdm/srho.hpp"
 #include "wdm/bbeta.hpp"
 #include "wdm/indeptest.hpp"
+#include "wdm/methods.hpp"
 
 //! Weighted dependence measures
 namespace wdm {
@@ -27,19 +28,18 @@ inline double wdm(const std::vector<double>& x,
                   std::string method,
                   std::vector<double> weights = std::vector<double>())
 {
-    if (method == "hoeffd") {
+    using namespace wdm_methods;
+    if (is_hoeffding(method))
         return hoeffd(x, y, weights);
-    } else if (method == "ktau") {
+    if (is_kendall(method))
         return ktau(x, y, weights);
-    } else if (method == "prho") {
+    if (is_pearson(method))
         return prho(x, y, weights);
-    } else if (method == "srho") {
+    if (is_spearman(method))
         return srho(x, y, weights);
-    }  else if (method == "bbeta") {
+    if (is_blomqvist(method))
         return bbeta(x, y, weights);
-    } else {
-        throw std::runtime_error("method not implemented.");
-    }
+    throw std::runtime_error("method not implemented.");
 }
 
 }

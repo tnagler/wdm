@@ -17,20 +17,25 @@
 #include <boost/math/distributions/normal.hpp>
 #include <random>
 #include <limits>
+#include "methods.hpp"
 
 namespace wdm_interp {
-    inline double linear_interp(const double& x,
-                         const std::vector<double>& grid,
-                         const std::vector<double>& values)
-    {
-        // find upper end point of interval
-        size_t i = 1;
-        while(x > grid[i]) i++;
-
-        double w = (x - grid[i - 1]) / (grid[i] - grid[i - 1]);
-        return w * values[i - 1] + (1 - w) * values[i];
-    }
+    
+inline double linear_interp(const double& x,
+                     const std::vector<double>& grid,
+                     const std::vector<double>& values)
+{
+    // find upper end point of interval
+    size_t i = 1;
+    while(x > grid[i]) i++;
+    
+    // linear interpolation
+    double w = (x - grid[i - 1]) / (grid[i] - grid[i - 1]);
+    return w * values[i - 1] + (1 - w) * values[i];
 }
+
+}
+
 
 namespace wdm {
 
@@ -98,19 +103,20 @@ inline double calculate_test_stat(
     }
 
     // calculate test statistic
+    using namespace wdm_methods;
     double stat;
-    if (method == "hoeffd") {
+    if (is_hoeffding(method)) {
         stat = hoeffd(x, y, weights) / 30.0 + 1.0 / (36.0 * n_eff);
-    } else if (method == "ktau") {
+    } else if (is_kendall(method)) {
         stat = ktau(x, y, weights);
         stat *= std::sqrt(9 * n_eff / 4);
-    } else if (method == "prho") {
+    } else if (is_pearson(method)) {
         stat = boost::math::atanh(prho(x, y, weights));
         stat *= std::sqrt(n_eff - 3);
-    } else if (method == "srho") {
+    } else if (is_spearman(method)) {
         stat = boost::math::atanh(srho(x, y, weights));
         stat *= std::sqrt((n_eff - 3) / 1.06);
-    }  else if (method == "bbeta") {
+    }  else if (is_blomqvist(method)) {
         stat = bbeta(x, y, weights);
         stat *= std::sqrt(n_eff);
     } else {
