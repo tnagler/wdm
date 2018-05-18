@@ -62,9 +62,9 @@ inline double wdm(const Eigen::VectorXd& x,
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
 //! 
 //! @return a matrix of pairwise dependence measures.
-inline Eigen::MatrixXd wdm_mat(const Eigen::MatrixXd& x,
-                               std::string method,
-                               Eigen::VectorXd weights = Eigen::VectorXd())
+inline Eigen::MatrixXd wdm(const Eigen::MatrixXd& x,
+                           std::string method,
+                           Eigen::VectorXd weights = Eigen::VectorXd())
 {
     using namespace wdm_eigen;
     size_t d = x.cols();
