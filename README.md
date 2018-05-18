@@ -68,8 +68,10 @@ or include only specific headers, e.g.
 
 ### Dependencies
 
-The library only requires C++11 and the STL. For projects already using the [Eigen](https://eigen.tuxfamily.org) linear algebra library, there are 
-convenience wrappers that can be made available via 
+The library only requires C++11 and [Boost](https://www.boost.org/). 
+
+For projects already using the [Eigen](https://eigen.tuxfamily.org) linear 
+algebra library, there are convenience wrappers that can be made available via 
 ``` cpp
 #include <wdm/eigen.hpp>
 ``` 

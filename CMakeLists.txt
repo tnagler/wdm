@@ -3,6 +3,9 @@ project(wdm)
 
 set(VERSION "0.1.0")
 
+# check dependencies
+find_package(Boost REQUIRED)
+
 # request c++11 without gnu extension for the whole project and enable more warnings
 set(CMAKE_CXX_STANDARD 11)
 
