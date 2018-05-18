@@ -2,7 +2,7 @@
 //
 // This file is part of the wdm library and licensed under the terms of
 // the MIT license. For a copy, see the LICENSE file in the root directory
-// or https://github.com/tnagler/wdm/blob/master/LICENSE.
+// or https://github.com/tnagler/wdmcpp/blob/master/LICENSE.
 
 #pragma once
 
@@ -28,10 +28,10 @@ namespace wdm {
 //!   `"ktau"`, `"bbeta"`, `"hoeffd"`.
 //! @param weights an optional vector of weights for the data.
 //! @return the dependence measure
-double wdm(const Eigen::VectorXd& x,
-           const Eigen::VectorXd& y,
-           std::string method,
-           Eigen::VectorXd weights = Eigen::VectorXd())
+inline double wdm(const Eigen::VectorXd& x,
+                  const Eigen::VectorXd& y,
+                  std::string method,
+                  Eigen::VectorXd weights = Eigen::VectorXd())
 {
     using namespace wdm_eigen;
     return wdm(convert_vec(x),
@@ -46,9 +46,9 @@ double wdm(const Eigen::VectorXd& x,
 //!   `"ktau"`, `"bbeta"`, `"hoeffd"`.
 //! @param weights an optional vector of weights for the data.
 //! @return a matrix of pairwise dependence measures.
-Eigen::MatrixXd wdm_mat(const Eigen::MatrixXd& x,
-                        std::string method,
-                        Eigen::VectorXd weights = Eigen::VectorXd())
+inline Eigen::MatrixXd wdm_mat(const Eigen::MatrixXd& x,
+                               std::string method,
+                               Eigen::VectorXd weights = Eigen::VectorXd())
 {
     using namespace wdm_eigen;
     size_t d = x.cols();

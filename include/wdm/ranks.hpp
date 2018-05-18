@@ -16,7 +16,7 @@ namespace wdm {
 //!   score; `"average"` assigns the average score.
 //! @param weights (optional), weights for each observation.
 //! @return a vector containing the ranks of each element in `x`.
-std::vector<double> rank_scores(
+inline std::vector<double> rank_scores(
     std::vector<double> x,
     std::vector<double> weights = std::vector<double>(),
     std::string ties_method = "min")

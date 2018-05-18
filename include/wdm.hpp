@@ -22,10 +22,10 @@ namespace wdm {
 //!   `"ktau"`, `"bbeta"`, `"hoeffd"`.
 //! @param weights an optional vector of weights for the data.
 //! @return the dependence measure
-double wdm(const std::vector<double>& x,
-           const std::vector<double>& y,
-           std::string method,
-           std::vector<double> weights = std::vector<double>())
+inline double wdm(const std::vector<double>& x,
+                  const std::vector<double>& y,
+                  std::string method,
+                  std::vector<double> weights = std::vector<double>())
 {
     if (method == "hoeffd") {
         return hoeffd(x, y, weights);

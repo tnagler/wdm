@@ -89,7 +89,7 @@ inline double effective_sample_size(const std::vector<double>& weights) {
 //! inverts a permutation.
 //! @param perm a permutation.
 //! @return a vector containing the inverse permutation.
-std::vector<size_t> invert_permutation(const std::vector<size_t>& perm)
+inline std::vector<size_t> invert_permutation(const std::vector<size_t>& perm)
 {
     std::vector<size_t> inv_perm(perm.size());
     for (size_t i = 0; i < perm.size(); i++)
@@ -150,8 +150,8 @@ private:
 //! computes the permutation that brings a vector into order.
 //! @param x inpute vector.
 //! @param ascending whether order ascendingly or descendingly.
-std::vector<size_t> get_order(const std::vector<double>& x,
-                              bool ascending = true)
+inline std::vector<size_t> get_order(const std::vector<double>& x,
+                                     bool ascending = true)
 {
     size_t n = x.size();
     std::vector<size_t> perm(n);

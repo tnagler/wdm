@@ -19,7 +19,7 @@
 #include <limits>
 
 namespace wdm_interp {
-    double linear_interp(const double& x,
+    inline double linear_interp(const double& x,
                          const std::vector<double>& grid,
                          const std::vector<double>& values)
     {
