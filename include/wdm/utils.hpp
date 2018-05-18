@@ -43,7 +43,8 @@ inline std::vector<double> pow(const std::vector<double>& x, size_t n)
 
 //! sums all elements in a vector.
 //! @param x the input vector.
-inline double sum(const std::vector<double>& x) {
+inline double sum(const std::vector<double>& x) 
+{
     double res = 0.0;
     for (size_t i = 0; i < x.size(); i++)
         res += x[i];
@@ -52,7 +53,8 @@ inline double sum(const std::vector<double>& x) {
 
 //! computes the median of a vector.
 //! @param x the input vector.
-inline double median(std::vector<double> x) {
+inline double median(std::vector<double> x) 
+{
     size_t n = x.size();
     std::sort(x.begin(), x.end(), std::less<double>());
     double med;
@@ -68,7 +70,8 @@ inline double median(std::vector<double> x) {
 //! vector using Newton's identities.
 //! @param x the inpute vector.
 //! @param k the order of the permutation.
-inline double perm_sum(const std::vector<double>& x, size_t k) {
+inline double perm_sum(const std::vector<double>& x, size_t k)
+{
     if (k == 0)
         return 1.0;
     double s = 0;
@@ -78,10 +81,17 @@ inline double perm_sum(const std::vector<double>& x, size_t k) {
 }
 
 //! computes the effective sample size from a sequence of weights.
-//! @param the weight sequence.
-inline double effective_sample_size(const std::vector<double>& weights) {
-    double n_eff = std::pow(sum(weights), 2);
-    n_eff /= sum(pow(weights, 2));
+//! @param n the actual sample size.
+//! @param weights the weight sequence.
+inline double effective_sample_size(size_t n, const std::vector<double>& weights)
+{
+    double n_eff;
+    if (weights.size() == 0) {
+        n_eff = static_cast<double>(n);
+    } else {
+        n_eff = std::pow(sum(weights), 2);
+        n_eff /= sum(pow(weights, 2));
+    }
 
     return n_eff;
 }

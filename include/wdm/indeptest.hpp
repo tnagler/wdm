@@ -102,12 +102,7 @@ inline double calculate_test_stat(
         std::vector<double> weights = std::vector<double>())
 {
     // determine effective sample size
-    double n_eff;
-    if (weights.size() == 0) {
-        n_eff = static_cast<double>(x.size());
-    } else {
-        n_eff = wdm_utils::effective_sample_size(weights);
-    }
+    double n_eff = wdm_utils::effective_sample_size(x.size(), weights);
 
     // calculate test statistic
     using namespace wdm_methods;
@@ -185,9 +180,7 @@ inline double indeptest(
 {
     wdm_utils::check_sizes(x, y, weights);
     double stat = calculate_test_stat(x, y, method, weights);
-    double n_eff = static_cast<double>(x.size());
-    if (weights.size() > 0)
-        n_eff = wdm_utils::effective_sample_size(weights);
+    double n_eff = wdm_utils::effective_sample_size(x.size(), weights);
 
     return calculate_asymptotic_p_val(stat, method, n_eff);
 }
