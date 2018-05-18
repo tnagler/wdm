@@ -18,7 +18,10 @@ The core functions, `wdm()` and `indeptest()`, take the following arguments:
    * `weights`: a vector of weights for each observation (optional).
 
 `wdm()` computes the dependence measure, and `indeptest()` calculates the 
-asymptotic p-value under the Null hypothesis of independence.
+asymptotic p-value under the Null hypothesis of independence. For more 
+details, see the [API documentation](https://tnagler.github.io/wdm/).
+
+
 ### Example
 
 ``` cpp
