@@ -85,9 +85,16 @@ inline double phoeffb(double B, size_t n) {
 
 //! calculates the test statistic for indpendence tests
 //! @param x, y input data.
-//! @param method the dependence measure; possible values: `"prho"`, `"srho"`,
-//!   `"ktau"`, `"hoeffd"`.
+//! @param method the dependence measure; see details for possible values. 
 //! @param weights an optional vector of weights for the data.
+//! 
+//! @details
+//! Available methods:
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$   
 inline double calculate_test_stat(
         const std::vector<double>& x,
         const std::vector<double>& y,
@@ -128,8 +135,15 @@ inline double calculate_test_stat(
 
 //! calculates the asymptotic p-value.
 //! @param stat value of the test statistic.
-//! @param method the dependence measure; possible values: `"prho"`, `"srho"`,
-//!   `"ktau"`, `"hoeffd"`.
+//! @param method the dependence measure; see details for possible values. 
+//! @details
+//! Available methods:
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
+//! 
 //! @param n_eff effective sample size; only used for method `"hoeffd"`.
 inline double calculate_asymptotic_p_val(double stat,
                                          std::string method,
@@ -151,9 +165,17 @@ inline double calculate_asymptotic_p_val(double stat,
 //! calculates asymptotic p-values of independence tests based on (weighted)
 //! dependence measures.
 //! @param x, y input data.
-//! @param method the dependence measure; possible values: `"prho"`, `"srho"`,
-//!   `"ktau"`, `"bbeta"`, `"hoeffd"`.
+//! @param method the dependence measure; see details for possible values. 
 //! @param weights an optional vector of weights for the data.
+//! 
+//! @details
+//! Available methods:
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
+//! 
 //! @return the p-value of the independence test.
 inline double indeptest(
         const std::vector<double>& x,

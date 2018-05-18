@@ -24,9 +24,17 @@ namespace wdm {
 
 //! calculates (weighted) dependence measures.
 //! @param x, y input data.
-//! @param method the dependence measure; possible values: `"prho"`, `"srho"`,
-//!   `"ktau"`, `"bbeta"`, `"hoeffd"`.
+//! @param method the dependence measure; see details for possible values. 
 //! @param weights an optional vector of weights for the data.
+//! 
+//! @details
+//! Available methods:
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
+//! 
 //! @return the dependence measure
 inline double wdm(const Eigen::VectorXd& x,
                   const Eigen::VectorXd& y,
@@ -41,10 +49,18 @@ inline double wdm(const Eigen::VectorXd& x,
 }
 
 //! calculates a matrix of (weighted) dependence measures.
-//! @param x, input data.
-//! @param method the dependence measure; possible values: `"prho"`, `"srho"`,
-//!   `"ktau"`, `"bbeta"`, `"hoeffd"`.
+//! @param x input data.
+//! @param method the dependence measure; see details for possible values. 
 //! @param weights an optional vector of weights for the data.
+//! 
+//! @details
+//! Available methods:
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
+//! 
 //! @return a matrix of pairwise dependence measures.
 inline Eigen::MatrixXd wdm_mat(const Eigen::MatrixXd& x,
                                std::string method,

@@ -110,6 +110,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Functions</h2></td></tr>
 <tr class="memitem:a92e595b83cee7b74e5c299e3fbc03d92"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a92e595b83cee7b74e5c299e3fbc03d92">bbeta</a> (const std::vector&lt; double &gt; &amp;x, const std::vector&lt; double &gt; &amp;y, std::vector&lt; double &gt; weights=std::vector&lt; double &gt;())</td></tr>
 <tr class="separator:a92e595b83cee7b74e5c299e3fbc03d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8426f980eee1b57ef5b53ad1f157523a"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a8426f980eee1b57ef5b53ad1f157523a">wdm</a> (const Eigen::VectorXd &amp;x, const Eigen::VectorXd &amp;y, std::string method, Eigen::VectorXd weights=Eigen::VectorXd())</td></tr>
+<tr class="separator:a8426f980eee1b57ef5b53ad1f157523a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf2788ba2caeeebf2e99dcf4bb3ccd58"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#adf2788ba2caeeebf2e99dcf4bb3ccd58">wdm_mat</a> (const Eigen::MatrixXd &amp;x, std::string method, Eigen::VectorXd weights=Eigen::VectorXd())</td></tr>
+<tr class="separator:adf2788ba2caeeebf2e99dcf4bb3ccd58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeff6fd9e51799c5abfd3f60f249160fa"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#aeff6fd9e51799c5abfd3f60f249160fa">hoeffd</a> (std::vector&lt; double &gt; x, std::vector&lt; double &gt; y, std::vector&lt; double &gt; weights=std::vector&lt; double &gt;())</td></tr>
 <tr class="separator:aeff6fd9e51799c5abfd3f60f249160fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa81744f65d63a2c309d9db3fbc89c364"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#aa81744f65d63a2c309d9db3fbc89c364">phoeffb</a> (double B, size_t n)</td></tr>
@@ -271,7 +275,19 @@ Functions</h2></td></tr>
 <p>calculates the asymptotic p-value. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">stat</td><td>value of the test statistic. </td></tr>
-    <tr><td class="paramname">method</td><td>the dependence measure; possible values: <code>"prho"</code>, <code>"srho"</code>, <code>"ktau"</code>, <code>"hoeffd"</code>. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
+</ul>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
     <tr><td class="paramname">n_eff</td><td>effective sample size; only used for method <code>"hoeffd"</code>. </td></tr>
   </table>
   </dd>
@@ -325,11 +341,18 @@ Functions</h2></td></tr>
 <p>calculates the test statistic for indpendence tests </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x,y</td><td>input data. </td></tr>
-    <tr><td class="paramname">method</td><td>the dependence measure; possible values: <code>"prho"</code>, <code>"srho"</code>, <code>"ktau"</code>, <code>"hoeffd"</code>. </td></tr>
-    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
   </table>
   </dd>
 </dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \) </li>
+</ul>
 
 </div>
 </div>
@@ -426,11 +449,18 @@ Functions</h2></td></tr>
 <p>calculates asymptotic p-values of independence tests based on (weighted) dependence measures. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x,y</td><td>input data. </td></tr>
-    <tr><td class="paramname">method</td><td>the dependence measure; possible values: <code>"prho"</code>, <code>"srho"</code>, <code>"ktau"</code>, <code>"bbeta"</code>, <code>"hoeffd"</code>. </td></tr>
-    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
   </table>
   </dd>
 </dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
+</ul>
 <dl class="section return"><dt>Returns</dt><dd>the p-value of the independence test. </dd></dl>
 
 </div>
@@ -573,6 +603,9 @@ Functions</h2></td></tr>
 <a class="anchor" id="adfb3d89d44f6cf93246ce1cd4d6f11e1"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::vector&lt;double&gt; wdm::rank_scores </td>
@@ -598,6 +631,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>computes ranks (such that smallest element has rank 0), assigning average ranks for ties. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -661,6 +699,9 @@ Functions</h2></td></tr>
 <a class="anchor" id="aa76dd10dc856558d14a103aa111a580e"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">double wdm::wdm </td>
@@ -692,16 +733,146 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>calculates (weighted) dependence measures. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x,y</td><td>input data. </td></tr>
-    <tr><td class="paramname">method</td><td>the dependence measure; possible values: <code>"prho"</code>, <code>"srho"</code>, <code>"ktau"</code>, <code>"bbeta"</code>, <code>"hoeffd"</code>. </td></tr>
-    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
   </table>
   </dd>
 </dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
+</ul>
 <dl class="section return"><dt>Returns</dt><dd>the dependence measure </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8426f980eee1b57ef5b53ad1f157523a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double wdm::wdm </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>method</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::VectorXd&#160;</td>
+          <td class="paramname"><em>weights</em> = <code>Eigen::VectorXd()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>calculates (weighted) dependence measures. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x,y</td><td>input data. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
+</ul>
+<dl class="section return"><dt>Returns</dt><dd>the dependence measure </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="adf2788ba2caeeebf2e99dcf4bb3ccd58"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixXd wdm::wdm_mat </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixXd &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>method</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::VectorXd&#160;</td>
+          <td class="paramname"><em>weights</em> = <code>Eigen::VectorXd()</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>calculates a matrix of (weighted) dependence measures. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>input data. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
+</ul>
+<dl class="section return"><dt>Returns</dt><dd>a matrix of pairwise dependence measures. </dd></dl>
 
 </div>
 </div>
@@ -714,7 +885,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu May 17 2018 12:47:15 for wdm by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 18 2018 13:38:06 for wdm by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>

@@ -1,19 +1,24 @@
 # wdm
 A header-only C++11 library for weighted dependence measures
 
-Provides an efficient implementation of weighted dependence measures:
+Provides efficient implementations of weighted dependence measures:
 
-   * Pearsons's rho: `prho()`
-   * Spearmans's rho: `srho()`
-   * Kendall's tau: `ktau()`
-   * Blomqvist's beta: `bbeta()`
-   * Hoeffding's D: `hoeffd()`
+   * Pearsons's rho
+   * Spearmans's rho
+   * Kendall's tau
+   * Blomqvist's beta
+   * Hoeffding's D
 
-All functions take at least two arguments for the two input vectors to compute 
-the dependence measure on, plus an optional argument to supply weights for 
-each observation. Additionally asymptotic p-values for all measures can be 
-calculated with `indep_test()`.
+### Usage
 
+The core functions, `wdm()` and `indeptest()`, take the following arguments:
+
+   * `x`, `y`: the input vectors to compute the dependence measure on.
+   * `method`: A `std::string` indicating the method.
+   * `weights`: a vector of weights for each observation (optional).
+
+`wdm()` computes the dependence measure, and `indeptest()` calculates the 
+asymptotic p-value under the Null hypothesis of independence.
 ### Example
 
 ``` cpp
@@ -27,13 +32,13 @@ std::vector<double> y{2, 12, 4, 7, 8, 14, 17, 6};
 std::vector<double> w{1, 1, 2, 2, 1, 0, 0.5, 0.3};
 
 // unweighted Kendall's tau
-std::cout << "Kendall's tau: " << wdm::ktau(x, y) << std::endl;
-// or: wdm::wdm(x, y, "ktau")
+std::cout << "Kendall's tau: " << wdm::wdm(x, y, "ktau") << std::endl;
+// or: wdm::ktau(x, y)
 std::cout << "p-value: " << wdm::indeptest(x, y, "ktau") << std::endl;
 
 // weighted Kendall's tau
-std::cout << "Kendall's tau: " << wdm::ktau(x, y, w) << std::endl;
-// or: wdm::wdm(x, y, "ktau", w)
+std::cout << "Kendall's tau: " <<  wdm::wdm(x, y, "ktau", w) << std::endl;
+// or: wdm::ktau(x, y, w)
 std::cout << "p-value: " << wdm::indeptest(x, y, "ktau", w) << std::endl;
 ```
 Output:
@@ -44,11 +49,11 @@ Kendall's tau: 0.550633
 p-value: 0.0557333
 ```
 
-### How to use the library
+### Including the library in other projects
 
 There are two options: 
 
-1. Either copy the header files in your project.
+1. Either copy the header files in `include/` to your project.
 2. Install the headers globally using the CMake project. To do that go to the 
    root repository of this repo and run:
    ```shell
@@ -56,6 +61,8 @@ There are two options:
    cmake .. && sudo make install   # install library
    cd .. && rm -rf build           # leave and remove build folder
    ```
+   To use the library in your project, just add 
+   `target_link_libraries(your_proj_name wdm)` to `your_proj_name/CMakeLists.txt`.
 
 You can then include the header containing all functionality
 ``` cpp
