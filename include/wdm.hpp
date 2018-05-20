@@ -11,9 +11,13 @@
 #include "wdm/prho.hpp"
 #include "wdm/srho.hpp"
 #include "wdm/bbeta.hpp"
-#include "wdm/indep_test.hpp"
 #include "wdm/methods.hpp"
-#include "wdm/na_handler.hpp"
+#include "wdm/nan_handling.hpp"
+
+#include <boost/math/special_functions/atanh.hpp>
+#include <boost/math/constants/constants.hpp>
+#include <boost/math/distributions/normal.hpp>
+
 
 //! Weighted dependence measures
 namespace wdm {
@@ -22,6 +26,8 @@ namespace wdm {
 //! @param x, y input data.
 //! @param method the dependence measure; see details for possible values.
 //! @param weights an optional vector of weights for the data.
+//! @param remove_missing if `TRUE`, all observations containing a `nan` are
+//!    removed; otherwise throws an error if `nan`s are present.
 //!
 //! @details
 //! Available methods:
@@ -32,11 +38,16 @@ namespace wdm {
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
 //!
 //! @return the dependence measure
-inline double wdm(const std::vector<double>& x,
-                  const std::vector<double>& y,
+inline double wdm(std::vector<double> x,
+                  std::vector<double> y,
                   std::string method,
-                  std::vector<double> weights = std::vector<double>())
+                  std::vector<double> weights = std::vector<double>(),
+                  bool remove_missing = TRUE)
 {
+    // na handling
+    if (utils::preproc(x, y, weights, method, remove_missing) == "return_nan")
+        return std::numeric_limits<double>::quiet_NaN();
+
     if (methods::is_hoeffding(method))
         return hoeffd(x, y, weights);
     if (methods::is_kendall(method))
@@ -49,5 +60,8 @@ inline double wdm(const std::vector<double>& x,
         return bbeta(x, y, weights);
     throw std::runtime_error("method not implemented.");
 }
+
+};
+
 
 }

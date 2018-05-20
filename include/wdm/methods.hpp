@@ -9,21 +9,35 @@
 namespace wdm {
 
 namespace methods {
-    
-inline bool is_hoeffding(std::string method) {
+
+inline bool is_hoeffding(std::string method)
+{
     return (method == "hoeffding") | (method == "hoeffd") | (method == "d");
 }
-inline bool is_kendall(std::string method) {
+inline bool is_kendall(std::string method)
+{
     return (method == "kendall") | (method == "ktau") | (method == "tau");
 }
-inline bool is_pearson(std::string method) {
+inline bool is_pearson(std::string method)
+{
     return (method == "pearson") | (method == "prho") | (method == "cor");
 }
-inline bool is_spearman(std::string method) {
+inline bool is_spearman(std::string method)
+{
     return (method == "spearman") | (method == "srho") | (method == "rho");
 }
-inline bool is_blomqvist(std::string method) {
+inline bool is_blomqvist(std::string method)
+{
     return (method == "blomqvist") | (method == "bbeta") | (method == "beta");
+}
+
+inline size_t get_min_nobs(std::string method)
+{
+    if (is_hoeffding(method)) {
+        return 5;
+    } else {
+        return 2;
+    }
 }
 
 }

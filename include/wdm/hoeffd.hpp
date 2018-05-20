@@ -18,8 +18,6 @@ inline double hoeffd(std::vector<double> x,
                      std::vector<double> y,
                      std::vector<double> weights = std::vector<double>())
 {
-    if (x.size() < 5)
-        throw std::runtime_error("number of observations must be at least 5.");
     utils::check_sizes(x, y, weights);
 
     // 1. Compute (weighted) ranks
