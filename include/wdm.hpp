@@ -11,7 +11,7 @@
 #include "wdm/prho.hpp"
 #include "wdm/srho.hpp"
 #include "wdm/bbeta.hpp"
-#include "wdm/indeptest.hpp"
+#include "wdm/indep_test.hpp"
 #include "wdm/methods.hpp"
 
 //! Weighted dependence measures
