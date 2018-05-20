@@ -10,7 +10,22 @@
 #include <vector>
 #include <numeric>
 
-namespace wdm_utils {
+namespace wdm {
+
+namespace utils {
+
+inline double linear_interp(const double& x,
+                     const std::vector<double>& grid,
+                     const std::vector<double>& values)
+{
+    // find upper end point of interval
+    size_t i = 1;
+    while(x > grid[i]) i++;
+
+    // linear interpolation
+    double w = (x - grid[i - 1]) / (grid[i] - grid[i - 1]);
+    return w * values[i - 1] + (1 - w) * values[i];
+}
 
 inline void check_sizes(const std::vector<double>& x,
                         const std::vector<double>& y,
@@ -43,7 +58,7 @@ inline std::vector<double> pow(const std::vector<double>& x, size_t n)
 
 //! sums all elements in a vector.
 //! @param x the input vector.
-inline double sum(const std::vector<double>& x) 
+inline double sum(const std::vector<double>& x)
 {
     double res = 0.0;
     for (size_t i = 0; i < x.size(); i++)
@@ -53,7 +68,7 @@ inline double sum(const std::vector<double>& x)
 
 //! computes the median of a vector.
 //! @param x the input vector.
-inline double median(std::vector<double> x) 
+inline double median(std::vector<double> x)
 {
     size_t n = x.size();
     std::sort(x.begin(), x.end(), std::less<double>());
@@ -477,4 +492,6 @@ inline void merge_sort_count_per_element(std::vector<double>& vec,
     }
 }
 
-}
+} /// end utils
+
+} // end wdm

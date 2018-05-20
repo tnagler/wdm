@@ -9,18 +9,19 @@
 #include <Eigen/Dense>
 #include "../wdm.hpp"
 
-namespace wdm_eigen {
-
-inline std::vector<double> convert_vec(const Eigen::VectorXd& x)
-{
-    std::vector<double> xx(x.size());
-    Eigen::VectorXd::Map(&xx[0], x.size()) = x;
-    return xx;
-}
-
-}
 
 namespace wdm {
+    
+namespace utils {
+
+    inline std::vector<double> convert_vec(const Eigen::VectorXd& x)
+    {
+        std::vector<double> xx(x.size());
+        Eigen::VectorXd::Map(&xx[0], x.size()) = x;
+        return xx;
+    }
+
+}
 
 //! calculates (weighted) dependence measures.
 //! @param x, y input data.
@@ -41,11 +42,10 @@ inline double wdm(const Eigen::VectorXd& x,
                   std::string method,
                   Eigen::VectorXd weights = Eigen::VectorXd())
 {
-    using namespace wdm_eigen;
-    return wdm(convert_vec(x),
-               convert_vec(y),
+    return wdm(utils::convert_vec(x),
+               utils::convert_vec(y),
                method,
-               convert_vec(weights));
+               utils::convert_vec(weights));
 }
 
 //! calculates a matrix of (weighted) dependence measures.

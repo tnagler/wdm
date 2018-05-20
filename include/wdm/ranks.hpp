@@ -25,7 +25,7 @@ inline std::vector<double> rank_scores(
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
 
-    std::vector<size_t> perm = wdm_utils::get_order(x);
+    std::vector<size_t> perm = utils::get_order(x);
 
     double w_acc = 0.0, w_batch;
     if ((ties_method != "min") && (ties_method != "average"))
@@ -64,22 +64,22 @@ inline std::vector<double> bivariate_rank(
         std::vector<double> y,
         std::vector<double> weights = std::vector<double>())
 {
-    wdm_utils::check_sizes(x, y, weights);
+    utils::check_sizes(x, y, weights);
 
     // get inverse of permutation that brings x in ascending order
-    std::vector<size_t> perm_x = wdm_utils::get_order(x);
-    perm_x = wdm_utils::invert_permutation(perm_x);
+    std::vector<size_t> perm_x = utils::get_order(x);
+    perm_x = utils::invert_permutation(perm_x);
 
     // sort x, y, and weights according to x, breaking ties with y
-    wdm_utils::sort_all(x, y, weights);
+    utils::sort_all(x, y, weights);
 
     // get inverse of permutation that brings y in descending order
-    std::vector<size_t> perm_y = wdm_utils::get_order(y, false);
-    perm_y = wdm_utils::invert_permutation(perm_y);
+    std::vector<size_t> perm_y = utils::get_order(y, false);
+    perm_y = utils::invert_permutation(perm_y);
 
     // sort y in descending order counting inversions
     std::vector<double> counts(y.size(), 0.0);
-    wdm_utils::merge_sort_count_per_element(y, weights, counts);
+    utils::merge_sort_count_per_element(y, weights, counts);
 
     // bring counts back in original order
     std::vector<double> counts_tmp = counts;

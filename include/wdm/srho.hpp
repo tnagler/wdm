@@ -19,7 +19,7 @@ inline double srho(std::vector<double> x,
                    std::vector<double> y,
                    std::vector<double> weights = std::vector<double>())
 {
-    wdm_utils::check_sizes(x, y, weights);
+    utils::check_sizes(x, y, weights);
     x = rank_scores(x, weights, "average");
     y = rank_scores(y, weights, "average");
     return prho(x, y, weights);

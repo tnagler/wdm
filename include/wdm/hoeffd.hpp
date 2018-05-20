@@ -20,15 +20,15 @@ inline double hoeffd(std::vector<double> x,
 {
     if (x.size() < 5)
         throw std::runtime_error("number of observations must be at least 5.");
-    wdm_utils::check_sizes(x, y, weights);
+    utils::check_sizes(x, y, weights);
 
     // 1. Compute (weighted) ranks
     std::vector<double> R_X = rank_scores(x, weights);
     std::vector<double> R_Y = rank_scores(y, weights);
     std::vector<double> S_X, S_Y;
     if (weights.size() > 0) {
-        S_X = rank_scores(x, wdm_utils::pow(weights, 2));
-        S_Y = rank_scores(y, wdm_utils::pow(weights, 2));
+        S_X = rank_scores(x, utils::pow(weights, 2));
+        S_Y = rank_scores(y, utils::pow(weights, 2));
     } else {
         S_X = R_X;
         S_Y = R_Y;
@@ -39,9 +39,9 @@ inline double hoeffd(std::vector<double> x,
     std::vector<double> R_XY, S_XY, T_XY, U_XY;
     R_XY = bivariate_rank(x, y, weights);
     if (weights.size() > 0) {
-        S_XY = bivariate_rank(x, y, wdm_utils::pow(weights, 2));
-        T_XY = bivariate_rank(x, y, wdm_utils::pow(weights, 3));
-        U_XY = bivariate_rank(x, y, wdm_utils::pow(weights, 4));
+        S_XY = bivariate_rank(x, y, utils::pow(weights, 2));
+        T_XY = bivariate_rank(x, y, utils::pow(weights, 3));
+        U_XY = bivariate_rank(x, y, utils::pow(weights, 4));
     } else {
         S_XY = R_XY;
         T_XY = R_XY;
@@ -67,9 +67,9 @@ inline double hoeffd(std::vector<double> x,
         ) * weights[i];
     }
     double D = 0.0;
-    D += A_1 / (wdm_utils::perm_sum(weights, 3) * 6);
-    D -= 2 * A_2 / (wdm_utils::perm_sum(weights, 4) * 24);
-    D += A_3 / (wdm_utils::perm_sum(weights, 5) * 120);
+    D += A_1 / (utils::perm_sum(weights, 3) * 6);
+    D -= 2 * A_2 / (utils::perm_sum(weights, 4) * 24);
+    D += A_3 / (utils::perm_sum(weights, 5) * 120);
 
     return 30.0 * D;
 }

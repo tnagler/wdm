@@ -17,14 +17,14 @@ inline double bbeta(const std::vector<double>& x,
                     const std::vector<double>& y,
                     std::vector<double> weights = std::vector<double>())
 {
-    wdm_utils::check_sizes(x, y, weights);
+    utils::check_sizes(x, y, weights);
     size_t n = x.size();
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
 
     // find the medians
-    double med_x = wdm_utils::median(x);
-    double med_y = wdm_utils::median(y);
+    double med_x = utils::median(x);
+    double med_y = utils::median(y);
 
     // count elements in lower left and upper right quadrants
     double w_acc{0.0};
@@ -35,7 +35,7 @@ inline double bbeta(const std::vector<double>& x,
             w_acc += weights[i];
     }
 
-    return 2 * w_acc / wdm_utils::sum(weights) - 1;
+    return 2 * w_acc / utils::sum(weights) - 1;
 }
 
 }

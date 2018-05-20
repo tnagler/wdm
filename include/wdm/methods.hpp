@@ -6,7 +6,9 @@
 
 #pragma once
 
-namespace wdm_methods {
+namespace wdm {
+
+namespace methods {
     
 inline bool is_hoeffding(std::string method) {
     return (method == "hoeffding") | (method == "hoeffd") | (method == "d");
@@ -22,6 +24,8 @@ inline bool is_spearman(std::string method) {
 }
 inline bool is_blomqvist(std::string method) {
     return (method == "blomqvist") | (method == "bbeta") | (method == "beta");
+}
+
 }
 
 }

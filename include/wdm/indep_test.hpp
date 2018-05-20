@@ -19,24 +19,6 @@
 #include <limits>
 #include "methods.hpp"
 
-namespace wdm_interp {
-    
-inline double linear_interp(const double& x,
-                     const std::vector<double>& grid,
-                     const std::vector<double>& values)
-{
-    // find upper end point of interval
-    size_t i = 1;
-    while(x > grid[i]) i++;
-    
-    // linear interpolation
-    double w = (x - grid[i - 1]) / (grid[i] - grid[i - 1]);
-    return w * values[i - 1] + (1 - w) * values[i];
-}
-
-}
-
-
 namespace wdm {
 
 //! calculates the (approximate) asymptotic distribution function of Hoeffding's
@@ -77,7 +59,7 @@ inline double phoeffb(double B, size_t n) {
             0.0059, 0.0056, 0.0053, 0.0050, 0.0047, 0.0045, 0.0042, 0.00025,
             0.00014, 0.0008, 0.0005, 0.0003, 0.0002, 0.0001
         };
-        p = wdm_interp::linear_interp(B, grid, vals);
+        p = utils::linear_interp(B, grid, vals);
     }
 
     return p;
@@ -85,16 +67,16 @@ inline double phoeffb(double B, size_t n) {
 
 //! calculates the test statistic for indpendence tests
 //! @param x, y input data.
-//! @param method the dependence measure; see details for possible values. 
+//! @param method the dependence measure; see details for possible values.
 //! @param weights an optional vector of weights for the data.
-//! 
+//!
 //! @details
 //! Available methods:
-//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
-//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
-//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
-//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
-//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$   
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
 inline double calculate_test_stat(
         const std::vector<double>& x,
         const std::vector<double>& y,
@@ -102,23 +84,22 @@ inline double calculate_test_stat(
         std::vector<double> weights = std::vector<double>())
 {
     // determine effective sample size
-    double n_eff = wdm_utils::effective_sample_size(x.size(), weights);
+    double n_eff = utils::effective_sample_size(x.size(), weights);
 
     // calculate test statistic
-    using namespace wdm_methods;
     double stat;
-    if (is_hoeffding(method)) {
+    if (methods::is_hoeffding(method)) {
         stat = hoeffd(x, y, weights) / 30.0 + 1.0 / (36.0 * n_eff);
-    } else if (is_kendall(method)) {
+    } else if (methods::is_kendall(method)) {
         stat = ktau(x, y, weights);
         stat *= std::sqrt(9 * n_eff / 4);
-    } else if (is_pearson(method)) {
+    } else if (methods::is_pearson(method)) {
         stat = boost::math::atanh(prho(x, y, weights));
         stat *= std::sqrt(n_eff - 3);
-    } else if (is_spearman(method)) {
+    } else if (methods::is_spearman(method)) {
         stat = boost::math::atanh(srho(x, y, weights));
         stat *= std::sqrt((n_eff - 3) / 1.06);
-    }  else if (is_blomqvist(method)) {
+    }  else if (methods::is_blomqvist(method)) {
         stat = bbeta(x, y, weights);
         stat *= std::sqrt(n_eff);
     } else {
@@ -130,15 +111,15 @@ inline double calculate_test_stat(
 
 //! calculates the asymptotic p-value.
 //! @param stat value of the test statistic.
-//! @param method the dependence measure; see details for possible values. 
+//! @param method the dependence measure; see details for possible values.
 //! @details
 //! Available methods:
-//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
-//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
-//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
-//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
-//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
-//! 
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!
 //! @param n_eff effective sample size; only used for method `"hoeffd"`.
 inline double calculate_asymptotic_p_val(double stat,
                                          std::string method,
@@ -160,17 +141,17 @@ inline double calculate_asymptotic_p_val(double stat,
 //! calculates asymptotic p-values of independence tests based on (weighted)
 //! dependence measures.
 //! @param x, y input data.
-//! @param method the dependence measure; see details for possible values. 
+//! @param method the dependence measure; see details for possible values.
 //! @param weights an optional vector of weights for the data.
-//! 
+//!
 //! @details
 //! Available methods:
-//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
-//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$  
-//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$  
-//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$  
-//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
-//! 
+//!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation
+//!   - `"spearman"`, `"srho"`, `"rho"`: Spearman's \f$ \rho \f$
+//!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
+//!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
+//!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!
 //! @return the p-value of the independence test.
 inline double indep_test(
         const std::vector<double>& x,
@@ -178,9 +159,9 @@ inline double indep_test(
         std::string method,
         std::vector<double> weights = std::vector<double>())
 {
-    wdm_utils::check_sizes(x, y, weights);
+    utils::check_sizes(x, y, weights);
     double stat = calculate_test_stat(x, y, method, weights);
-    double n_eff = wdm_utils::effective_sample_size(x.size(), weights);
+    double n_eff = utils::effective_sample_size(x.size(), weights);
 
     return calculate_asymptotic_p_val(stat, method, n_eff);
 }
