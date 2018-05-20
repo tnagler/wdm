@@ -11,13 +11,13 @@ Provides efficient implementations of weighted dependence measures:
 
 ### Usage
 
-The core functions, `wdm()` and `indeptest()`, take the following arguments:
+The core functions, `wdm()` and `indep_test()`, take the following arguments:
 
    * `x`, `y`: the input vectors to compute the dependence measure on.
    * `method`: A `std::string` indicating the method.
    * `weights`: a vector of weights for each observation (optional).
 
-`wdm()` computes the dependence measure, and `indeptest()` calculates the 
+`wdm()` computes the dependence measure, and `indep_test()` calculates the 
 asymptotic p-value under the Null hypothesis of independence. For more 
 details, see the [API documentation](https://tnagler.github.io/wdm/).
 
@@ -37,12 +37,12 @@ std::vector<double> w{1, 1, 2, 2, 1, 0, 0.5, 0.3};
 // unweighted Kendall's tau
 std::cout << "Kendall's tau: " << wdm::wdm(x, y, "ktau") << std::endl;
 // or: wdm::ktau(x, y)
-std::cout << "p-value: " << wdm::indeptest(x, y, "ktau") << std::endl;
+std::cout << "p-value: " << wdm::indep_test(x, y, "ktau") << std::endl;
 
 // weighted Kendall's tau
 std::cout << "Kendall's tau: " <<  wdm::wdm(x, y, "ktau", w) << std::endl;
 // or: wdm::ktau(x, y, w)
-std::cout << "p-value: " << wdm::indeptest(x, y, "ktau", w) << std::endl;
+std::cout << "p-value: " << wdm::indep_test(x, y, "ktau", w) << std::endl;
 ```
 Output:
 ```
@@ -85,3 +85,4 @@ algebra library, there are convenience wrappers that can be made available via
 ``` cpp
 #include <wdm/eigen.hpp>
 ``` 
+See the [API documentation](https://tnagler.github.io/wdm/).

@@ -172,7 +172,7 @@ inline double calculate_asymptotic_p_val(double stat,
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$  
 //! 
 //! @return the p-value of the independence test.
-inline double indeptest(
+inline double indep_test(
         const std::vector<double>& x,
         const std::vector<double>& y,
         std::string method,
