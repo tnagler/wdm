@@ -163,13 +163,13 @@ inline void sort_all(std::vector<double>& x,
     weights = w;
 }
 
-//! count ties.
+//! count tied elements according to v_t and v_u in
+//! https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient#Significance_tests
 //! @param x a sorted input vector.
 //! @param weights optionally, a vector of weights for the elements in `x`.
-//! @param break_by second vector that was used to break ties (optional).
-//! @return the number of (weighted) ties in `x`
-inline double count_ties(const std::vector<double>& x,
-                         const std::vector<double>& weights)
+//! @return the number of (weighted) tied element in `x`
+inline double count_ties_v(const std::vector<double>& x,
+                           const std::vector<double>& weights)
 {
     bool weighted = (weights.size() > 0);
     double count = 0.0, w1 = 0.0, w2 = 0.0;
@@ -179,10 +179,53 @@ inline double count_ties(const std::vector<double>& x,
             if (weighted) {
                 if (reps == 1) {
                     w1 = weights[i - 1];
-                    w2 = weights[i - 1] * weights[i - 1];
+                    w2 = w1 * w1;
                 }
                 w1 += weights[i];
-                w2 += weights[i] * weights[i];
+                w2 += std::pow(weights[i], 2);
+            }
+            reps++;
+        } else if (reps > 1) {
+            if (weighted) {
+                count += (w1 * w1 - w2) * (2 * w1 + 5);
+            } else {
+                count += reps * (reps - 1)* (2 * reps + 5);
+            }
+            reps = 1;
+        }
+    }
+
+    if (reps > 1) {
+        if (weighted) {
+            count += (w1 * w1 - w2) * (2 * w1 + 5);
+        } else {
+            count += reps * (reps - 1) * (2 * reps + 5);
+        }
+    }
+
+    return count;
+}
+
+
+//! count tied pairs.
+//! @param x a sorted input vector.
+//! @param weights optionally, a vector of weights for the elements in `x`.
+//! @return the number of (weighted) tied pairs in `x`
+inline double count_tied_pairs(const std::vector<double>& x,
+                               const std::vector<double>& weights)
+{
+    bool weighted = (weights.size() > 0);
+    double count = 0.0, w1 = 0.0, w2 = 0.0;
+    size_t reps = 1;
+    for (size_t i = 1; i < x.size(); i++) {
+        if ((x[i] == x[i - 1])) {
+            if (weighted) {
+                if (reps == 1) {
+                    w1 = weights[i - 1];
+                    w2 = w1 * w1;
+                }
+                w1 += weights[i];
+                w2 += std::pow(weights[i], 2);
             }
             reps++;
         } else if (reps > 1) {
@@ -200,6 +243,51 @@ inline double count_ties(const std::vector<double>& x,
             count += (w1 * w1 - w2) / 2.0;
         } else {
             count += reps * (reps - 1) / 2.0;
+        }
+    }
+
+    return count;
+}
+
+//! count tied triplets.
+//! @param x a sorted input vector.
+//! @param weights optionally, a vector of weights for the elements in `x`.
+//! @param break_by second vector that was used to break ties (optional).
+//! @return the number of (weighted) tied triplets in `x`
+inline double count_tied_triplets(const std::vector<double>& x,
+                                  const std::vector<double>& weights)
+{
+    bool weighted = (weights.size() > 0);
+    double count = 0.0, w1 = 0.0, w2 = 0.0, w3 = 0.0;
+    size_t reps = 2;
+    for (size_t i = 2; i < x.size(); i++) {
+        if ((x[i] == x[i - 1]) & (x[i] == x[i - 2])) {
+            if (weighted) {
+                if (reps == 1) {
+                    w1 = weights[i - 1];
+                    w2 = std::pow(weights[i - 1], 2);
+                    w3 = std::pow(weights[i - 1], 3);
+                }
+                w1 += weights[i];
+                w2 += std::pow(weights[i], 2);
+                w3 += std::pow(weights[i], 3);
+            }
+            reps++;
+        } else if (reps > 2) {
+            if (weighted) {
+                count += (std::pow(w1, 3) - 3 * w2 * w1 + 2 * w3) / 6.0;
+            } else {
+                count += reps * (reps - 1) *  (reps - 2) / 6.0;
+            }
+            reps = 1;
+        }
+    }
+
+    if (reps > 2) {
+        if (weighted) {
+            count += (std::pow(w1, 3) - 3 * w2 * w1 + 2 * w3) / 6.0;
+        } else {
+            count += reps * (reps - 1) * (reps - 2) / 6.0;
         }
     }
 

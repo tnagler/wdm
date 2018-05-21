@@ -9,7 +9,7 @@
 #include "utils.hpp"
 
 namespace wdm {
-    
+
 namespace impl {
 
 //! fast calculation of the weighted Kendall's tau.
@@ -25,7 +25,7 @@ inline double ktau(std::vector<double> x,
     utils::sort_all(x, y, weights);
 
     // 1.2 Count pairs of tied x and simultaneous ties in x and y.
-    double ties_x = utils::count_ties(x, weights);
+    double ties_x = utils::count_tied_pairs(x, weights);
     double ties_both = utils::count_joint_ties(x, y, weights);
 
     // 2.1 Sort y again and count exchanges (= number of discordant pairs).
@@ -33,7 +33,7 @@ inline double ktau(std::vector<double> x,
     utils::merge_sort(y, weights, num_d);
 
     // 2.2 Count pairs of tied y.
-    double ties_y = utils::count_ties(y, weights);
+    double ties_y = utils::count_tied_pairs(y, weights);
 
     // 3. Calculate Kendall's tau.
     if (weights.size() == 0)
@@ -44,6 +44,43 @@ inline double ktau(std::vector<double> x,
     tau /= std::sqrt((num_pairs - ties_x) * (num_pairs - ties_y));
 
     return tau;
+}
+
+//! tie adjustment for Kendall's test statistic
+inline double ktau_stat_adjust(
+    std::vector<double> x,
+    std::vector<double> y,
+    std::vector<double> weights)
+{
+    utils::check_sizes(x, y, weights);
+
+    // 1.1 Sort x, y, and weights in x order; break ties in according to y.
+    utils::sort_all(x, y, weights);
+
+    // 1.2 Count pairs and triplets of tied x and simultaneous ties in x and y.
+    double pair_x = utils::count_tied_pairs(x, weights);
+    double trip_x = utils::count_tied_triplets(x, weights);
+    double v_x = utils::count_ties_v(x, weights);
+
+    // 2.1 Sort y and weights in y order; break ties according to x.
+    utils::sort_all(y, x, weights);
+
+    // 2.2 Count pairs and triplets of tied y.
+    double pair_y = utils::count_tied_pairs(y, weights);
+    double trip_y = utils::count_tied_triplets(y, weights);
+    double v_y = utils::count_ties_v(y, weights);
+
+    // 3. Calculate adjustment factor.
+    if (weights.size() == 0)
+        weights = std::vector<double>(x.size(), 1.0);
+    double s = utils::sum(weights);
+    double s2 = utils::perm_sum(weights, 2);
+    double s3 = utils::perm_sum(weights, 3);
+    double v_0 = 2 * s2 * (2 * s + 5);
+    double v_1 = 2 * pair_x * 2 * pair_y / (2 * 2 * s2);
+    double v_2 = 6 * trip_x * 6 * trip_y / (9 * 6 * s3);
+    double v = (v_0 - v_x - v_y) / 18 + v_1 + v_2;
+    return std::sqrt((s2 - pair_x) * (s2 - pair_y) / v);
 }
 
 }
