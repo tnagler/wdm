@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['bbeta',['bbeta',['../namespacewdm.html#a92e595b83cee7b74e5c299e3fbc03d92',1,'wdm']]],
-  ['bivariate_5frank',['bivariate_rank',['../namespacewdm.html#acc3a6b159919c8bd8b6af5f5aa22c81d',1,'wdm']]]
+  ['alternative',['alternative',['../classwdm_1_1_indep__test.html#afe65c84b45dd8f1800fc6e918841e368',1,'wdm::Indep_test']]]
 ];

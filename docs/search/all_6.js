@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['operator_28_29',['operator()',['../classwdm__utils_1_1_sorter.html#afd6e2dfcc91cb5f09de8490be523a00d',1,'utils::Sorter']]]
+  ['statistic',['statistic',['../classwdm_1_1_indep__test.html#a7af87da2f36203b0e4eecc66e2791861',1,'wdm::Indep_test']]]
 ];

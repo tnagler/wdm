@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['phoeffb',['phoeffb',['../namespacewdm.html#aa81744f65d63a2c309d9db3fbc89c364',1,'wdm']]],
-  ['prho',['prho',['../namespacewdm.html#a42f34f64fb358e25a7bdef5ccc38cc4c',1,'wdm']]]
+  ['statistic',['statistic',['../classwdm_1_1_indep__test.html#a7af87da2f36203b0e4eecc66e2791861',1,'wdm::Indep_test']]]
 ];
