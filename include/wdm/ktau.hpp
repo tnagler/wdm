@@ -9,6 +9,8 @@
 #include "utils.hpp"
 
 namespace wdm {
+    
+namespace impl {
 
 //! fast calculation of the weighted Kendall's tau.
 //! @param x, y input data.
@@ -42,6 +44,8 @@ inline double ktau(std::vector<double> x,
     tau /= std::sqrt((num_pairs - ties_x) * (num_pairs - ties_y));
 
     return tau;
+}
+
 }
 
 }

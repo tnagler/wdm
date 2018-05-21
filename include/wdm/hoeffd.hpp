@@ -10,6 +10,8 @@
 #include "ranks.hpp"
 
 namespace wdm {
+    
+namespace impl {
 
 //! fast calculation of the weighted Hoeffdings's D.
 //! @param x, y input data.
@@ -70,6 +72,8 @@ inline double hoeffd(std::vector<double> x,
     D += A_3 / (utils::perm_sum(weights, 5) * 120);
 
     return 30.0 * D;
+}
+
 }
 
 }

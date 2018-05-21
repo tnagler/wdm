@@ -11,6 +11,8 @@
 #include "prho.hpp"
 
 namespace wdm {
+    
+namespace impl {
 
 //! fast calculation of the weighted Spearman's rho.
 //! @param x, y input data.
@@ -23,6 +25,8 @@ inline double srho(std::vector<double> x,
     x = rank_scores(x, weights, "average");
     y = rank_scores(y, weights, "average");
     return prho(x, y, weights);
+}
+
 }
 
 }

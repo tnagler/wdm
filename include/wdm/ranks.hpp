@@ -9,6 +9,9 @@
 #include "utils.hpp"
 
 namespace wdm {
+
+namespace impl {
+    
 //! computes ranks (such that smallest element has rank 0), assigning average
 //! ranks for ties.
 //! @param x input vector.
@@ -89,4 +92,6 @@ inline std::vector<double> bivariate_rank(
     return counts;
 }
     
+}
+
 }

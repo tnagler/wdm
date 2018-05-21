@@ -9,6 +9,8 @@
 #include "utils.hpp"
 
 namespace wdm {
+    
+namespace impl {
 
 //! calculates the weighted Blomqvists's beta.
 //! @param x, y input data.
@@ -36,6 +38,8 @@ inline double bbeta(const std::vector<double>& x,
     }
 
     return 2 * w_acc / utils::sum(weights) - 1;
+}
+
 }
 
 }

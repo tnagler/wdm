@@ -11,6 +11,8 @@
 
 namespace wdm {
 
+namespace impl {
+    
 //! fast calculation of the weighted Pearson's correlation.
 //! @param x, y input data.
 //! @param weights an optional vector of weights for the data.
@@ -50,6 +52,8 @@ inline double prho(std::vector<double> x,
 
     // compute correlation
     return cov / std::sqrt(v_x * v_y);
+}
+
 }
 
 }

@@ -49,15 +49,15 @@ inline double wdm(std::vector<double> x,
         return std::numeric_limits<double>::quiet_NaN();
 
     if (methods::is_hoeffding(method))
-        return hoeffd(x, y, weights);
+        return impl::hoeffd(x, y, weights);
     if (methods::is_kendall(method))
-        return ktau(x, y, weights);
+        return impl::ktau(x, y, weights);
     if (methods::is_pearson(method))
-        return prho(x, y, weights);
+        return impl::prho(x, y, weights);
     if (methods::is_spearman(method))
-        return srho(x, y, weights);
+        return impl::srho(x, y, weights);
     if (methods::is_blomqvist(method))
-        return bbeta(x, y, weights);
+        return impl::bbeta(x, y, weights);
     throw std::runtime_error("method not implemented.");
 }
 
@@ -114,7 +114,7 @@ public:
     //! the method used for the test
     std::string method() const {return method_;}
 
-    //! the method used for the test
+    //! the alternative hypothesis used for the test
     std::string alternative() const {return alternative_;}
 
     //! the effective sample size in the test

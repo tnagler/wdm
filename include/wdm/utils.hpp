@@ -122,56 +122,6 @@ inline std::vector<size_t> invert_permutation(const std::vector<size_t>& perm)
     return inv_perm;
 }
 
-//! Class providing an operator `(i, j)` that compares x[j] with x[j]; to be
-//! used with `std::sort()`.
-class Sorter {
-public:
-    //! Constructor
-    //! @param x the reference vector.
-    //! @param ascending whether to sort in ascending or descending order.
-    Sorter(const std::vector<double>& x, bool ascending = true) :
-    x_(x),
-    ascending_(ascending) {}
-
-    //! comparison operator.
-    //! @param i first index.
-    //! @param j second index.
-    //! @return `(x_[i] < x_[j])` for ascending order; `(x_[i] > x_[j])` for
-    //! descending order.
-    inline bool operator()(size_t i, size_t j) const
-    {
-        if (ascending_)
-            return (x_[i] < x_[j]);
-        return (x_[i] > x_[j]);
-    }
-
-private:
-    bool ascending_;
-    const std::vector<double>& x_;
-};
-
-
-//! Class exporting an operator () comparing elements of x, breaking ties with y
-class Sorter_with_tie_break {
-public:
-    Sorter_with_tie_break(const std::vector<double>& x,
-                          const std::vector<double>& y)
-        : x_(x), y_(y) {}
-
-    inline bool operator()(size_t i, size_t j) const
-    {
-        if (x_[i] < x_[j]) {
-            return true;
-        } else if ((x_[i] == x_[j]) && (y_[i] < y_[j])) {
-            return true;
-        }
-        return false;
-    }
-private:
-    const std::vector<double>& x_;
-    const std::vector<double>& y_;
-} ;
-
 //! computes the permutation that brings a vector into order.
 //! @param x inpute vector.
 //! @param ascending whether order ascendingly or descendingly.
@@ -182,7 +132,13 @@ inline std::vector<size_t> get_order(const std::vector<double>& x,
     std::vector<size_t> perm(n);
     for (size_t i = 0; i < n; i++)
         perm[i] = i;
-    std::sort(perm.begin(), perm.end(), Sorter(x, ascending));
+    auto sorter = [&] (size_t i, size_t j) {
+        if (ascending)
+            return (x[i] < x[j]);
+        else
+            return (x[i] > x[j]);
+    };
+    std::sort(perm.begin(), perm.end(), sorter);
 
     return perm;
 }
@@ -197,8 +153,10 @@ inline void sort_all(std::vector<double>& x,
     std::vector<size_t> order(n);
     for (size_t i = 0; i < n; i++)
         order[i] = i;
-    Sorter_with_tie_break sort_crit(x, y);
-    std::sort(order.begin(), order.end(), sort_crit);
+    auto sorter_with_tie_break = [&] (size_t i, size_t j)  {
+        return (x[i] < x[j]) | ((x[i] == x[j]) && (y[i] < y[j]));
+    };
+    std::sort(order.begin(), order.end(), sorter_with_tie_break);
 
     std::vector<double> xx(n), yy(n);
     for (size_t i = 0; i < n; i++) {
