@@ -66,20 +66,6 @@ inline double sum(const std::vector<double>& x)
     return res;
 }
 
-//! computes the median of a vector.
-//! @param x the input vector.
-inline double median(std::vector<double> x)
-{
-    size_t n = x.size();
-    std::sort(x.begin(), x.end(), std::less<double>());
-    double med;
-    if (n % 2 == 0)
-        med = 0.5 * (x[n / 2 - 1] + x[n / 2]);
-    else
-        med = x[n / 2];
-
-    return med;
-}
 
 //! computes the sum of the products of all k-permutations of elements in a
 //! vector using Newton's identities.

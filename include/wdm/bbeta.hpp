@@ -21,12 +21,13 @@ inline double bbeta(const std::vector<double>& x,
 {
     utils::check_sizes(x, y, weights);
     size_t n = x.size();
-    if (weights.size() == 0)
-        weights = std::vector<double>(n, 1.0);
 
     // find the medians
-    double med_x = utils::median(x);
-    double med_y = utils::median(y);
+    double med_x = impl::median(x, weights);
+    double med_y = impl::median(y, weights);
+
+    if (weights.size() == 0)
+        weights = std::vector<double>(n, 1.0);
 
     // count elements in lower left and upper right quadrants
     double w_acc{0.0};

@@ -4,14 +4,14 @@
 // the MIT license. For a copy, see the LICENSE file in the root directory
 // or https://github.com/tnagler/wdm/blob/master/LICENSE.
 
-#pragma once 
+#pragma once
 
 #include "utils.hpp"
 
 namespace wdm {
 
 namespace impl {
-    
+
 //! computes ranks (such that smallest element has rank 0), assigning average
 //! ranks for ties.
 //! @param x input vector.
@@ -19,7 +19,7 @@ namespace impl {
 //!   score; `"average"` assigns the average score.
 //! @param weights (optional), weights for each observation.
 //! @return a vector containing the ranks of each element in `x`.
-inline std::vector<double> rank_scores(
+inline std::vector<double> rank(
     std::vector<double> x,
     std::vector<double> weights = std::vector<double>(),
     std::string ties_method = "min")
@@ -49,7 +49,7 @@ inline std::vector<double> rank_scores(
             else
                 x[perm[i + k]] = w_acc + w_batch / 2.0;
         }
-        
+
         // accumulate weights for current batch
         for (size_t k = 0; k < reps; ++k)
             w_acc += weights[perm[i + k]];
@@ -91,7 +91,40 @@ inline std::vector<double> bivariate_rank(
 
     return counts;
 }
+
+//! computes the (weighted) median of a vector.
+//! @param x the input vector.
+inline double median(const std::vector<double>& x,
+                     std::vector<double> weights = std::vector<double>())
+{
+    utils::check_sizes(x, x, weights);
+    size_t n = x.size();
     
+    // sort x and weights in x order
+    auto perm = utils::get_order(x);
+    auto xx = x;
+    auto w = weights;
+    for (size_t i = 0; i < n; i++) {
+        xx[i] = x[perm[i]];
+        if (w.size() > 0)
+            w[i] = weights[perm[i]];
+    }
+    
+    // compute weighted ranks and the "average rank" (corresponds to the median)
+    auto ranks = rank(xx, w, "average");
+    if (weights.size() == 0)
+        weights = std::vector<double>(n, 1.0);
+    double rank_avrg = utils::perm_sum(weights, 2) / utils::sum(weights);
+
+    // weighted median splits data below and above rank_avrg
+    size_t i = 0;
+    while (ranks[i] < rank_avrg) i++;
+    if (ranks[i] == rank_avrg)
+        return xx[i];
+    else
+        return 0.5 * (xx[i - 1] + xx[i]);
+}
+
 }
 
 }
