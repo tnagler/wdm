@@ -166,7 +166,7 @@ private:
                                   double n_eff = 0.0)
     {
         double p_value;
-        if (method == "hoeffd") {
+        if (methods::is_hoeffding(method)) {
             if (n_eff == 0.0)
                 throw std::runtime_error("must provide n_eff for method 'hoeffd'.");
             if (alternative != "two-sided")
