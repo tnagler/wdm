@@ -31,5 +31,11 @@
 *.out
 *.app
 
+# OSX
+.idea/
+.DS_Store
+.AppleDouble
+.LSOverride
+
 
 build
