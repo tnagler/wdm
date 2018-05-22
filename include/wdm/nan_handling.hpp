@@ -16,26 +16,24 @@ inline void remove_incomplete(std::vector<double>& x,
                               std::vector<double>& y,
                               std::vector<double>& w)
 {
-    // if observation conatins nan, set all to nan
-    for (size_t i = 0; i < x.size(); i++) {
+    // if observation conatins nan, move it to the end
+    size_t last = x.size() - 1;
+    for (size_t i = 0; i < last + 1; i++) {
         bool row_has_nan = (std::isnan(x[i]) | std::isnan(y[i]));
         if (w.size() > 0)
             row_has_nan = (row_has_nan |  std::isnan(w[i]));
         if (row_has_nan) {
-            x[i] = std::numeric_limits<double>::quiet_NaN();
-            y[i] = std::numeric_limits<double>::quiet_NaN();
             if (w.size() > 0)
-                w[i] = std::numeric_limits<double>::quiet_NaN();
+                std::swap(w[i], w[last]);
+            std::swap(x[i], x[last]);
+            std::swap(y[i--], y[last--]);
         }
     }
 
-    // remove all nan observations
-    auto is_nan_pred = [] (const double& val) {
-        return std::isnan(val);
-    };
-    x.erase(std::remove_if(x.begin(), x.end(), is_nan_pred), x.end());
-    y.erase(std::remove_if(y.begin(), y.end(), is_nan_pred), y.end());
-    w.erase(std::remove_if(w.begin(), w.end(), is_nan_pred), w.end());
+    x.resize(last + 1);
+    y.resize(last + 1);
+    if (w.size() > 0)
+        w.resize(last + 1);
 }
 
 inline bool any_nan(const std::vector<double>& x) {

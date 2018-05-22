@@ -42,6 +42,7 @@ inline double wdm(std::vector<double> x,
                   std::vector<double> weights = std::vector<double>(),
                   bool remove_missing = true)
 {
+    utils::check_sizes(x, y, weights);
     // na handling
     if (utils::preproc(x, y, weights, method, remove_missing) == "return_nan")
         return std::numeric_limits<double>::quiet_NaN();
