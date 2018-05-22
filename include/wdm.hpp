@@ -152,7 +152,7 @@ private:
         } else if (methods::is_spearman(method)) {
             stat = boost::math::atanh(estimate) * std::sqrt((n_eff - 3) / 1.06);
         }  else if (methods::is_blomqvist(method)) {
-            stat = estimate * std::sqrt(n_eff);
+            stat = boost::math::atanh(estimate) * std::sqrt(n_eff);
         } else {
             throw std::runtime_error("method not implemented.");
         }
