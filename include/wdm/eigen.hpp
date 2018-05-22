@@ -27,7 +27,8 @@ namespace utils {
 //! @param x, y input data.
 //! @param method the dependence measure; see details for possible values. 
 //! @param weights an optional vector of weights for the data.
-//! 
+//! @param remove_missing if `true`, all observations containing a `nan` are
+//!    removed; otherwise throws an error if `nan`s are present.
 //! @details
 //! Available methods:
 //!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
@@ -40,19 +41,22 @@ namespace utils {
 inline double wdm(const Eigen::VectorXd& x,
                   const Eigen::VectorXd& y,
                   std::string method,
-                  Eigen::VectorXd weights = Eigen::VectorXd())
+                  Eigen::VectorXd weights = Eigen::VectorXd(),
+                  bool remove_missing = true)
 {
     return wdm(utils::convert_vec(x),
                utils::convert_vec(y),
                method,
-               utils::convert_vec(weights));
+               utils::convert_vec(weights),
+               remove_missing);
 }
 
 //! calculates a matrix of (weighted) dependence measures.
 //! @param x input data.
 //! @param method the dependence measure; see details for possible values. 
 //! @param weights an optional vector of weights for the data.
-//! 
+//! @param remove_missing if `true`, all observations containing a `nan` are
+//!    removed; otherwise throws an error if `nan`s are present.
 //! @details
 //! Available methods:
 //!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation  
@@ -64,9 +68,9 @@ inline double wdm(const Eigen::VectorXd& x,
 //! @return a matrix of pairwise dependence measures.
 inline Eigen::MatrixXd wdm(const Eigen::MatrixXd& x,
                            std::string method,
-                           Eigen::VectorXd weights = Eigen::VectorXd())
+                           Eigen::VectorXd weights = Eigen::VectorXd(),
+                           bool remove_missing = true)
 {
-    using namespace wdm_eigen;
     size_t d = x.cols();
     if (d == 1)
         throw std::runtime_error("x must have at least 2 columns.");
@@ -74,10 +78,11 @@ inline Eigen::MatrixXd wdm(const Eigen::MatrixXd& x,
     Eigen::MatrixXd ms = Eigen::MatrixXd::Identity(d, d);
     for (size_t i = 0; i < d; i++) {
         for (size_t j = i + 1; j < d; j++) {
-            ms(i, j) = wdm(convert_vec(x.col(i)),
-                           convert_vec(x.col(j)),
+            ms(i, j) = wdm(utils::convert_vec(x.col(i)),
+                           utils::convert_vec(x.col(j)),
                            method,
-                           convert_vec(weights));
+                           utils::convert_vec(weights),
+                           remove_missing);
             ms(j, i) = ms(i, j);
         }
     }

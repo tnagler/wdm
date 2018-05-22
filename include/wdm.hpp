@@ -24,7 +24,7 @@ namespace wdm {
 //! @param x, y input data.
 //! @param method the dependence measure; see details for possible values.
 //! @param weights an optional vector of weights for the data.
-//! @param remove_missing if `TRUE`, all observations containing a `nan` are
+//! @param remove_missing if `true`, all observations containing a `nan` are
 //!    removed; otherwise throws an error if `nan`s are present.
 //!
 //! @details
@@ -40,7 +40,7 @@ inline double wdm(std::vector<double> x,
                   std::vector<double> y,
                   std::string method,
                   std::vector<double> weights = std::vector<double>(),
-                  bool remove_missing = TRUE)
+                  bool remove_missing = true)
 {
     // na handling
     if (utils::preproc(x, y, weights, method, remove_missing) == "return_nan")
@@ -80,7 +80,7 @@ public:
     //! @param x, y input data.
     //! @param method the dependence measure; see class details for possible values.
     //! @param weights an optional vector of weights for the data.
-    //! @param remove_missing if `TRUE`, all observations containing a `nan` are
+    //! @param remove_missing if `true`, all observations containing a `nan` are
     //!    removed; otherwise throws an error if `nan`s are present.
     //! @param alternative indicates the alternative hypothesis and must be one
     //!    of `"two-sided"``, `"greater"` or `"less"`; `"greater"` corresponds
@@ -90,7 +90,7 @@ public:
                std::vector<double> y,
                std::string method,
                std::vector<double> weights = std::vector<double>(),
-               bool remove_missing = TRUE,
+               bool remove_missing = true,
                std::string alternative = "two-sided") :
         method_(method),
         alternative_(alternative)

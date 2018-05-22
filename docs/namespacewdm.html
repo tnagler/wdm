@@ -114,79 +114,17 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a8426f980eee1b57ef5b53ad1f157523a"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a8426f980eee1b57ef5b53ad1f157523a">wdm</a> (const Eigen::VectorXd &amp;x, const Eigen::VectorXd &amp;y, std::string method, Eigen::VectorXd weights=Eigen::VectorXd())</td></tr>
-<tr class="separator:a8426f980eee1b57ef5b53ad1f157523a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a987caa46c84c8ef37c9989af09e667be"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a987caa46c84c8ef37c9989af09e667be">wdm</a> (const Eigen::MatrixXd &amp;x, std::string method, Eigen::VectorXd weights=Eigen::VectorXd())</td></tr>
-<tr class="separator:a987caa46c84c8ef37c9989af09e667be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cb22ea286b1295b1922800e4713e155"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a5cb22ea286b1295b1922800e4713e155">wdm</a> (std::vector&lt; double &gt; x, std::vector&lt; double &gt; y, std::string method, std::vector&lt; double &gt; weights=std::vector&lt; double &gt;(), bool remove_missing=TRUE)</td></tr>
-<tr class="separator:a5cb22ea286b1295b1922800e4713e155"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a919bebf7e8d48ed041eebdb5a84e368b"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a919bebf7e8d48ed041eebdb5a84e368b">wdm</a> (const Eigen::VectorXd &amp;x, const Eigen::VectorXd &amp;y, std::string method, Eigen::VectorXd weights=Eigen::VectorXd(), bool remove_missing=true)</td></tr>
+<tr class="separator:a919bebf7e8d48ed041eebdb5a84e368b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ea279bd755adf7cb1d2617c5e1fe61b"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a1ea279bd755adf7cb1d2617c5e1fe61b">wdm</a> (const Eigen::MatrixXd &amp;x, std::string method, Eigen::VectorXd weights=Eigen::VectorXd(), bool remove_missing=true)</td></tr>
+<tr class="separator:a1ea279bd755adf7cb1d2617c5e1fe61b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a275fd8535323f3a489c9d6bd3dbd1789"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacewdm.html#a275fd8535323f3a489c9d6bd3dbd1789">wdm</a> (std::vector&lt; double &gt; x, std::vector&lt; double &gt; y, std::string method, std::vector&lt; double &gt; weights=std::vector&lt; double &gt;(), bool remove_missing=true)</td></tr>
+<tr class="separator:a275fd8535323f3a489c9d6bd3dbd1789"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Weighted dependence measures. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a8426f980eee1b57ef5b53ad1f157523a"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double wdm::wdm </td>
-          <td>(</td>
-          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>method</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Eigen::VectorXd&#160;</td>
-          <td class="paramname"><em>weights</em> = <code>Eigen::VectorXd()</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>calculates (weighted) dependence measures. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x,y</td><td>input data. </td></tr>
-    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
-    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Available methods:</p><ul>
-<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
-<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
-<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
-<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
-<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
-</ul>
-<dl class="section return"><dt>Returns</dt><dd>the dependence measure </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a5cb22ea286b1295b1922800e4713e155"></a>
+<a class="anchor" id="a275fd8535323f3a489c9d6bd3dbd1789"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -221,7 +159,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>remove_missing</em> = <code>TRUE</code>&#160;</td>
+          <td class="paramname"><em>remove_missing</em> = <code>true</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -240,7 +178,7 @@ Functions</h2></td></tr>
     <tr><td class="paramname">x,y</td><td>input data. </td></tr>
     <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
     <tr><td class="paramname">weights</td><td>an optional vector of weights for the data. </td></tr>
-    <tr><td class="paramname">remove_missing</td><td>if <code>TRUE</code>, all observations containing a <code>nan</code> are removed; otherwise throws an error if <code>nan</code>s are present.</td></tr>
+    <tr><td class="paramname">remove_missing</td><td>if <code>true</code>, all observations containing a <code>nan</code> are removed; otherwise throws an error if <code>nan</code>s are present.</td></tr>
   </table>
   </dd>
 </dl>
@@ -255,7 +193,76 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a987caa46c84c8ef37c9989af09e667be"></a>
+<a class="anchor" id="a919bebf7e8d48ed041eebdb5a84e368b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double wdm::wdm </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>method</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::VectorXd&#160;</td>
+          <td class="paramname"><em>weights</em> = <code>Eigen::VectorXd()</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>remove_missing</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>calculates (weighted) dependence measures. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x,y</td><td>input data. </td></tr>
+    <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data. </td></tr>
+    <tr><td class="paramname">remove_missing</td><td>if <code>true</code>, all observations containing a <code>nan</code> are removed; otherwise throws an error if <code>nan</code>s are present.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Available methods:</p><ul>
+<li><code>"pearson"</code>, <code>"prho"</code>, <code>"cor"</code>: Pearson correlation</li>
+<li><code>"spearman"</code>, <code>"srho"</code>, <code>"rho"</code>: Spearman's \( \rho \)</li>
+<li><code>"kendall"</code>, <code>"ktau"</code>, <code>"tau"</code>: Kendall's \( \tau \)</li>
+<li><code>"blomqvist"</code>, <code>"bbeta"</code>, <code>"beta"</code>: Blomqvist's \( \beta \)</li>
+<li><code>"hoeffding"</code>, <code>"hoeffd"</code>, <code>"d"</code>: Hoeffding's \( D \)</li>
+</ul>
+<dl class="section return"><dt>Returns</dt><dd>the dependence measure </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a1ea279bd755adf7cb1d2617c5e1fe61b"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -278,7 +285,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Eigen::VectorXd&#160;</td>
-          <td class="paramname"><em>weights</em> = <code>Eigen::VectorXd()</code>&#160;</td>
+          <td class="paramname"><em>weights</em> = <code>Eigen::VectorXd()</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>remove_missing</em> = <code>true</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -296,7 +309,8 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">x</td><td>input data. </td></tr>
     <tr><td class="paramname">method</td><td>the dependence measure; see details for possible values. </td></tr>
-    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data.</td></tr>
+    <tr><td class="paramname">weights</td><td>an optional vector of weights for the data. </td></tr>
+    <tr><td class="paramname">remove_missing</td><td>if <code>true</code>, all observations containing a <code>nan</code> are removed; otherwise throws an error if <code>nan</code>s are present.</td></tr>
   </table>
   </dd>
 </dl>
@@ -320,7 +334,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon May 21 2018 02:10:06 for wdm by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 22 2018 13:13:31 for wdm by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
