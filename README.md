@@ -1,7 +1,8 @@
 # wdm
 > A header-only C++ library for weighted dependence measures
 
-Provides efficient implementations of weighted dependence measures:
+Provides efficient implementations of weighted dependence measures and related 
+independence tests:
 
    * Pearsons's rho
    * Spearmans's rho
