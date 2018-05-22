@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <vector>
 #include <numeric>
+#include <cmath>
+#include <stdexcept>
 
 namespace wdm {
 
@@ -38,7 +40,7 @@ inline void check_sizes(const std::vector<double>& x,
 }
 
 
-//! computes the nth power for all lements in a vector.
+//! computes the nth power for all elements in a vector.
 //! @param x the inpute vector.
 //! @param n the exponent.
 //! @return the vector x, but with all elements taken to the power n.
@@ -77,7 +79,7 @@ inline double perm_sum(const std::vector<double>& x, size_t k)
         return 1.0;
     double s = 0;
     for (size_t i = 1; i <= k; i++)
-        s += std::pow(-1, i - 1) * perm_sum(x, k - i) * sum(pow(x, i));
+        s += std::pow(-1.0, i - 1) * perm_sum(x, k - i) * sum(pow(x, i));
     return s / k;
 }
 
