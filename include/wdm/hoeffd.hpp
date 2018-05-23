@@ -80,7 +80,7 @@ inline double hoeffd(std::vector<double> x,
 //! independence.
 //! @param B sample estimate of Hoeffding's B.
 //! @param n the sample size.
-inline double phoeffb(double B, size_t n) {
+inline double phoeffb(double B, double n) {
     B *= 0.5 * std::pow(boost::math::constants::pi<double>(), 4) * (n - 1);
 
     // obtain approximate p values by interpolation of tabulated values
