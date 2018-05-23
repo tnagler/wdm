@@ -308,7 +308,6 @@ inline double count_joint_ties(const std::vector<double>& x,
     bool weighted = (weights.size() > 0);
     double count = 0.0, w1 = 0.0, w2 = 0.0;
     size_t reps = 1;
-    size_t ref = 0;
     for (size_t i = 1; i < x.size(); i++) {
         if ((x[i] == x[i - 1]) && (y[i] == y[i - 1])) {
             if (weighted) {
