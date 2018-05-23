@@ -27,7 +27,7 @@ install:
   - cd wdm
 
 build_script:
-  - ps: $env:CMAKE_ARGS = '-DBOOST_ROOT=C:/Libraries/boost_1_63_0
+  - ps: $env:CMAKE_ARGS = '-DBOOST_ROOT=C:/Libraries/boost_1_63_0'
 
   - md build_debug
   - md build_release
