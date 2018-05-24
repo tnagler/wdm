@@ -17,7 +17,8 @@ namespace utils {
     inline std::vector<double> convert_vec(const Eigen::VectorXd& x)
     {
         std::vector<double> xx(x.size());
-        Eigen::VectorXd::Map(&xx[0], x.size()) = x;
+        if (x.size() > 0)
+            Eigen::VectorXd::Map(&xx[0], x.size()) = x;
         return xx;
     }
 
@@ -74,7 +75,7 @@ inline Eigen::MatrixXd wdm(const Eigen::MatrixXd& x,
     size_t d = x.cols();
     if (d == 1)
         throw std::runtime_error("x must have at least 2 columns.");
-
+    
     Eigen::MatrixXd ms = Eigen::MatrixXd::Identity(d, d);
     for (size_t i = 0; i < d; i++) {
         for (size_t j = i + 1; j < d; j++) {

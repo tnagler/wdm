@@ -11,7 +11,6 @@ int main(int argc, char **argv) {
 #include <iostream>
 
 int main(int argc, char **argv) {
-
     // input vectors
     std::vector<double> x{1, 3, 2, 5, 3, 2, 20, 15};
     std::vector<double> y{2, 12, 4, 7, 8, 14, 17, 6};
@@ -31,4 +30,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
