@@ -53,7 +53,7 @@ script:
   - if [ $COMPILER == gcc ]; then make wdm_coverage; else make; fi
   - if [ $COMPILER == gcc ]; then bash <(curl -s https://codecov.io/bash) -f /home/travis/build/tnagler/wdm/debug/coverage.info; fi
   - cd ../release
-  - cmake .. $CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release && make && sudo make install
+  - cmake .. $CMAKE_ARGS -DCMAKE_BUILD_TYPE=Debug && make && sudo make install
   - bin/test_all
   - cd ../example
   - mkdir build

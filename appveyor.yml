@@ -43,11 +43,6 @@ build_script:
   - cd build_release
   - cmake .. %CMAKE_ARGS% -DCMAKE_GENERATOR_PLATFORM="%CMAKE_GEN_PLAT%" -DCMAKE_INSTALL_PREFIX=C:\projects\wdm-install
   - set path_orig=%path%
-
-  - cmake --build . --config Release
-  - set path=%path_orig%;C:\projects\wdm\build_release\Release
-  - bin\Release\test_all.exe
-
   - cmake --build . --config Release --target install
 
   - cd ..
@@ -59,4 +54,3 @@ build_script:
   - cd ..\bin\Release
   - main.exe
   - cd ..\..\..\..
-
