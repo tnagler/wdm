@@ -32,7 +32,7 @@ and the [example](#example) below.
 
 ### Dependencies
 
-The library only requires C++11 and [Boost](https://www.boost.org/). 
+The library only requires C++11. 
 
 For projects already using the [Eigen](https://eigen.tuxfamily.org) linear 
 algebra library, there are convenience wrappers that can be made available via 
@@ -85,6 +85,6 @@ std::cout << "p-value: " << test.p_value() << std::endl;
 ```
 unweighted Kendall's tau: 0.2965
 weighted Kendall's tau: 0.550633
-statistic: 1.91312
-p-value: 0.0557333
+statistic: 1.71047
+p-value: 0.0871793
 ```

@@ -14,9 +14,6 @@
 #include "wdm/methods.hpp"
 #include "wdm/nan_handling.hpp"
 
-#include <boost/math/special_functions/atanh.hpp>
-#include <boost/math/distributions/normal.hpp>
-
 //! Weighted dependence measures
 namespace wdm {
 
@@ -149,11 +146,11 @@ private:
         } else if (methods::is_kendall(method)) {
             stat = estimate * impl::ktau_stat_adjust(x, y, weights);
         } else if (methods::is_pearson(method)) {
-            stat = boost::math::atanh(estimate) * std::sqrt(n_eff - 3);
+            stat = std::atanh(estimate) * std::sqrt(n_eff - 3);
         } else if (methods::is_spearman(method)) {
-            stat = boost::math::atanh(estimate) * std::sqrt((n_eff - 3) / 1.06);
+            stat = std::atanh(estimate) * std::sqrt((n_eff - 3) / 1.06);
         }  else if (methods::is_blomqvist(method)) {
-            stat = boost::math::atanh(estimate) * std::sqrt(n_eff);
+            stat = std::atanh(estimate) * std::sqrt(n_eff);
         } else {
             throw std::runtime_error("method not implemented.");
         }
@@ -174,13 +171,12 @@ private:
                 throw std::runtime_error("only two-sided test available for Hoeffding's D.");
             p_value = impl::phoeffb(statistic, n_eff);
         } else {
-            boost::math::normal norm_dist(0, 1);
             if (alternative == "two-sided") {
-                p_value = 2 * boost::math::cdf(norm_dist, -std::abs(statistic));
+                p_value = 2 * utils::normalCDF(-std::abs(statistic));
             } else if (alternative == "less") {
-                p_value = boost::math::cdf(norm_dist, statistic);
+                p_value = utils::normalCDF(statistic);
             } else if (alternative == "greater") {
-                p_value = 1 - boost::math::cdf(norm_dist, statistic);
+                p_value = 1 - utils::normalCDF(statistic);
             } else {
                 throw std::runtime_error("alternative not implemented.");
             }

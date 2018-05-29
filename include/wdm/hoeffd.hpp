@@ -8,11 +8,13 @@
 
 #include "utils.hpp"
 #include "ranks.hpp"
-#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
 namespace wdm {
-    
+
 namespace impl {
+
+const double pi = std::acos(-1);
 
 //! fast calculation of the weighted Hoeffdings's D.
 //! @param x, y input data.
@@ -81,10 +83,9 @@ inline double hoeffd(std::vector<double> x,
 //! @param B sample estimate of Hoeffding's B.
 //! @param n the sample size.
 inline double phoeffb(double B, double n) {
-    B *= 0.5 * std::pow(boost::math::constants::pi<double>(), 4) * (n - 1);
+    B *= 0.5 * std::pow(pi, 4) * (n - 1);
 
     // obtain approximate p values by interpolation of tabulated values
-    using namespace boost::math;
     double p;
     if ((B <= 1.1) | (B >= 8.5)) {
         p = std::min(1.0, std::exp(0.3885037 - 1.164879 * B));

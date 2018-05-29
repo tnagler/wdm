@@ -16,6 +16,11 @@
 namespace wdm {
 
 namespace utils {
+    
+double normalCDF(double x)
+{
+    return std::erfc(-x / std::sqrt(2)) / 2;
+}
 
 inline double linear_interp(const double& x,
                      const std::vector<double>& grid,

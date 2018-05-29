@@ -12,13 +12,11 @@ if (NOT WIN32)
   set(CMAKE_CXX_FLAGS "-std=gnu++11 -Wextra -Wall -Wno-delete-non-virtual-dtor -Werror=return-type -O2 -DNDEBUG")
 endif()
 
-# Find wdm package and dependencies
-find_package(Boost                   REQUIRED)
+# Find wdm package
 find_package(wdm                     REQUIRED)
 
 # Include header files
-include_directories(${Boost_INCLUDE_DIRS} ${wdm_INCLUDE_DIRS})
+include_directories(${wdm_INCLUDE_DIRS})
 
 # Add main executable
 add_executable(main main.cpp)
-
