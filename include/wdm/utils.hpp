@@ -17,7 +17,7 @@ namespace wdm {
 
 namespace utils {
     
-double normalCDF(double x)
+inline double normalCDF(double x)
 {
     return std::erfc(-x / std::sqrt(2)) / 2;
 }
