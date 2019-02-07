@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 */
 
 //#include <wdm/include/wdm.hpp>
-#include <wdm.hpp>
+#include <wdm/eigen.hpp>
 #include <iostream>
 
 int main(int argc, char **argv) {
