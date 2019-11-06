@@ -42,7 +42,7 @@ inline double prho(std::vector<double> x,
     }
 
     // compute variances and covariance
-    double v_x = 0.0, v_y = 0.0, cov = 0.0, wi_sq;
+    double v_x = 0.0, v_y = 0.0, cov = 0.0;
     for (size_t i = 0; i < n; i++) {
         v_x += x[i] * x[i] * weights[i];
         v_y += y[i] * y[i] * weights[i];
