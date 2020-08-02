@@ -1,4 +1,4 @@
-// Copyright © 2018 Thomas Nagler
+// Copyright © 2020 Thomas Nagler
 //
 // This file is part of the wdm library and licensed under the terms of
 // the MIT license. For a copy, see the LICENSE file in the root directory
