@@ -24,35 +24,40 @@ inline std::vector<double> rank(
     std::vector<double> weights = std::vector<double>(),
     std::string ties_method = "min")
 {
+    if ((ties_method != "min") && (ties_method != "average"))
+        throw std::runtime_error("ties_method must be either 'min' or 'average.");
+
+    // set default weights if necessary
     size_t n = x.size();
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
 
+    // permutation that brings 'x' in ascending order
     std::vector<size_t> perm = utils::get_order(x);
 
     double w_acc = 0.0, w_batch;
-    if ((ties_method != "min") && (ties_method != "average"))
-        throw std::runtime_error("ties_method must be either 'min' or 'average.");
     for (size_t i = 0, reps; i < n; i += reps) {
         // find replications
-        reps = 1;
+        reps = 0;
         w_batch = 0.0;
-        while ((i + reps < n) && (x[perm[i]] == x[perm[i + reps]])) {
-            w_batch += weights[perm[i]];
-            ++reps;
-        }
+        while ((i + reps < n) && (x[perm[i]] == x[perm[i + reps]]))
+            w_batch += weights[perm[i + reps++]];
 
-        // assign average rank of the tied values
-        for (size_t k = 0; k < reps; ++k) {
-            if (ties_method == "min")
-                x[perm[i + k]] = w_acc;
-            else
-                x[perm[i + k]] = w_acc + w_batch / 2.0;
-        }
+        // assign min rank
+        for (size_t k = 0; k < reps; ++k)
+            x[perm[i + k]] = w_acc;
 
         // accumulate weights for current batch
-        for (size_t k = 0; k < reps; ++k)
-            w_acc += weights[perm[i + k]];
+        w_acc += w_batch;
+
+        // assign average rank to tied values
+        if ((ties_method == "average") && (reps > 1)) {
+            std::vector<double> ww(reps);
+            for (size_t k = 0; k < reps; ++k)
+                ww[k] = weights[perm[i + k]];
+            for (size_t k = 0; k < reps; ++k)
+                x[perm[i + k]] += utils::perm_sum(ww, 2) / w_batch;
+        }
     }
 
     return x;
