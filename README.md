@@ -1,7 +1,6 @@
 # wdm
 
 ![build status](https://github.com/tnagler/wdm/actions/workflows/main.yml/badge.svg?branch=main)
-[![Coverage Status](https://img.shields.io/codecov/c/github/tnagler/wdm/master.svg)](https://codecov.io/github/tnagler/wdm?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > A header-only C++ library for weighted dependence measures
@@ -15,7 +14,7 @@ independence tests:
 - Blomqvist's beta
 - Hoeffding's D
 
-All measures are computed in _O(n_ log _n)_ time, where _n_ is the number of 
+All measures are computed in O(_n log n_) time, where _n_ is the number of 
 observations.
 
 ### Functionality
