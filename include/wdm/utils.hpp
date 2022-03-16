@@ -16,7 +16,7 @@
 namespace wdm {
 
 namespace utils {
-    
+
 inline double normalCDF(double x)
 {
     return std::erfc(-x / std::sqrt(2)) / 2;
@@ -148,7 +148,7 @@ inline void sort_all(std::vector<double>& x,
     for (size_t i = 0; i < n; i++)
         order[i] = i;
     auto sorter_with_tie_break = [&] (size_t i, size_t j)  {
-        return (x[i] < x[j]) | ((x[i] == x[j]) && (y[i] < y[j]));
+        return (x[i] < x[j]) || ((x[i] == x[j]) && (y[i] < y[j]));
     };
     std::sort(order.begin(), order.end(), sorter_with_tie_break);
 
@@ -269,7 +269,7 @@ inline double count_tied_triplets(const std::vector<double>& x,
     double count = 0.0, w1 = 0.0, w2 = 0.0, w3 = 0.0;
     size_t reps = 2;
     for (size_t i = 2; i < x.size(); i++) {
-        if ((x[i] == x[i - 1]) & (x[i] == x[i - 2])) {
+        if ((x[i] == x[i - 1]) && (x[i] == x[i - 2])) {
             if (weighted) {
                 if (reps == 1) {
                     w1 = weights[i - 1];

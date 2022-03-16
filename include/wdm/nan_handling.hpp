@@ -20,9 +20,9 @@ inline void remove_incomplete(std::vector<double>& x,
     // if observation conatins nan, move it to the end
     size_t last = x.size() - 1;
     for (size_t i = 0; i < last + 1; i++) {
-        bool row_has_nan = (std::isnan(x[i]) | std::isnan(y[i]));
+        bool row_has_nan = (std::isnan(x[i]) || std::isnan(y[i]));
         if (w.size() > 0)
-            row_has_nan = (row_has_nan |  std::isnan(w[i]));
+            row_has_nan = (row_has_nan || std::isnan(w[i]));
         if (row_has_nan) {
             if (w.size() > 0)
                 std::swap(w[i], w[last]);
@@ -59,7 +59,7 @@ inline std::string preproc(std::vector<double>& x,
             return "return_nan";
     } else {
         std::stringstream msg;
-        if (utils::any_nan(x) | utils::any_nan(y) | utils::any_nan(weights)) {
+        if (utils::any_nan(x) || utils::any_nan(y) || utils::any_nan(weights)) {
             msg << "there are missing values in the data; " <<
                    "try remove_missing = TRUE";
         } else if (x.size() < min_nobs) {
