@@ -106,8 +106,7 @@ rank(std::vector<double> x,
             for (size_t k = 0; k < reps; ++k)
                 ww[k] = weights[perm[i + k]];
             for (size_t k = 0; k < reps; ++k)
-                x[perm[i + k]] +=
-                  utils::perm_sum(ww, 2) / w_batch - weights[perm[i]];
+                x[perm[i + k]] += (utils::sum(ww) - weights[perm[i]]) / 2;
         }
     }
 
