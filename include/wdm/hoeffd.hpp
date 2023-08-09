@@ -26,12 +26,12 @@ inline double hoeffd(std::vector<double> x,
     utils::check_sizes(x, y, weights);
 
     // 1. Compute (weighted) ranks
-    std::vector<double> R_X = rank(x, weights);
-    std::vector<double> R_Y = rank(y, weights);
+    std::vector<double> R_X = rank0(x, weights);
+    std::vector<double> R_Y = rank0(y, weights);
     std::vector<double> S_X, S_Y;
     if (weights.size() > 0) {
-        S_X = rank(x, utils::pow(weights, 2));
-        S_Y = rank(y, utils::pow(weights, 2));
+        S_X = rank0(x, utils::pow(weights, 2));
+        S_Y = rank0(y, utils::pow(weights, 2));
     } else {
         S_X = R_X;
         S_Y = R_Y;

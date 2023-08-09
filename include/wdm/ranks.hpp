@@ -14,7 +14,7 @@ namespace wdm {
 
 namespace impl {
 
-//! computes ranks (such that smallest element has rank 0).
+//! computes ranks.
 //! @param x input vector.
 //! @param ties_method `"min"` (default) assigns all tied values the minimum
 //!   score; `"average"` assigns the average score, `"first"` ranks them in
@@ -72,7 +72,7 @@ rank(std::vector<double> x,
 
         // assign min rank
         for (size_t k = 0; k < reps; ++k)
-            x[perm[i + k]] = w_acc;
+            x[perm[i + k]] = w_acc + weights[perm[i]];
 
         // accumulate weights for current batch
         w_acc += w_batch;
@@ -83,7 +83,7 @@ rank(std::vector<double> x,
         if (ties_method == "first") {
             // assign weighted ranks in order of appearance
             double ww = 0;
-            for (size_t k = 0; k < reps; ++k) {
+            for (size_t k = 1; k < reps; ++k) {
                 ww += weights[perm[i + k]];
                 x[perm[i + k]] += ww;
             }
@@ -96,7 +96,7 @@ rank(std::vector<double> x,
             std::shuffle(rvals.begin(), rvals.end(), gen);
 
             double ww = 0;
-            for (size_t k = 0; k < reps; ++k) {
+            for (size_t k = 1; k < reps; ++k) {
                 x[perm[i + rvals[k]]] += ww;
                 ww += weights[perm[i + rvals[k]]];
             }
@@ -106,7 +106,8 @@ rank(std::vector<double> x,
             for (size_t k = 0; k < reps; ++k)
                 ww[k] = weights[perm[i + k]];
             for (size_t k = 0; k < reps; ++k)
-                x[perm[i + k]] += utils::perm_sum(ww, 2) / w_batch;
+                x[perm[i + k]] +=
+                  utils::perm_sum(ww, 2) / w_batch - weights[perm[i]];
         }
     }
 
@@ -115,6 +116,57 @@ rank(std::vector<double> x,
             if (nans[i]) {
                 x[i] = NAN;
             }
+        }
+    }
+
+    return x;
+}
+
+//! computes ranks (such that smallest element has rank 0), assigning average
+//! ranks for ties.
+//! @param x input vector.
+//! @param ties_method `"min"` (default) assigns all tied values the minimum
+//!   score; `"average"` assigns the average score.
+//! @param weights (optional), weights for each observation.
+//! @return a vector containing the ranks of each element in `x`.
+inline std::vector<double> rank0(
+    std::vector<double> x,
+    std::vector<double> weights = std::vector<double>(),
+    std::string ties_method = "min")
+{
+    if ((ties_method != "min") && (ties_method != "average"))
+        throw std::runtime_error("ties_method must be either 'min' or 'average.");
+
+    // set default weights if necessary
+    size_t n = x.size();
+    if (weights.size() == 0)
+        weights = std::vector<double>(n, 1.0);
+
+    // permutation that brings 'x' in ascending order
+    std::vector<size_t> perm = utils::get_order(x);
+
+    double w_acc = 0.0, w_batch;
+    for (size_t i = 0, reps; i < n; i += reps) {
+        // find replications
+        reps = 0;
+        w_batch = 0.0;
+        while ((i + reps < n) && (x[perm[i]] == x[perm[i + reps]]))
+            w_batch += weights[perm[i + reps++]];
+
+        // assign min rank
+        for (size_t k = 0; k < reps; ++k)
+            x[perm[i + k]] = w_acc;
+
+        // accumulate weights for current batch
+        w_acc += w_batch;
+
+        // assign average rank to tied values
+        if ((ties_method == "average") && (reps > 1)) {
+            std::vector<double> ww(reps);
+            for (size_t k = 0; k < reps; ++k)
+                ww[k] = weights[perm[i + k]];
+            for (size_t k = 0; k < reps; ++k)
+                x[perm[i + k]] += utils::perm_sum(ww, 2) / w_batch;
         }
     }
 
@@ -176,7 +228,7 @@ median(const std::vector<double>& x,
 
     // compute weighted ranks and the "average rank" (corresponds to the
     // median)
-    auto ranks = rank(xx, w, "average");
+    auto ranks = rank0(xx, w, "average");
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
     double rank_avrg = utils::perm_sum(weights, 2) / utils::sum(weights);
