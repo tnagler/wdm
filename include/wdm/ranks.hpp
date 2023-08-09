@@ -39,18 +39,24 @@ rank(std::vector<double> x,
     if (weights.size() != n) {
         throw std::runtime_error("weights and data must have same size.");
     }
-    
+
     // NaN-handling
-    std::vector<bool> nans;
+    std::vector<double> nans;
     if (utils::any_nan(x)) {
-        nans.resize(n, false);
+        nans.resize(n, 0);
         for (size_t i = 0; i < n; i++) {
             if (std::isnan(x[i])) {
                 x[i] = std::numeric_limits<double>::max();
-                nans[i] = true;
+                nans[i] = 1;
                 weights[i] = 0;
             }
         }
+    }
+
+    double w_mean =
+      utils::sum(weights) / static_cast<double>(n - utils::sum(nans));
+    for (auto& w : weights) {
+        w = w / w_mean;
     }
 
     // permutation that brings 'x' in ascending order
