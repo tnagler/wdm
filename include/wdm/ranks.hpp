@@ -36,6 +36,10 @@ rank(std::vector<double> x,
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
 
+    if (weights.size() != n) {
+        throw std::runtime_error("weights and data must have same size.");
+    }
+    
     // NaN-handling
     std::vector<bool> nans;
     if (utils::any_nan(x)) {
