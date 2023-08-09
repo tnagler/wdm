@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <random>
+#include "nan_handling.hpp"
 #include "utils.hpp"
+#include <random>
 
 namespace wdm {
 
@@ -16,7 +17,7 @@ namespace impl {
 //! computes ranks (such that smallest element has rank 0).
 //! @param x input vector.
 //! @param ties_method `"min"` (default) assigns all tied values the minimum
-//!   score; `"average"` assigns the average score, `"first"` ranks them in 
+//!   score; `"average"` assigns the average score, `"first"` ranks them in
 //!   order of occurance, `"random"` randomizes.
 //! @param weights (optional), weights for each observation.
 //! @return a vector containing the ranks of each element in `x`.
@@ -28,12 +29,25 @@ rank(std::vector<double> x,
     if ((ties_method != "min") && (ties_method != "average") &&
         (ties_method != "first") && (ties_method != "random"))
         throw std::runtime_error(
-          "ties_method must be one of 'min', 'average', 'first', 'random'.");
+          "ties method must be one of 'min', 'average', 'first', 'random'.");
 
     // set default weights if necessary
     size_t n = x.size();
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
+
+    // NaN-handling
+    std::vector<bool> nans;
+    if (utils::any_nan(x)) {
+        nans.resize(n, false);
+        for (size_t i = 0; i < n; i++) {
+            if (std::isnan(x[i])) {
+                x[i] = std::numeric_limits<double>::max();
+                nans[i] = true;
+                weights[i] = 0;
+            }
+        }
+    }
 
     // permutation that brings 'x' in ascending order
     std::vector<size_t> perm = utils::get_order(x);
@@ -60,8 +74,8 @@ rank(std::vector<double> x,
             // assign weighted ranks in order of appearance
             double ww = 0;
             for (size_t k = 0; k < reps; ++k) {
-                x[perm[i + k]] += ww;
                 ww += weights[perm[i + k]];
+                x[perm[i + k]] += ww;
             }
         } else if (ties_method == "random") {
             // assign weighted ranks in random order
@@ -83,6 +97,14 @@ rank(std::vector<double> x,
                 ww[k] = weights[perm[i + k]];
             for (size_t k = 0; k < reps; ++k)
                 x[perm[i + k]] += utils::perm_sum(ww, 2) / w_batch;
+        }
+    }
+
+    if (nans.size() == n) {
+        for (size_t i = 0; i < x.size(); i++) {
+            if (nans[i]) {
+                x[i] = NAN;
+            }
         }
     }
 
@@ -142,7 +164,8 @@ median(const std::vector<double>& x,
             w[i] = weights[perm[i]];
     }
 
-    // compute weighted ranks and the "average rank" (corresponds to the median)
+    // compute weighted ranks and the "average rank" (corresponds to the
+    // median)
     auto ranks = rank(xx, w, "average");
     if (weights.size() == 0)
         weights = std::vector<double>(n, 1.0);
@@ -157,7 +180,5 @@ median(const std::vector<double>& x,
     else
         return 0.5 * (xx[i - 1] + xx[i]);
 }
-
 }
-
 }

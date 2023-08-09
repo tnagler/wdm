@@ -21,7 +21,6 @@ namespace utils {
             Eigen::VectorXd::Map(&xx[0], x.size()) = x;
         return xx;
     }
-
 }
 
 //! calculates (weighted) dependence measures.
