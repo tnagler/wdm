@@ -92,11 +92,10 @@ namespace impl {
             }
         } else if (ties_method == "random") {
             // assign weighted ranks in random order
-            RandomGenerator randomGen(seeds);
+            random::RandomGenerator random_gen(seeds);
             std::vector<size_t> rvals(reps);
             std::iota(rvals.begin(), rvals.end(), 0); // 0, 1, 2, ...
-            std::shuffle(rvals.begin(), rvals.end(), [&randomGen](size_t n)
-                         { return randomGen.sample_int(n); });
+            random::shuffle(rvals, random_gen);
 
             double ww = 0;
             for (size_t k = 1; k < reps; ++k) {
