@@ -8,24 +8,27 @@
 
 #include "nan_handling.hpp"
 #include "utils.hpp"
-#include <random>
+#include "random.hpp"
 
 namespace wdm {
 
 namespace impl {
 
-//! computes ranks.
-//! @param x input vector.
-//! @param ties_method `"min"` (default) assigns all tied values the minimum
-//!   score; `"average"` assigns the average score, `"first"` ranks them in
-//!   order of occurance, `"random"` randomizes.
-//! @param weights (optional), weights for each observation.
-//! @return a vector containing the ranks of each element in `x`.
-inline std::vector<double>
-rank(std::vector<double> x,
-     std::vector<double> weights = std::vector<double>(),
-     std::string ties_method = "min")
-{
+  //! computes ranks.
+  //! @param x input vector.
+  //! @param weights (optional), weights for each observation.
+  //! @param ties_method `"min"` (default) assigns all tied values the minimum
+  //!   score; `"average"` assigns the average score, `"first"` ranks them in
+  //!   order of occurance, `"random"` randomizes.
+  //! @param seeds Seeds of the random number generator; if empty (default),
+  //!   the random number generator is seeded randomly.
+  //! @return a vector containing the ranks of each element in `x`.
+  inline std::vector<double>
+  rank(std::vector<double> x,
+       std::vector<double> weights = std::vector<double>(),
+       std::string ties_method = "min",
+       std::vector<int> seeds = std::vector<int>())
+  {
     if ((ties_method != "min") && (ties_method != "average") &&
         (ties_method != "first") && (ties_method != "random"))
         throw std::runtime_error(
@@ -89,11 +92,11 @@ rank(std::vector<double> x,
             }
         } else if (ties_method == "random") {
             // assign weighted ranks in random order
-            std::random_device rd;
-            std::default_random_engine gen(rd());
+            RandomGenerator randomGen(seeds);
             std::vector<size_t> rvals(reps);
             std::iota(rvals.begin(), rvals.end(), 0); // 0, 1, 2, ...
-            std::shuffle(rvals.begin(), rvals.end(), gen);
+            std::shuffle(rvals.begin(), rvals.end(), [&randomGen](size_t n)
+                         { return randomGen.sample_int(n); });
 
             double ww = 0;
             for (size_t k = 1; k < reps; ++k) {
@@ -119,7 +122,7 @@ rank(std::vector<double> x,
     }
 
     return x;
-}
+  }
 
 //! computes ranks (such that smallest element has rank 0), assigning average
 //! ranks for ties.
