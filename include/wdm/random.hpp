@@ -6,10 +6,10 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/seed_seq.hpp>
-#else
+#endif
+
 #include <algorithm> // For std::generate
 #include <random>    // For std::random_device
-#endif
 
 namespace wdm
 {
