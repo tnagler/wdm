@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "ranks.hpp"
 #include "utils.hpp"
 
 namespace wdm {
