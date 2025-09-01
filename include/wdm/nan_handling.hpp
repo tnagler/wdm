@@ -8,6 +8,7 @@
 
 #include <limits>
 #include <sstream>
+#include <vector>
 
 namespace wdm {
 
