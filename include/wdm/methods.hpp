@@ -10,34 +10,45 @@ namespace wdm {
 
 namespace methods {
 
-inline bool is_hoeffding(std::string method)
+inline bool
+is_hoeffding(std::string method)
 {
-    return (method == "hoeffding") || (method == "hoeffd") || (method == "d");
+  return (method == "hoeffding") || (method == "hoeffd") || (method == "d");
 }
-inline bool is_kendall(std::string method)
+inline bool
+is_kendall(std::string method)
 {
-    return (method == "kendall") || (method == "ktau") || (method == "tau");
+  return (method == "kendall") || (method == "ktau") || (method == "tau");
 }
-inline bool is_pearson(std::string method)
+inline bool
+is_pearson(std::string method)
 {
-    return (method == "pearson") || (method == "prho") || (method == "cor");
+  return (method == "pearson") || (method == "prho") || (method == "cor");
 }
-inline bool is_spearman(std::string method)
+inline bool
+is_spearman(std::string method)
 {
-    return (method == "spearman") || (method == "srho") || (method == "rho");
+  return (method == "spearman") || (method == "srho") || (method == "rho");
 }
-inline bool is_blomqvist(std::string method)
+inline bool
+is_blomqvist(std::string method)
 {
-    return (method == "blomqvist") || (method == "bbeta") || (method == "beta");
+  return (method == "blomqvist") || (method == "bbeta") || (method == "beta");
+}
+inline bool
+is_chatterjee(std::string method)
+{
+  return (method == "chatterjee") || (method == "cxi") || (method == "xi");
 }
 
-inline size_t get_min_nobs(std::string method)
+inline size_t
+get_min_nobs(std::string method)
 {
-    if (is_hoeffding(method)) {
-        return 5;
-    } else {
-        return 2;
-    }
+  if (is_hoeffding(method)) {
+    return 5;
+  } else {
+    return 2;
+  }
 }
 
 }

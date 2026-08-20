@@ -89,3 +89,19 @@ weighted Kendall's tau: 0.550633
 statistic: 1.71047
 p-value: 0.0871793
 ```
+
+#### Code Formatting
+
+This project uses clang-format for C++ code formatting. The style is defined in `.clang-format`.
+
+**Check formatting before committing:**
+
+```bash
+git ls-files | grep -E '\.(h|hpp|ipp|cpp|cc)$' | xargs clang-format --dry-run --Werror
+```
+
+**Auto-fix formatting:**
+
+```bash
+git ls-files | grep -E '\.(h|hpp|ipp|cpp|cc)$' | xargs clang-format -i
+```
