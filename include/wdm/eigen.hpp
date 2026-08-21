@@ -29,6 +29,7 @@ convert_vec(const Eigen::VectorXd& x)
 //! @param weights an optional vector of weights for the data.
 //! @param remove_missing if `true`, all observations containing a `nan` are
 //!    removed; otherwise throws an error if `nan`s are present.
+//! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
 //! @details
 //! Available methods:
 //!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation
@@ -36,6 +37,7 @@ convert_vec(const Eigen::VectorXd& x)
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
 //! @return the dependence measure
 inline double
@@ -43,13 +45,15 @@ wdm(const Eigen::VectorXd& x,
     const Eigen::VectorXd& y,
     std::string method,
     Eigen::VectorXd weights = Eigen::VectorXd(),
-    bool remove_missing = true)
+    bool remove_missing = true,
+    std::vector<int> seeds = std::vector<int>())
 {
   return wdm(utils::convert_vec(x),
              utils::convert_vec(y),
              method,
              utils::convert_vec(weights),
-             remove_missing);
+             remove_missing,
+             seeds);
 }
 
 //! calculates a matrix of (weighted) dependence measures.
@@ -58,6 +62,7 @@ wdm(const Eigen::VectorXd& x,
 //! @param weights an optional vector of weights for the data.
 //! @param remove_missing if `true`, all observations containing a `nan` are
 //!    removed; otherwise throws an error if `nan`s are present.
+//! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
 //! @details
 //! Available methods:
 //!   - `"pearson"`, `"prho"`, `"cor"`: Pearson correlation
@@ -65,13 +70,17 @@ wdm(const Eigen::VectorXd& x,
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
-//! @return a matrix of pairwise dependence measures.
+//! @return a matrix of pairwise dependence measures. Chatterjee matrices are
+//!   generally asymmetric; all other supported measures produce symmetric
+//!   matrices.
 inline Eigen::MatrixXd
 wdm(const Eigen::MatrixXd& x,
     std::string method,
     Eigen::VectorXd weights = Eigen::VectorXd(),
-    bool remove_missing = true)
+    bool remove_missing = true,
+    std::vector<int> seeds = std::vector<int>())
 {
   size_t d = x.cols();
   if (d == 1)
@@ -84,8 +93,18 @@ wdm(const Eigen::MatrixXd& x,
                      utils::convert_vec(x.col(j)),
                      method,
                      utils::convert_vec(weights),
-                     remove_missing);
-      ms(j, i) = ms(i, j);
+                     remove_missing,
+                     seeds);
+      if (methods::is_chatterjee(method)) {
+        ms(j, i) = wdm(utils::convert_vec(x.col(j)),
+                       utils::convert_vec(x.col(i)),
+                       method,
+                       utils::convert_vec(weights),
+                       remove_missing,
+                       seeds);
+      } else {
+        ms(j, i) = ms(i, j);
+      }
     }
   }
 

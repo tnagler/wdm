@@ -24,6 +24,7 @@ namespace wdm {
 //! @param weights an optional vector of weights for the data.
 //! @param remove_missing if `true`, all observations containing a `nan` are
 //!    removed; otherwise throws an error if `nan`s are present.
+//! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
 //!
 //! @details
 //! Available methods:
@@ -32,15 +33,18 @@ namespace wdm {
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
-//!   - `"chatterjee"`, `"cxi"`: Chatterjee's \f$ \xi \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
+//! @note Chatterjee's xi measures dependence of `y` on `x` and is asymmetric.
+//!   Its weights must be finite, nonnegative, and have a positive sum.
 //! @return the dependence measure
 inline double
 wdm(std::vector<double> x,
     std::vector<double> y,
     std::string method,
     std::vector<double> weights = std::vector<double>(),
-    bool remove_missing = true)
+    bool remove_missing = true,
+    std::vector<int> seeds = std::vector<int>())
 {
   utils::check_sizes(x, y, weights);
   // na handling
@@ -58,7 +62,7 @@ wdm(std::vector<double> x,
   if (methods::is_blomqvist(method))
     return impl::bbeta(x, y, weights);
   if (methods::is_chatterjee(method)) {
-    auto xi_and_std = impl::cxi(x, y, weights, false);
+    auto xi_and_std = impl::cxi(x, y, weights, false, "max", seeds);
     return std::get<0>(xi_and_std);
   }
   throw std::runtime_error("method not implemented.");
@@ -76,6 +80,15 @@ wdm(std::vector<double> x,
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
+//!
+//! @note Weighted analytic inference for Chatterjee's xi assumes that the
+//!   weights are fixed or depend only on `x`, the normalized weights are
+//!   diffuse, and `y` is continuous. The weighted estimate remains available
+//!   when `y` is tied, but analytic inference with unequal weights does not.
+//!   For a continuous response, `estimate()` reports the general
+//!   denominator-corrected coefficient while `statistic()` standardizes the
+//!   analytically covered approximation \f$1 - 3 A\f$.
 //!
 class Indep_test
 {
@@ -91,13 +104,21 @@ public:
   //! @param alternative indicates the alternative hypothesis and must be one
   //!    of `"two-sided"``, `"greater"` or `"less"`; `"greater"` corresponds
   //!    to positive association, `"less"` to negative association. For
-  //!    Hoeffding's \f$ D \f$, only `"two-sided"` is allowed.
+  //!    Hoeffding's \f$ D \f$, only `"two-sided"` is allowed. The natural
+  //!    one-sided alternative for Chatterjee's xi is `"greater"`.
+  //! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
+  //! @param y_continuous whether the Chatterjee response distribution is known
+  //!    to be continuous. Set this to `false` for a discrete response even if
+  //!    the sample has no observed response ties. Observed ties always override
+  //!    this value.
   Indep_test(std::vector<double> x,
              std::vector<double> y,
              std::string method,
              std::vector<double> weights = std::vector<double>(),
              bool remove_missing = true,
-             std::string alternative = "two-sided")
+             std::string alternative = "two-sided",
+             std::vector<int> seeds = std::vector<int>(),
+             bool y_continuous = true)
     : method_(method)
     , alternative_(alternative)
   {
@@ -109,8 +130,16 @@ public:
       p_value_ = std::numeric_limits<double>::quiet_NaN();
     } else {
       n_eff_ = utils::effective_sample_size(x.size(), weights);
-      estimate_ = wdm(x, y, method, weights, false);
-      statistic_ = compute_test_stat(estimate_, method, n_eff_, x, y, weights);
+      if (methods::is_chatterjee(method)) {
+        auto stats = impl::cxi(x, y, weights, true, "max", seeds, y_continuous);
+        estimate_ = std::get<0>(stats);
+        statistic_ =
+          (std::get<3>(stats) - std::get<2>(stats)) / std::get<1>(stats);
+      } else {
+        estimate_ = wdm(x, y, method, weights, false);
+        statistic_ =
+          compute_test_stat(estimate_, method, n_eff_, x, y, weights);
+      }
       p_value_ = compute_p_value(statistic_, method, alternative, n_eff_);
     }
   }
@@ -158,9 +187,6 @@ private:
       stat = std::atanh(estimate) * std::sqrt((n_eff - 3) / 1.06);
     } else if (methods::is_blomqvist(method)) {
       stat = std::atanh(estimate) * std::sqrt(n_eff);
-    } else if (methods::is_chatterjee(method)) {
-      auto stats = impl::cxi(x, y, weights, true);
-      stat = std::get<0>(stats) / std::get<1>(stats);
     } else {
       throw std::runtime_error("method not implemented.");
     }

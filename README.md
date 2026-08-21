@@ -13,6 +13,7 @@ independence tests:
 - Kendall's tau
 - Blomqvist's beta
 - Hoeffding's D
+- Chatterjee's xi
 
 All measures are computed in O(_n log n_) time, where _n_ is the number of 
 observations.
@@ -24,6 +25,21 @@ The library provides:
 - a function `wdm()` to compute the weighted dependence measures,
 - a class `Indep_test` to perform a test for independence based on asymptotic
   p-values.
+
+For Chatterjee's xi, `x` is the predictor and `y` is the response, so the
+measure and pairwise matrices are generally asymmetric. Case weights are
+normalized internally and must be finite, nonnegative, and have a positive
+sum. The weighted estimate supports tied responses. Analytic inference with
+unequal weights currently requires a continuous response, weights that are
+fixed or depend only on `x`, and sufficiently diffuse normalized weights.
+Ties in `x` are broken uniformly at random without consulting `y`; pass the
+optional seeds argument to reproduce the same tie ordering.
+Because distributional continuity cannot be inferred from the observed sample,
+set the final `Indep_test` argument `y_continuous` to `false` for a discrete
+response, even when that sample happens to contain no response ties.
+For a continuous response, `Indep_test::estimate()` reports the general
+denominator-corrected coefficient, while the test statistic standardizes the
+analytically covered approximation `1 - 3 A`.
 
 For details, see the [API documentation](https://tnagler.github.io/wdm/) 
 and the [example](#example) below.
