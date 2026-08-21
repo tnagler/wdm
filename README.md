@@ -3,121 +3,141 @@
 ![build status](https://github.com/tnagler/wdm/actions/workflows/main.yml/badge.svg?branch=main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> A header-only C++ library for weighted dependence measures
+`wdm` is a header-only C++11 library implementing weighted dependence
+measures and related asymptotic independence tests. It primarily provides the
+computational core for higher-level interfaces; users of the R interface
+should consult that interface's documentation for end-user workflows.
 
-Provides efficient implementations of weighted dependence measures and related 
-independence tests:
+All estimators have an average time complexity of O(_n_ log _n_).
 
-- Pearsons's rho
-- Spearmans's rho
-- Kendall's tau
-- Blomqvist's beta
-- Hoeffding's D
-- Chatterjee's xi
+## Supported methods
 
-All measures are computed in O(_n log n_) time, where _n_ is the number of 
-observations.
+| Method | Accepted names | Direction | Minimum sample |
+| --- | --- | --- | ---: |
+| Pearson correlation | `pearson`, `prho`, `cor` | symmetric | 2 |
+| Spearman's rho | `spearman`, `srho`, `rho` | symmetric | 2 |
+| Kendall's tau | `kendall`, `ktau`, `tau` | symmetric | 2 |
+| Blomqvist's beta | `blomqvist`, `bbeta`, `beta` | symmetric | 2 |
+| Hoeffding's D | `hoeffding`, `hoeffd`, `d` | symmetric | 5 |
+| Chatterjee's xi | `chatterjee`, `cxi`, `xi` | `y` on `x` | 2 |
 
-### Functionality
+The primary C++ entry points are:
 
-The library provides:
+- `wdm::wdm()` for an estimate;
+- `wdm::Indep_test` for an estimate, test statistic, effective sample size,
+  and asymptotic p-value;
+- overloads in `<wdm/eigen.hpp>` for Eigen vectors and matrices.
 
-- a function `wdm()` to compute the weighted dependence measures,
-- a class `Indep_test` to perform a test for independence based on asymptotic
-  p-values.
+See the [API documentation](https://tnagler.github.io/wdm/) for signatures.
 
-For Chatterjee's xi, `x` is the predictor and `y` is the response, so the
-measure and pairwise matrices are generally asymmetric. Case weights are
-normalized internally and must be finite, nonnegative, and have a positive
-sum. The weighted estimate supports tied responses. Analytic inference with
-unequal weights currently requires a continuous response, weights that are
-fixed or depend only on `x`, and sufficiently diffuse normalized weights.
-Ties in `x` are broken uniformly at random without consulting `y`; pass the
-optional seeds argument to reproduce the same tie ordering.
-Because distributional continuity cannot be inferred from the observed sample,
-set the final `Indep_test` argument `y_continuous` to `false` for a discrete
-response, even when that sample happens to contain no response ties.
-For a continuous response, `Indep_test::estimate()` reports the general
-denominator-corrected coefficient, while the test statistic standardizes the
-analytically covered approximation `1 - 3 A`.
+## Input behavior
 
-For details, see the [API documentation](https://tnagler.github.io/wdm/) 
-and the [example](#example) below.
+Input vectors must have equal sizes. Optional case weights must be finite,
+nonnegative, and have a positive total. Multiplying all weights by a positive
+constant does not change an estimate or its inference, and zero-weight rows
+are ignored.
 
-### Dependencies
+By default, rows containing `NaN` in either variable or the weights are
+removed. If too few observations remain, estimates and inference results are
+`NaN`. With `remove_missing = false`, missing or insufficient input raises
+`std::runtime_error`. Size mismatches, invalid weights, and unknown method or
+alternative names also raise `std::runtime_error`.
 
-The library only requires C++11. 
+`Indep_test` supports `two-sided`, `less`, and `greater` alternatives, except
+that Hoeffding's D is two-sided only. Its weighted approximations use Kish's
+effective sample size and require enough effective observations for the
+selected transformation.
 
-For projects already using the [Eigen](https://eigen.tuxfamily.org) linear 
-algebra library, there are convenience wrappers that can be made available via 
+### Chatterjee's xi
 
-```cpp
-#include <wdm/eigen.hpp>
+Chatterjee's xi measures dependence of `y` on `x`, so reversing its arguments
+can change the result. Ties in `x` are broken uniformly at random without
+consulting `y`; pass `seeds` to reproduce the same tie ordering.
+
+The weighted estimate supports tied responses. Analytic inference with unequal
+weights currently requires a continuous response, weights that are fixed or
+depend only on `x`, and sufficiently diffuse normalized weights. Set
+`y_continuous` to `false` when the response distribution is discrete, even if
+the observed sample has no ties. Observed response ties select the discrete
+inference path automatically. Unequally weighted inference is unavailable in
+either discrete case.
+
+For a continuous response, `estimate()` returns the general
+denominator-corrected coefficient while `statistic()` standardizes the
+continuous-response inferential approximation.
+
+## Using the C++ headers
+
+No compiled library is required. The only mandatory dependency is C++11.
+Either copy `include/` into a project or install the CMake package:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+cmake --build build
+cmake --install build --prefix /desired/prefix
 ```
 
-### Including the library in other projects
+Consumers can then use:
 
-There are two options: 
+```cmake
+find_package(wdm CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE wdm)
+```
 
-1. Either copy the header files in `include/` to your project.
-2. Install the headers globally using the CMake project. To do that go to the 
-   root repository of this repo and run:
-   ```shell
-   mkdir build && cd build         # open build folder
-   cmake .. && sudo make install   # install library
-   cd .. && rm -rf build           # leave and remove build folder
-   ```
-   To use the library in your project, just add 
-   `target_link_libraries(your_proj_name wdm)` to `your_proj_name/CMakeLists.txt`.
-
-You can then include the main header in your source code:
+Set `CMAKE_PREFIX_PATH` when installing to a nonstandard prefix. Include the
+main API with:
 
 ```cpp
 #include <wdm.hpp>
 ```
 
-### Example
+Eigen convenience overloads require Eigen and are enabled by including
+`<wdm/eigen.hpp>`. The standard-library random backend is the default; configure
+with `-DUSE_BOOST=ON` to use Boost.Random instead.
+
+## Example
 
 ```cpp
-#include "wdm.hpp"
+#include <iostream>
+#include <wdm.hpp>
 
-// input vectors
-std::vector<double> x{1, 3, 2, 5, 3, 2, 20, 15};
-std::vector<double> y{2, 12, 4, 7, 8, 14, 17, 6};
+int main()
+{
+  std::vector<double> x{ 1, 3, 2, 5, 3, 2, 20, 15 };
+  std::vector<double> y{ 2, 12, 4, 7, 8, 14, 17, 6 };
+  std::vector<double> weights{ 1, 1, 2, 2, 1, 0, 0.5, 0.3 };
 
-// weights
-std::vector<double> w{1, 1, 2, 2, 1, 0, 0.5, 0.3};
+  std::cout << "unweighted Kendall's tau: "
+            << wdm::wdm(x, y, "kendall") << '\n';
+  std::cout << "weighted Kendall's tau: "
+            << wdm::wdm(x, y, "kendall", weights) << '\n';
 
-std::cout <<
-    "unweighted Kendall's tau: " << wdm::wdm(x, y, "kendall") << std::endl;
-std::cout <<
-    "weighted Kendall's tau: " <<  wdm::wdm(x, y, "kendall", w) << std::endl;
-
-// weighted independence test
-wdm::Indep_test test(x, y, "kendall", w);
-std::cout << "statistic: " << test.statistic() << std::endl;
-std::cout << "p-value: " << test.p_value() << std::endl;
+  wdm::Indep_test test(x, y, "kendall", weights);
+  std::cout << "statistic: " << test.statistic() << '\n';
+  std::cout << "p-value: " << test.p_value() << '\n';
+}
 ```
 
-```
+The example prints, to the shown precision:
+
+```text
 unweighted Kendall's tau: 0.2965
 weighted Kendall's tau: 0.550633
-statistic: 1.71047
-p-value: 0.0871793
+statistic: 1.41025
+p-value: 0.158465
 ```
 
-#### Code Formatting
+## Development
 
-This project uses clang-format for C++ code formatting. The style is defined in `.clang-format`.
+The project uses the style in `.clang-format`. Check tracked C++ files with:
 
-**Check formatting before committing:**
-
-```bash
-git ls-files | grep -E '\.(h|hpp|ipp|cpp|cc)$' | xargs clang-format --dry-run --Werror
+```sh
+git ls-files -z '*.h' '*.hpp' '*.ipp' '*.cpp' '*.cc' |
+  xargs -0 clang-format --dry-run --Werror
 ```
 
-**Auto-fix formatting:**
+Regenerate the checked-in API documentation from the repository root with:
 
-```bash
-git ls-files | grep -E '\.(h|hpp|ipp|cpp|cc)$' | xargs clang-format -i
+```sh
+doxygen docs/Doxyfile.in
 ```
