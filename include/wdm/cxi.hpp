@@ -168,13 +168,18 @@ cxi(std::vector<double> x,
   if (weights.size() == 0)
     weights = std::vector<double>(x.size(), 1.0);
 
-  for (const auto& weight : weights) {
-    if (!std::isfinite(weight) || weight < 0.0)
-      throw std::runtime_error("weights must be finite and nonnegative.");
-  }
+  utils::validate_weights(weights);
   double weight_sum = utils::sum(weights);
-  if (!std::isfinite(weight_sum) || weight_sum <= 0.0)
-    throw std::runtime_error("weights must have a finite, positive sum.");
+
+  // Zero-mass observations are absent from the weighted empirical measure and
+  // must not create additional edges in predictor order.
+  for (size_t i = weights.size(); i-- > 0;) {
+    if (weights[i] == 0.0) {
+      x.erase(x.begin() + i);
+      y.erase(y.begin() + i);
+      weights.erase(weights.begin() + i);
+    }
+  }
 
   // Sort in x order and break x ties uniformly without consulting y.
   sort_chatterjee_observations(x, y, weights, seeds);
@@ -189,6 +194,9 @@ cxi(std::vector<double> x,
 
   std::vector<double> ordered_response = y;
   std::sort(ordered_response.begin(), ordered_response.end());
+  if (ordered_response.front() == ordered_response.back())
+    throw std::runtime_error(
+      "Chatterjee's xi is undefined for a constant response.");
   bool response_has_ties =
     std::adjacent_find(ordered_response.begin(), ordered_response.end()) !=
     ordered_response.end();

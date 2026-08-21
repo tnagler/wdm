@@ -7,5 +7,7 @@ endif()
 
 option(WARNINGS_AS_ERRORS        "Compiler warnings as errors"       "OFF")
 option(OPT_ASAN                  "Use adress sanitizer (debug)"      "ON")
+option(OPT_UBSAN                 "Use undefined-behavior sanitizer"  "OFF")
+option(USE_BOOST                 "Use the Boost random backend"      "OFF")
 option(BUILD_TESTING             "Build tests."                      "ON")
 option(CODE_COVERAGE             "Code coverage."                    "OFF")

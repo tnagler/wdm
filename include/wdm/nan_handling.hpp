@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "methods.hpp"
+
 #include <cmath>
 #include <limits>
 #include <sstream>
@@ -20,24 +22,24 @@ remove_incomplete(std::vector<double>& x,
                   std::vector<double>& y,
                   std::vector<double>& w)
 {
-  // if observation conatins nan, move it to the end
-  size_t last = x.size() - 1;
-  for (size_t i = 0; i < last + 1; i++) {
+  size_t complete_count = 0;
+  for (size_t i = 0; i < x.size(); ++i) {
     bool row_has_nan = (std::isnan(x[i]) || std::isnan(y[i]));
     if (w.size() > 0)
       row_has_nan = (row_has_nan || std::isnan(w[i]));
-    if (row_has_nan) {
+    if (!row_has_nan) {
+      x[complete_count] = x[i];
+      y[complete_count] = y[i];
       if (w.size() > 0)
-        std::swap(w[i], w[last]);
-      std::swap(x[i], x[last]);
-      std::swap(y[i--], y[last--]);
+        w[complete_count] = w[i];
+      ++complete_count;
     }
   }
 
-  x.resize(last + 1);
-  y.resize(last + 1);
+  x.resize(complete_count);
+  y.resize(complete_count);
   if (w.size() > 0)
-    w.resize(last + 1);
+    w.resize(complete_count);
 }
 
 inline bool
@@ -51,6 +53,21 @@ any_nan(const std::vector<double>& x)
   return false;
 }
 
+inline void
+validate_weights(const std::vector<double>& weights)
+{
+  if (weights.empty())
+    return;
+  double weight_sum = 0.0;
+  for (const auto& weight : weights) {
+    if (!std::isfinite(weight) || weight < 0.0)
+      throw std::runtime_error("weights must be finite and nonnegative.");
+    weight_sum += weight;
+  }
+  if (!std::isfinite(weight_sum) || weight_sum <= 0.0)
+    throw std::runtime_error("weights must have a finite, positive sum.");
+}
+
 inline std::string
 preproc(std::vector<double>& x,
         std::vector<double>& y,
@@ -58,18 +75,24 @@ preproc(std::vector<double>& x,
         std::string method,
         bool remove_missing)
 {
-  size_t min_nobs = (method == "hoeffding") ? 5 : 2;
+  if (!methods::is_supported(method))
+    throw std::runtime_error("method not implemented.");
+
   if (remove_missing) {
     utils::remove_incomplete(x, y, weights);
-    if (x.size() < min_nobs)
+    utils::validate_weights(weights);
+    if (x.size() < methods::get_min_nobs(method))
       return "return_nan";
   } else {
     std::stringstream msg;
     if (utils::any_nan(x) || utils::any_nan(y) || utils::any_nan(weights)) {
       msg << "there are missing values in the data; "
           << "try remove_missing = TRUE";
-    } else if (x.size() < min_nobs) {
-      msg << "need at least " << min_nobs << "observations.";
+    } else {
+      utils::validate_weights(weights);
+      if (x.size() < methods::get_min_nobs(method))
+        msg << "need at least " << methods::get_min_nobs(method)
+            << " observations.";
     }
     if (!msg.str().empty())
       throw std::runtime_error(msg.str());

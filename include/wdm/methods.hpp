@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <cstddef>
+#include <string>
+
 namespace wdm {
 
 namespace methods {
@@ -39,6 +42,13 @@ inline bool
 is_chatterjee(std::string method)
 {
   return (method == "chatterjee") || (method == "cxi") || (method == "xi");
+}
+
+inline bool
+is_supported(std::string method)
+{
+  return is_hoeffding(method) || is_kendall(method) || is_pearson(method) ||
+         is_spearman(method) || is_blomqvist(method) || is_chatterjee(method);
 }
 
 inline size_t

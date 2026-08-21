@@ -65,6 +65,15 @@ ktau_stat_adjust(std::vector<double> x,
 {
   utils::check_sizes(x, y, weights);
 
+  if (weights.size() == 0)
+    weights = std::vector<double>(x.size(), 1.0);
+  // Put weights in effective-sample-size units: both their sum and squared
+  // sum then equal n_eff, while their relative magnitudes remain unchanged.
+  double effective_scale =
+    utils::sum(weights) / utils::sum(utils::pow(weights, 2));
+  for (auto& weight : weights)
+    weight *= effective_scale;
+
   // 1.1 Sort x, y, and weights in x order; break ties in according to y.
   utils::sort_all(x, y, weights);
 
@@ -82,17 +91,14 @@ ktau_stat_adjust(std::vector<double> x,
   double v_y = utils::count_ties_v(y, weights);
 
   // 3. Calculate adjustment factor.
-  if (weights.size() == 0)
-    weights = std::vector<double>(x.size(), 1.0);
   double s = utils::sum(weights);
   double s2 = utils::perm_sum(weights, 2);
   double s3 = utils::perm_sum(weights, 3);
-  double r = s / utils::sum(utils::pow(weights, 2));
-  double v_0 = 2 * s2 * (2 * s) * std::pow(r, 3);
-  double v_1 = 2 * pair_x * 2 * pair_y / (2 * 2 * s2) * std::pow(r, 2);
-  double v_2 = 6 * trip_x * 6 * trip_y / (9 * 6 * s3) * std::pow(r, 3);
-  double v = (v_0 - std::pow(r, 3) * (v_x - v_y)) / 18 + (v_1 + v_2);
-  return std::pow(r, 2) * std::sqrt((s2 - pair_x) * (s2 - pair_y) / v);
+  double v_0 = 2 * s2 * (2 * s + 5);
+  double v_1 = 2 * pair_x * 2 * pair_y / (2 * 2 * s2);
+  double v_2 = 6 * trip_x * 6 * trip_y / (9 * 6 * s3);
+  double v = (v_0 - v_x - v_y) / 18 + v_1 + v_2;
+  return std::sqrt((s2 - pair_x) * (s2 - pair_y) / v);
 }
 
 }

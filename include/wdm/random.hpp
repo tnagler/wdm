@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <vector>
 
 #ifdef USE_BOOST

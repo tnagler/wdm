@@ -171,10 +171,10 @@ private:
                                   const std::vector<double>& weights)
   {
     // prevent overflow in atanh
-    if (estimate == 1.0)
+    if (estimate >= 1.0)
       estimate = 1 - 1e-12;
-    if (estimate == -1.0)
-      estimate = 1e-12;
+    if (estimate <= -1.0)
+      estimate = -1 + 1e-12;
 
     double stat;
     if (methods::is_hoeffding(method)) {

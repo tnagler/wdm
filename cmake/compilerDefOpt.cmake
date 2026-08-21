@@ -28,6 +28,10 @@ if(NOT WIN32)
         endif()
     endif()
 
+    if(OPT_UBSAN)
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined -fno-omit-frame-pointer")
+    endif()
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
         if(NOT EXISTS ${CMAKE_CXX_COMPILER})
