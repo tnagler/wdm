@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <cstddef>
+#include <string>
+
 namespace wdm {
 
 namespace methods {
