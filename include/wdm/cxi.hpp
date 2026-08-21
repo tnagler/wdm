@@ -76,38 +76,47 @@ cxi(std::vector<double> x,
 {
   utils::check_sizes(x, y, weights);
 
+  if (weights.size() == 0)
+    weights = std::vector<double>(x.size(), 1.0);
+
+  for (const auto& weight : weights) {
+    if (!std::isfinite(weight) || weight < 0.0)
+      throw std::runtime_error("weights must be finite and nonnegative.");
+  }
+  double weight_sum = utils::sum(weights);
+  if (!std::isfinite(weight_sum) || weight_sum <= 0.0)
+    throw std::runtime_error("weights must have a finite, positive sum.");
+
   // Sort x, y, and weights in x order
   utils::sort_all(x, y, weights);
 
-  // Compute ranks of y (ri: number of j such that Y(j) ≤ Y(i)), ties_method
-  // "max"
-  std::vector<double> r = rank0(y, weights, ties_method);
+  std::vector<double> probabilities = weights;
+  for (auto& probability : probabilities)
+    probability /= weight_sum;
 
-  // Compute ranks of -y (li: number of j such that Y(j) ≥ Y(i)), ties_method
-  // "max"
+  // Weighted empirical distribution at each response.
+  std::vector<double> r = rank0(y, probabilities, ties_method);
+
+  // Weighted empirical survival function at each response.
   std::vector<double> y_neg(y.size());
   for (size_t i = 0; i < y.size(); ++i)
     y_neg[i] = -y[i];
-  std::vector<double> l = rank0(y_neg, weights, ties_method);
+  std::vector<double> l = rank0(y_neg, probabilities, ties_method);
 
-  // Numerator: sum of weighted absolute differences of consecutive ranks
+  // Numerator: base-point weight on edge (i, i + 1).
   double num = 0.0;
-  for (size_t i = 1; i < r.size(); ++i)
-    num += std::abs(r[i] - r[i - 1]) * (weights.size() > 0 ? weights[i] : 1.0);
+  for (size_t i = 0; i + 1 < r.size(); ++i)
+    num += probabilities[i] * std::abs(r[i + 1] - r[i]);
 
-  double n =
-    (weights.size() > 0) ? utils::sum(weights) : static_cast<double>(x.size());
-  double xi;
+  // General weighted-rank denominator, valid for continuous and tied responses.
+  double den = 0.0;
+  for (size_t i = 0; i < l.size(); ++i)
+    den += 2.0 * probabilities[i] * l[i] * (1.0 - l[i]);
+  if (!std::isfinite(den) || den <= 0.0)
+    throw std::runtime_error(
+      "Chatterjee's xi is undefined for a constant response.");
 
-  if (y_continuous) {
-    xi = 1.0 - 3.0 * num / (n * n - 1.0);
-  } else {
-    // Denominator: sum over (n - li) * li, weighted
-    double den = 0.0;
-    for (size_t i = 0; i < l.size(); ++i)
-      den += (n - l[i]) * l[i] * (weights.size() > 0 ? weights[i] : 1.0);
-    xi = 1.0 - n * num / (2.0 * den);
-  }
+  double xi = 1.0 - num / den;
 
   if (!calculate_std) {
     return std::make_tuple(xi, std::numeric_limits<double>::quiet_NaN());

@@ -38,6 +38,19 @@ check_near(double actual, double expected, const std::string& what)
   }
 }
 
+template<typename Function>
+void
+check_throws(Function function, const std::string& what)
+{
+  bool threw = false;
+  try {
+    function();
+  } catch (const std::runtime_error&) {
+    threw = true;
+  }
+  check(threw, what);
+}
+
 bool
 all_close(std::vector<double> x, std::vector<double> y, double tol = 1e-12)
 {
@@ -211,6 +224,33 @@ test_cxi()
   check_near(wdm::wdm(v, v_sq, "cxi", std::vector<double>(v.size(), 1.0)),
              wdm::wdm(v, v_sq, "cxi"),
              "xi with uniform weights");
+
+  // Unequal weights use the base point of each edge. For this example the
+  // weighted numerator is 1/4 and the weighted denominator is 31/108.
+  std::vector<double> short_x{ 1, 2, 3 };
+  std::vector<double> short_y{ 1, 3, 2 };
+  std::vector<double> unequal_weights{ 1, 2, 3 };
+  check_near(wdm::wdm(short_x, short_y, "cxi", unequal_weights),
+             4.0 / 31.0,
+             "weighted xi uses base-point edge weights");
+  for (auto& weight : unequal_weights)
+    weight *= 10.0;
+  check_near(wdm::wdm(short_x, short_y, "cxi", unequal_weights),
+             4.0 / 31.0,
+             "weighted xi is invariant to weight scaling");
+
+  check_near(wdm::wdm({ 1, 2, 3, 4 }, { 1, 2, 2, 1 }, "cxi"),
+             0.0,
+             "xi uses the general denominator for tied responses");
+
+  check_throws([&]() { wdm::wdm(short_x, short_y, "cxi", { 1, -1, 1 }); },
+               "xi rejects negative weights");
+  check_throws([&]() { wdm::wdm(short_x, short_y, "cxi", { 1, INFINITY, 1 }); },
+               "xi rejects nonfinite weights");
+  check_throws([&]() { wdm::wdm(short_x, short_y, "cxi", { 0, 0, 0 }); },
+               "xi rejects zero total weight");
+  check_throws([&]() { wdm::wdm(short_x, { 1, 1, 1 }, "cxi"); },
+               "xi rejects a constant response");
 
   wdm::Indep_test test(v, v_sq, "cxi");
   check(std::isfinite(test.p_value()), "xi p-value is finite");
