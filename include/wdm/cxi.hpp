@@ -14,6 +14,15 @@
 namespace wdm {
 namespace impl {
 
+//! Seeds used to break predictor ties when the caller supplies none. A
+//! dependence measure has to be a function of its arguments, so the default is
+//! a constant rather than a draw from `std::random_device`.
+inline std::vector<int>
+default_tie_seeds()
+{
+  return { 1, 2, 3, 4, 5 };
+}
+
 //! Sort observations by the predictor and break predictor ties uniformly at
 //! random, independently of the response.
 inline void
@@ -181,8 +190,11 @@ cxi(std::vector<double> x,
     }
   }
 
-  // Sort in x order and break x ties uniformly without consulting y.
-  sort_chatterjee_observations(x, y, weights, seeds);
+  // Sort in x order and break x ties uniformly without consulting y. An empty
+  // seed vector would draw from std::random_device, making the estimate differ
+  // between calls on the same data; pass seeds to vary the tie ordering.
+  sort_chatterjee_observations(
+    x, y, weights, seeds.empty() ? default_tie_seeds() : seeds);
 
   std::vector<double> probabilities = weights;
   for (auto& probability : probabilities)
