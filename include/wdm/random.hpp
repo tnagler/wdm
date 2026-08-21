@@ -17,6 +17,7 @@ namespace wdm {
 
 namespace random {
 
+//! Random-number generator used for reproducible randomized tie breaking.
 class RandomGenerator
 {
 public:

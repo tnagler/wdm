@@ -135,3 +135,9 @@ The project uses the style in `.clang-format`. Check tracked C++ files with:
 git ls-files -z '*.h' '*.hpp' '*.ipp' '*.cpp' '*.cc' |
   xargs -0 clang-format --dry-run --Werror
 ```
+
+Regenerate the checked-in API documentation from the repository root with:
+
+```sh
+doxygen docs/Doxyfile.in
+```
