@@ -5,6 +5,7 @@ function(add_wdm_test name source)
 endfunction()
 
 add_wdm_test(test_cxi test.cpp)
+add_wdm_test(test_estimators test_estimators.cpp)
 add_wdm_test(test_ranks test_ranks.cpp)
 
 set(wdm_headers
