@@ -13,60 +13,95 @@
 namespace wdm {
 namespace impl {
 
-// Asymptotic standard deviation for xi under null
+// Conditional null mean and standard deviation for a continuous response.
+inline std::tuple<double, double>
+xi_continuous_inference(const std::vector<double>& probabilities)
+{
+  double edge_weight_sum = 0.0;
+  double null_numerator_mean = 0.0;
+  double squared_edge_weight_sum = 0.0;
+  double adjacent_edge_product_sum = 0.0;
+  double squared_probability_sum = 0.0;
+  double edge_node_product_sum = 0.0;
+
+  for (size_t i = 0; i < probabilities.size(); ++i)
+    squared_probability_sum += probabilities[i] * probabilities[i];
+
+  for (size_t i = 0; i + 1 < probabilities.size(); ++i) {
+    edge_weight_sum += probabilities[i];
+    null_numerator_mean +=
+      probabilities[i] *
+      (1.0 / 3.0 + (probabilities[i] + probabilities[i + 1]) / 6.0);
+    squared_edge_weight_sum += probabilities[i] * probabilities[i];
+    edge_node_product_sum +=
+      probabilities[i] * (probabilities[i] + probabilities[i + 1]);
+    if (i + 2 < probabilities.size())
+      adjacent_edge_product_sum += probabilities[i] * probabilities[i + 1];
+  }
+
+  double null_numerator_variance = squared_edge_weight_sum / 18.0;
+  null_numerator_variance += adjacent_edge_product_sum / 90.0;
+  null_numerator_variance +=
+    edge_weight_sum * edge_weight_sum * squared_probability_sum / 45.0;
+  null_numerator_variance -= edge_weight_sum * edge_node_product_sum / 45.0;
+  if (!std::isfinite(null_numerator_variance) || null_numerator_variance <= 0.0)
+    throw std::runtime_error(
+      "cannot compute the null variance of Chatterjee's xi.");
+
+  return std::make_tuple(3.0 * std::sqrt(null_numerator_variance),
+                         1.0 - 3.0 * null_numerator_mean);
+}
+
+// Asymptotic standard deviation for xi with a tied response.
 inline double
 xi_std(const std::vector<double>& r,
        const std::vector<double>& l,
-       bool y_continuous,
        const std::vector<double>& weights = std::vector<double>())
 {
   double n =
     (weights.size() > 0) ? utils::sum(weights) : static_cast<double>(r.size());
-  if (y_continuous) {
-    return std::sqrt(2.0 / 5.0) / std::sqrt(n);
-  } else {
-    // Weighted version
-    std::vector<double> i(r.size());
-    for (size_t k = 0; k < r.size(); ++k)
-      i[k] = k + 1;
 
-    // Sort r and weights together
-    std::vector<size_t> order = utils::get_order(r);
-    std::vector<double> u(r.size()), w(r.size());
-    for (size_t k = 0; k < r.size(); ++k) {
-      u[k] = r[order[k]];
-      w[k] = (weights.size() > 0) ? weights[order[k]] : 1.0;
-    }
+  // Weighted version
+  std::vector<double> i(r.size());
+  for (size_t k = 0; k < r.size(); ++k)
+    i[k] = k + 1;
 
-    // Weighted cumulative sum
-    std::vector<double> v(r.size());
-    v[0] = u[0] * w[0];
-    for (size_t k = 1; k < r.size(); ++k)
-      v[k] = v[k - 1] + u[k] * w[k];
-
-    double an = 0, bn = 0, cn = 0, dn = 0;
-    for (size_t k = 0; k < r.size(); ++k) {
-      an += (2 * n - 2 * i[k] + 1) * u[k] * u[k] * w[k];
-      cn += (2 * n - 2 * i[k] + 1) * u[k] * w[k];
-      dn += l[k] * (n - l[k]) * ((weights.size() > 0) ? weights[k] : 1.0);
-    }
-    an /= std::pow(n, 4);
-    cn /= std::pow(n, 3);
-    dn /= std::pow(n, 3);
-
-    for (size_t k = 0; k < r.size(); ++k) {
-      double temp = v[k] + (n - i[k]) * u[k] * w[k];
-      bn += temp * temp;
-    }
-    bn /= std::pow(n, 5);
-
-    double tau2 = (an - 2 * bn + cn * cn) / (dn * dn);
-    return std::sqrt(tau2) / std::sqrt(n);
+  // Sort r and weights together
+  std::vector<size_t> order = utils::get_order(r);
+  std::vector<double> u(r.size()), w(r.size());
+  for (size_t k = 0; k < r.size(); ++k) {
+    u[k] = r[order[k]];
+    w[k] = (weights.size() > 0) ? weights[order[k]] : 1.0;
   }
+
+  // Weighted cumulative sum
+  std::vector<double> v(r.size());
+  v[0] = u[0] * w[0];
+  for (size_t k = 1; k < r.size(); ++k)
+    v[k] = v[k - 1] + u[k] * w[k];
+
+  double an = 0, bn = 0, cn = 0, dn = 0;
+  for (size_t k = 0; k < r.size(); ++k) {
+    an += (2 * n - 2 * i[k] + 1) * u[k] * u[k] * w[k];
+    cn += (2 * n - 2 * i[k] + 1) * u[k] * w[k];
+    dn += l[k] * (n - l[k]) * ((weights.size() > 0) ? weights[k] : 1.0);
+  }
+  an /= std::pow(n, 4);
+  cn /= std::pow(n, 3);
+  dn /= std::pow(n, 3);
+
+  for (size_t k = 0; k < r.size(); ++k) {
+    double temp = v[k] + (n - i[k]) * u[k] * w[k];
+    bn += temp * temp;
+  }
+  bn /= std::pow(n, 5);
+
+  double tau2 = (an - 2 * bn + cn * cn) / (dn * dn);
+  return std::sqrt(tau2) / std::sqrt(n);
 }
 
 // Weighted Chatterjee's xi statistic
-inline std::tuple<double, double>
+inline std::tuple<double, double, double>
 cxi(std::vector<double> x,
     std::vector<double> y,
     std::vector<double> weights = std::vector<double>(),
@@ -119,10 +154,16 @@ cxi(std::vector<double> x,
   double xi = 1.0 - num / den;
 
   if (!calculate_std) {
-    return std::make_tuple(xi, std::numeric_limits<double>::quiet_NaN());
+    return std::make_tuple(xi,
+                           std::numeric_limits<double>::quiet_NaN(),
+                           std::numeric_limits<double>::quiet_NaN());
+  } else if (y_continuous) {
+    auto inference = xi_continuous_inference(probabilities);
+    return std::make_tuple(xi, std::get<0>(inference), std::get<1>(inference));
   } else {
-    double std = xi_std(r, l, y_continuous, weights);
-    return std::make_tuple(xi, std);
+    std::vector<double> raw_r = rank0(y, weights, ties_method);
+    std::vector<double> raw_l = rank0(y_neg, weights, ties_method);
+    return std::make_tuple(xi, xi_std(raw_r, raw_l, weights), 0.0);
   }
 }
 

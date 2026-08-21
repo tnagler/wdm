@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <string>
 #include <vector>
 #include <wdm.hpp>
@@ -68,6 +69,48 @@ sorted(std::vector<double> x)
 {
   std::sort(x.begin(), x.end());
   return x;
+}
+
+double
+continuous_xi_for_inference(const std::vector<double>& y,
+                            std::vector<double> probabilities)
+{
+  double probability_sum = wdm::utils::sum(probabilities);
+  for (auto& probability : probabilities)
+    probability /= probability_sum;
+  auto weighted_ranks = wdm::impl::rank0(y, probabilities, "max");
+  double weighted_edge_difference = 0.0;
+  for (size_t i = 0; i + 1 < weighted_ranks.size(); ++i) {
+    weighted_edge_difference +=
+      probabilities[i] * std::fabs(weighted_ranks[i + 1] - weighted_ranks[i]);
+  }
+  return 1.0 - 3.0 * weighted_edge_difference;
+}
+
+void
+check_cxi_null_variance(const std::vector<double>& weights,
+                        const std::string& what)
+{
+  std::vector<double> x(weights.size()), y(weights.size());
+  for (size_t i = 0; i < weights.size(); ++i) {
+    x[i] = static_cast<double>(i);
+    y[i] = static_cast<double>(i);
+  }
+
+  auto inference = wdm::impl::cxi(x, y, weights, true);
+  std::mt19937 generator(20260821);
+  double squared_deviation_sum = 0.0;
+  size_t replications = 5000;
+  for (size_t replication = 0; replication < replications; ++replication) {
+    std::shuffle(y.begin(), y.end(), generator);
+    double deviation =
+      continuous_xi_for_inference(y, weights) - std::get<2>(inference);
+    squared_deviation_sum += deviation * deviation;
+  }
+
+  double empirical_variance = squared_deviation_sum / replications;
+  double analytic_variance = std::get<1>(inference) * std::get<1>(inference);
+  check(std::fabs(empirical_variance / analytic_variance - 1.0) < 0.12, what);
 }
 
 //! successive differences, the first one taken from 0.
@@ -238,6 +281,48 @@ test_cxi()
   check_near(wdm::wdm(short_x, short_y, "cxi", unequal_weights),
              4.0 / 31.0,
              "weighted xi is invariant to weight scaling");
+
+  auto unequal_inference = wdm::impl::cxi(short_x, short_y, { 1, 2, 3 }, true);
+  auto scaled_inference =
+    wdm::impl::cxi(short_x, short_y, { 10, 20, 30 }, true);
+  check_near(std::get<1>(unequal_inference),
+             std::sqrt(7.0 / 120.0),
+             "weighted xi uses the full conditional null variance");
+  check_near(std::get<2>(unequal_inference),
+             23.0 / 72.0,
+             "weighted xi has the finite-sample null mean");
+  check_near(std::get<1>(scaled_inference),
+             std::get<1>(unequal_inference),
+             "weighted xi standard error is invariant to weight scaling");
+  check_near(std::get<2>(scaled_inference),
+             std::get<2>(unequal_inference),
+             "weighted xi null mean is invariant to weight scaling");
+
+  std::vector<double> large_x(1000), large_y(1000);
+  for (size_t i = 0; i < large_x.size(); ++i) {
+    large_x[i] = static_cast<double>(i);
+    large_y[i] = static_cast<double>((37 * i) % large_x.size());
+  }
+  auto equal_inference = wdm::impl::cxi(large_x, large_y, {}, true);
+  check(std::fabs(std::get<1>(equal_inference) /
+                    std::sqrt(2.0 / (5.0 * large_x.size())) -
+                  1.0) < 0.002,
+        "equal-weight xi standard error approaches sqrt(2 / (5 n))");
+  check_near(std::get<2>(equal_inference),
+             1.0 / (large_x.size() * large_x.size()),
+             "equal-weight xi has the finite-sample null mean");
+
+  std::vector<double> smooth_weights(200), alternating_weights(200);
+  for (size_t i = 0; i < smooth_weights.size(); ++i) {
+    smooth_weights[i] = 1.0 + static_cast<double>(i) / smooth_weights.size();
+    alternating_weights[i] = (i % 2 == 0) ? 0.5 : 1.5;
+  }
+  check_cxi_null_variance(
+    smooth_weights,
+    "full xi null variance agrees with simulation for smooth weights");
+  check_cxi_null_variance(
+    alternating_weights,
+    "full xi null variance agrees with simulation for alternating weights");
 
   check_near(wdm::wdm({ 1, 2, 3, 4 }, { 1, 2, 2, 1 }, "cxi"),
              0.0,
