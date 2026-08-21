@@ -10,6 +10,8 @@
 #include "random.hpp"
 #include "utils.hpp"
 
+#include <memory>
+
 namespace wdm {
 
 namespace impl {
@@ -65,6 +67,12 @@ rank(std::vector<double> x,
   // permutation that brings 'x' in ascending order
   std::vector<size_t> perm = utils::get_order(x);
 
+  // all tie groups draw from the same stream, so that they are shuffled
+  // independently of one another
+  std::unique_ptr<random::RandomGenerator> random_gen;
+  if (ties_method == "random")
+    random_gen.reset(new random::RandomGenerator(seeds));
+
   double w_acc = 0.0, w_batch;
   for (size_t i = 0, reps; i < n; i += reps) {
     // find replications
@@ -77,39 +85,29 @@ rank(std::vector<double> x,
     for (size_t k = 0; k < reps; ++k)
       x[perm[i + k]] = w_acc + weights[perm[i]];
 
+    if (reps > 1) {
+      if ((ties_method == "first") || (ties_method == "random")) {
+        // break ties by assigning the cumulative weights, in order of
+        // appearance ("first") or in random order ("random")
+        std::vector<size_t> ord(reps);
+        std::iota(ord.begin(), ord.end(), 0); // 0, 1, 2, ...
+        if (ties_method == "random")
+          random::shuffle(ord, *random_gen);
+
+        double ww = 0.0;
+        for (size_t k = 0; k < reps; ++k) {
+          ww += weights[perm[i + ord[k]]];
+          x[perm[i + ord[k]]] = w_acc + ww;
+        }
+      } else if (ties_method == "average") {
+        // assign average rank to tied values
+        for (size_t k = 0; k < reps; ++k)
+          x[perm[i + k]] += (w_batch - weights[perm[i]]) / 2;
+      }
+    }
+
     // accumulate weights for current batch
     w_acc += w_batch;
-
-    if (reps <= 1)
-      continue;
-
-    if (ties_method == "first") {
-      // assign weighted ranks in order of appearance
-      double ww = 0;
-      for (size_t k = 1; k < reps; ++k) {
-        ww += weights[perm[i + k]];
-        x[perm[i + k]] += ww;
-      }
-    } else if (ties_method == "random") {
-      // assign weighted ranks in random order
-      random::RandomGenerator random_gen(seeds);
-      std::vector<size_t> rvals(reps);
-      std::iota(rvals.begin(), rvals.end(), 0); // 0, 1, 2, ...
-      random::shuffle(rvals, random_gen);
-
-      double ww = 0;
-      for (size_t k = 1; k < reps; ++k) {
-        x[perm[i + rvals[k]]] += ww;
-        ww += weights[perm[i + rvals[k]]];
-      }
-    } else if (ties_method == "average") {
-      // assign average rank to tied values
-      std::vector<double> ww(reps);
-      for (size_t k = 0; k < reps; ++k)
-        ww[k] = weights[perm[i + k]];
-      for (size_t k = 0; k < reps; ++k)
-        x[perm[i + k]] += (utils::sum(ww) - weights[perm[i]]) / 2;
-    }
   }
 
   if (nans.size() == n) {
