@@ -90,10 +90,23 @@ tau-b. Multiplicative pair weights are also used in other weighted Kendall
 constructions \citep{shieh1998}, although those constructions need not share
 the present case-weight interpretation.
 
-Direct evaluation is quadratic. As in the unweighted algorithm of
-\citet{knight1966}, discordant pairs can instead be counted during merge sort.
-Carrying the case masses through the merge replaces an inversion count by a
-sum of pair products and preserves $O(n\log n)$ running time.
+Direct evaluation is quadratic. \citet{knight1966} showed that ordinary
+Kendall correlation can instead be computed in $O(n\log n)$ time by counting
+discordant pairs during merge sort. Fast algorithms for weighted Kendall
+correlations have subsequently been developed as well; in particular,
+\citet{lin2018} give an $O(n\log n)$-time and $O(n)$-space method for an
+approximate weighted Kendall correlation.
+
+For the product case weights used here, Knight's inversion merge needs only
+one modification. When a record of mass $p_j$ is taken from the right half,
+its contribution is $p_j$ times the total mass still unmerged in the left
+half. This sums $p_ip_j$ over the newly exposed discordant pairs. An initial
+lexicographic sort by $(X,Y)$ prevents $X$ ties from becoming inversions,
+equal $Y$ values are treated as non-inversions, and the three required tie
+masses are obtained by linear group scans. The resulting calculation retains
+$O(n\log n)$ running time and $O(n)$ auxiliary memory. Since this is a direct
+weighted adaptation of established inversion-counting algorithms, the details
+are not repeated here.
 
 \subsection{Blomqvist's beta}
 

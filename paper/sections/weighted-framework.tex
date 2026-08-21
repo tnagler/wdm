@@ -107,6 +107,40 @@ are the usual zero-based midranks. With unequal weights, the pair-mass term is
 part of the definition and should not be replaced silently by one half of the
 mass of the tie group.
 
+Algorithm~\ref{alg:weighted-ranks} computes the strict ranks, weak ranks, and
+average scores in one group scan after sorting. For a tie group $G$, its total
+mass and pair mass are denoted by $P_G$ and $E_G$, while $C$ is the mass of all
+preceding groups.
+
+\begin{algorithm}[ht]
+  \caption{Weighted marginal ranks and average scores}
+  \label{alg:weighted-ranks}
+  \small
+  \begin{algorithmic}[1]
+    \Procedure{WeightedRanks}{$(X_i,p_i)_{i=1}^n$}
+      \State Sort the records by increasing $X_i$
+      \State $P_{<G}\gets0$
+      \ForAll{maximal tie groups $G$, in increasing order}
+        \State $P_G\gets\sum_{j\in G}p_j$
+        \State $E_G\gets\bigl(P_G^2-\sum_{j\in G}p_j^2\bigr)/2$
+        \ForAll{$i\in G$}
+          \State $F_{X,w}^{-}(X_i)\gets P_{<G}$
+          \State $F_{X,w}(X_i)\gets P_{<G}+P_G$
+          \State $R_i^X\gets P_{<G}+E_G/P_G$
+        \EndFor
+        \State $P_{<G}\gets P_{<G}+P_G$
+      \EndFor
+      \State \Return the three score vectors in the original observation order
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+The scan is linear after sorting, so its running time is $O(n\log n)$ and its
+auxiliary storage is $O(n)$. The same scan also computes strict rank sums with
+unnormalized masses, such as $p_i^a$, by replacing $p_i$ by the desired mass;
+normalization is needed only when the output is interpreted as an empirical
+distribution function.
+
 Higher-order statistics require sums over distinct observations. For
 $k\leq n$, let
 

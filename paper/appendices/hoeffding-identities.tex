@@ -1,2 +1,68 @@
 \section{Combinatorial identities for weighted Hoeffding's measure}
 \label{app:hoeffding-identities}
+
+This appendix gives the diagonal-removal calculation behind
+Proposition~\ref{prop:weighted-hoeffding-ranks}. Fix the anchor observation
+$i$. Because all ranks use strict inequalities, any summand in which a
+comparison index equals $i$ vanishes. It therefore remains only to make the
+comparison indices mutually distinct.
+
+For the term of order three, expanding the square and removing its diagonal
+gives
+
+\begin{align*}
+  \sum_{j\neq k}
+  p_jp_k I_{j,i}^{XY}I_{k,i}^{XY}
+  &= \left(q_i^{(1)}\right)^2-q_i^{(2)}.
+\end{align*}
+
+For the term of order four, inclusion--exclusion over the three equalities
+$j=k$, $j=l$, and $k=l$ gives
+
+\begin{align*}
+  &\sum_{j,k,l}^{\neq}
+  p_jp_kp_l I_{j,i}^{XY}I_{k,i}^X I_{l,i}^Y\\
+  &\qquad=
+  q_i^{(1)}r_i^{(1)}s_i^{(1)}
+  -q_i^{(2)}
+   \left(q_i^{(1)}+r_i^{(1)}+s_i^{(1)}\right)
+  +2q_i^{(3)}.
+\end{align*}
+
+The term of order five has two pairs of comparison indices. First require
+distinctness within each pair:
+
+\begin{align*}
+  &\sum_{\substack{j\neq k\\l\neq m}}
+  p_jp_kp_lp_m I_{j,i}^X I_{k,i}^X I_{l,i}^Y I_{m,i}^Y\\
+  &\qquad=
+  \left\{\left(r_i^{(1)}\right)^2-r_i^{(2)}\right\}
+  \left\{\left(s_i^{(1)}\right)^2-s_i^{(2)}\right\}.
+\end{align*}
+
+There are four possible cross-collisions, one for each pairing of an $X$
+index with a $Y$ index. The contribution from one specified cross-collision,
+after requiring the remaining three indices to be distinct, is
+
+\begin{align*}
+  &\sum_{j,k,m}^{\neq}
+  p_j^2p_kp_m I_{j,i}^{XY}I_{k,i}^X I_{m,i}^Y\\
+  &\qquad=
+  \left(r_i^{(1)}s_i^{(1)}-q_i^{(2)}\right)q_i^{(2)}
+  -q_i^{(3)}\left(r_i^{(1)}+s_i^{(1)}\right)
+  +2q_i^{(4)}.
+\end{align*}
+
+If two cross-collisions occur, they must form one of the two matchings between
+the two $X$ and two $Y$ indices. The contribution from either matching is
+
+\begin{align*}
+  \sum_{j\neq k}p_j^2p_k^2 I_{j,i}^{XY}I_{k,i}^{XY}
+  &= \left(q_i^{(2)}\right)^2-q_i^{(4)}.
+\end{align*}
+
+Consequently, the fully distinct sum is the within-pair-distinct sum minus
+four single-cross-collision sums and minus two double-matching sums. This is
+the expression defining $A_3$. Multiplication by $p_i$, summation over the
+anchor $i$, and division by the ordered distinct-tuple masses completes all
+three identities.

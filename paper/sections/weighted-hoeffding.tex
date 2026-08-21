@@ -3,6 +3,349 @@
 
 \subsection{Definition and finite-sample representation}
 
+Let $H$ denote the joint distribution function of $(X,Y)$ and let $F_X$ and
+$F_Y$ denote its marginals. Throughout this section the marginal
+distributions are assumed continuous. The normalized version of Hoeffding's
+population coefficient used here is
+
+\begin{align*}
+  D
+  &= 30\int
+     \left\{H(x,y)-F_X(x)F_Y(y)\right\}^2\,\mathrm{d}H(x,y)\\
+  &= 30\,\mathbb{E}\!\left[
+     \left\{H(X,Y)-F_X(X)F_Y(Y)\right\}^2
+     \right].
+\end{align*}
+
+The coefficient is zero under independence. The factor 30 gives value one
+under a strictly increasing or decreasing functional relation. Hoeffding's
+original test is based on an unbiased rank estimator of this functional
+\citep{hoeffding1948}.
+
+The expansion of the square involves expectations of orders three, four, and
+five. To make the distinct-observation structure explicit, let
+$(X^{(j)},Y^{(j)})$, $j=0,\ldots,4$, be independent copies of $(X,Y)$ and set
+
+\begin{align*}
+  I_j^X
+  &= \mathbf{1}\!\left(X^{(j)}<X^{(0)}\right),
+  &
+  I_j^Y
+  &= \mathbf{1}\!\left(Y^{(j)}<Y^{(0)}\right),
+  &
+  I_j^{XY}
+  &= I_j^X I_j^Y.
+\end{align*}
+
+Then
+
+\begin{align*}
+  \frac{D}{30}
+  &= \theta_3-2\theta_4+\theta_5,\\
+  \theta_3
+  &= \mathbb{E}\!\left[I_1^{XY}I_2^{XY}\right],\\
+  \theta_4
+  &= \mathbb{E}\!\left[I_1^{XY}I_2^X I_3^Y\right],\\
+  \theta_5
+  &= \mathbb{E}\!\left[I_1^X I_2^X I_3^Y I_4^Y\right].
+\end{align*}
+
+This representation suggests a weighted estimator without repeated sample
+indices. For observations $i$ and $j$, write
+
+\begin{align*}
+  I_{j,i}^X
+  &= \mathbf{1}(X_j<X_i),
+  &
+  I_{j,i}^Y
+  &= \mathbf{1}(Y_j<Y_i),
+  &
+  I_{j,i}^{XY}
+  &= I_{j,i}^X I_{j,i}^Y.
+\end{align*}
+
+Using the normalized case masses from Section~\ref{sec:framework}, define
+
+\begin{align*}
+  \widehat\theta_{3,w}
+  &= \frac{
+       \displaystyle
+       \sum_{i,j,k}^{\neq}p_ip_jp_k I_{j,i}^{XY}I_{k,i}^{XY}
+     }{3!e_3(p_1,\ldots,p_n)},\\
+  \widehat\theta_{4,w}
+  &= \frac{
+       \displaystyle
+       \sum_{i,j,k,l}^{\neq}
+       p_ip_jp_kp_l I_{j,i}^{XY}I_{k,i}^X I_{l,i}^Y
+     }{4!e_4(p_1,\ldots,p_n)},\\
+  \widehat\theta_{5,w}
+  &= \frac{
+       \displaystyle
+       \sum_{i,j,k,l,m}^{\neq}
+       p_ip_jp_kp_lp_m I_{j,i}^X I_{k,i}^X I_{l,i}^Y I_{m,i}^Y
+     }{5!e_5(p_1,\ldots,p_n)},
+\end{align*}
+
+where $\sum^{\neq}$ means that every displayed index is distinct. In the term
+of order $k$, the denominator is $k!e_k(p_1,\ldots,p_n)$. This is exactly the
+total mass of all ordered distinct $k$-tuples. The weighted Hoeffding estimator
+is
+
+\begin{align*}
+  \widehat D_w
+  &= 30\left(
+       \widehat\theta_{3,w}
+       -2\widehat\theta_{4,w}
+       +\widehat\theta_{5,w}
+     \right).
+\end{align*}
+
+At least five observations must have positive mass. If the observations are
+independent and identically distributed and the weights are deterministic or
+independent of the observed values, each $\widehat\theta_{k,w}$ is unbiased for
+$\theta_k$:
+every distinct tuple has the same expectation, while the normalized tuple
+weights sum to one. Uniform weights recover Hoeffding's ordinary estimator.
+Observation-dependent weights instead define a reweighted target and require
+the sampling assumptions discussed in Section~\ref{sec:framework}.
+
 \subsection{Fast computation from weighted bivariate ranks}
 
+Direct evaluation of the preceding sums would require up to $O(n^5)$
+operations. They can be collapsed to one-dimensional and bivariate rank sums.
+For $a=1,\ldots,4$, define
+
+\begin{align*}
+  r_i^{(a)}
+  &= \sum_{j=1}^n p_j^a I_{j,i}^X,
+  &
+  s_i^{(a)}
+  &= \sum_{j=1}^n p_j^a I_{j,i}^Y,
+  &
+  q_i^{(a)}
+  &= \sum_{j=1}^n p_j^a I_{j,i}^{XY}.
+\end{align*}
+
+Thus $r_i^{(1)}$ and $s_i^{(1)}$ are strict weighted marginal ranks, while
+$q_i^{(a)}$ is a weighted bivariate rank computed with the $a$th powers of
+the case masses.
+
+Algorithm~\ref{alg:weighted-bivariate-ranks} computes all bivariate ranks for
+one set of input masses. It is a merge sort over records initially ordered by
+$X$. Each recursive call returns its records ordered by $Y$. When a record
+from the right half is emitted, the accumulated mass of smaller-$Y$ records
+from the left half is added to its rank. Those records also precede it in
+$X$, so the update counts exactly the newly exposed lower-left quadrant. The
+strict comparison in line~\ref{alg:dominance-strict} makes equal $Y$ values
+noncontributing, although the present Hoeffding estimator assumes no marginal
+ties.
+
+\begin{algorithm}[ht]
+  \caption{Weighted bivariate ranks by dominance merge sort}
+  \label{alg:weighted-bivariate-ranks}
+  \small
+  \begin{algorithmic}[1]
+    \Procedure{WeightedBivariateRanks}{$(X_i,Y_i,u_i)_{i=1}^n$}
+      \State Sort the records by increasing $X_i$
+      \State $\mathcal Z\gets$ the sorted record sequence
+      \State Set $q_i\gets0$ for every record
+      \State $\mathcal Z\gets\Call{DominanceMerge}{\mathcal Z}$
+      \State \Return $(q_i)_{i=1}^n$ in the original observation order
+    \EndProcedure
+    \Statex
+    \Function{DominanceMerge}{$\mathcal Z$}
+      \If{$|\mathcal Z|\leq1$}
+        \State \Return $\mathcal Z$
+      \EndIf
+      \State Split $\mathcal Z$ into consecutive $X$-order halves
+        $\mathcal Z_L,\mathcal Z_R$
+      \State $\mathcal L\gets\Call{DominanceMerge}{\mathcal Z_L}$
+        \Comment{sorted by $Y$}
+      \State $\mathcal R\gets\Call{DominanceMerge}{\mathcal Z_R}$
+        \Comment{sorted by $Y$}
+      \State $P_{\mathrm{passed}}\gets0$, $\mathcal M\gets$ empty sequence
+      \While{$\mathcal L$ and $\mathcal R$ are both nonempty}
+        \If{$Y_{\mathcal L_1}<Y_{\mathcal R_1}$}
+          \label{alg:dominance-strict}
+          \State Append $\mathcal L_1$ to $\mathcal M$,
+            $P_{\mathrm{passed}}\gets P_{\mathrm{passed}}+u_{\mathcal L_1}$,
+            and remove $\mathcal L_1$
+        \Else
+          \State $q_{\mathcal R_1}\gets q_{\mathcal R_1}+P_{\mathrm{passed}}$
+          \State Append $\mathcal R_1$ to $\mathcal M$ and remove
+            $\mathcal R_1$
+        \EndIf
+      \EndWhile
+      \ForAll{records remaining in $\mathcal R$, in order}
+        \State $q_{\mathcal R_1}\gets q_{\mathcal R_1}+P_{\mathrm{passed}}$
+        \State Append $\mathcal R_1$ to $\mathcal M$ and remove
+          $\mathcal R_1$
+      \EndFor
+      \State Append the records remaining in $\mathcal L$ to $\mathcal M$
+      \State \Return $\mathcal M$
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{proposition}[Rank representation]
+\label{prop:weighted-hoeffding-ranks}
+Let at least five case masses be positive. Define
+
+\begin{align*}
+  A_1
+  &= \sum_{i=1}^n p_i
+     \left\{\left(q_i^{(1)}\right)^2-q_i^{(2)}\right\},\\
+  A_2
+  &= \sum_{i=1}^n p_i
+     \left\{
+       r_i^{(1)}s_i^{(1)}q_i^{(1)}
+       -q_i^{(2)}\left(r_i^{(1)}+s_i^{(1)}+q_i^{(1)}\right)
+       +2q_i^{(3)}
+     \right\},\\
+  A_3
+  &= \sum_{i=1}^n p_i
+     \Bigl[
+       \left\{\left(r_i^{(1)}\right)^2-r_i^{(2)}\right\}
+       \left\{\left(s_i^{(1)}\right)^2-s_i^{(2)}\right\}\\
+  &\qquad
+       -4\left\{
+         \left(r_i^{(1)}s_i^{(1)}-q_i^{(2)}\right)q_i^{(2)}
+         -q_i^{(3)}\left(r_i^{(1)}+s_i^{(1)}\right)
+         +2q_i^{(4)}
+       \right\}\\
+  &\qquad
+       -2\left\{\left(q_i^{(2)}\right)^2-q_i^{(4)}\right\}
+     \Bigr].
+\end{align*}
+
+Then the distinct-tuple estimator satisfies
+
+\begin{align*}
+  \widehat D_w
+  &= 30\left\{
+       \frac{A_1}{3!e_3(p_1,\ldots,p_n)}
+       -\frac{2A_2}{4!e_4(p_1,\ldots,p_n)}
+       +\frac{A_3}{5!e_5(p_1,\ldots,p_n)}
+     \right\}.
+\end{align*}
+\end{proposition}
+
+The powers of the masses are diagonal corrections, not an additional choice
+of weighting scheme. For example,
+
+\begin{align*}
+  \left(q_i^{(1)}\right)^2-q_i^{(2)}
+  &= \sum_{j\neq k}p_jp_k I_{j,i}^{XY}I_{k,i}^{XY},
+\end{align*}
+
+which gives $A_1$ after multiplication by the anchor mass $p_i$. For $A_2$,
+the unrestricted product $q_i^{(1)}r_i^{(1)}s_i^{(1)}$ allows its three
+comparison indices to coincide. Removing the three pairwise diagonals and
+restoring the common triple diagonal gives
+
+\begin{align*}
+  q_i^{(1)}r_i^{(1)}s_i^{(1)}
+  -q_i^{(2)}\left(q_i^{(1)}+r_i^{(1)}+s_i^{(1)}\right)
+  +2q_i^{(3)}.
+\end{align*}
+
+For $A_3$, the first product in braces makes the two $X$ indices distinct and
+the two $Y$ indices distinct. Four possible cross-collisions remain. The term
+multiplied by four is the mass of configurations with one specified
+cross-collision and two remaining distinct indices; the final term, multiplied
+by two, removes the two possible matchings with two cross-collisions. This
+partitions all repeated-index configurations and proves the rank
+representation. A fully indexed version of the argument is given in
+Appendix~\ref{app:hoeffding-identities}.
+
+Algorithm~\ref{alg:weighted-hoeffding} assembles the complete calculation.
+The marginal calls use the strict-rank output of
+Algorithm~\ref{alg:weighted-ranks}; normalization of the supplied masses is
+unnecessary because each homogeneous term is divided by a normalizer of the
+same degree.
+
+\begin{algorithm}[ht]
+  \caption{Fast weighted Hoeffding estimator}
+  \label{alg:weighted-hoeffding}
+  \small
+  \begin{algorithmic}[1]
+    \Procedure{WeightedHoeffding}{$(X_i,Y_i,p_i)_{i=1}^n$}
+      \State Compute $r^{(1)}$ and $s^{(1)}$ by weighted strict-rank scans
+        with masses $p_i$
+      \State Compute $r^{(2)}$ and $s^{(2)}$ by weighted strict-rank scans
+        with masses $p_i^2$
+      \For{$a=1,\ldots,4$}
+        \State $q^{(a)}\gets
+          \Call{WeightedBivariateRanks}{(X_i,Y_i,p_i^a)_{i=1}^n}$
+      \EndFor
+      \State Compute $e_3(p_1,\ldots,p_n)$, $e_4(p_1,\ldots,p_n)$, and
+        $e_5(p_1,\ldots,p_n)$ by Newton's identities
+      \State Accumulate $A_1,A_2,A_3$ in one scan using
+        Proposition~\ref{prop:weighted-hoeffding-ranks}
+      \State \Return
+        $30\left\{A_1/(3!e_3)-2A_2/(4!e_4)+A_3/(5!e_5)\right\}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+The marginal ranks $r_i^{(a)}$ and $s_i^{(a)}$ are obtained by sorting and
+forming prefix sums. The bivariate ranks are two-dimensional dominance sums.
+After sorting observations by $X$, a merge sort of the corresponding $Y$
+values accumulates, for every observation, the mass $p_j^a$ of preceding
+observations with smaller $Y$. This is weighted inversion counting, analogous
+to the merge-sort calculation of Kendall's coefficient. It produces all
+$q_i^{(a)}$ for a fixed $a$ in $O(n\log n)$ time and $O(n)$ memory. Four
+passes, for $a=1,\ldots,4$, retain the same asymptotic complexity. Classical
+fast rank implementations likewise compute unweighted Hoeffding statistics in
+$O(n\log n)$ time \citep{evenzohar2020}.
+
+The merge-sort idea itself is classical. The distinctive weighted step is the
+combination of four dominance passes with masses $p_i,p_i^2,p_i^3,p_i^4$ and
+the elementary-symmetric normalizers. A single dominance pass with $p_i$
+would leave repeated-index contributions in the order-three through
+order-five products. The higher mass powers remove precisely those diagonals,
+as established above and in Appendix~\ref{app:hoeffding-identities}.
+
+Finally, the normalizing terms are evaluated from Newton's identities. Set
+$e_0=1$. Then
+
+\begin{align*}
+  e_k(p_1,\ldots,p_n)
+  &= \frac{1}{k}\sum_{a=1}^k(-1)^{a-1}
+     e_{k-a}(p_1,\ldots,p_n)\sum_{i=1}^n p_i^a.
+\end{align*}
+
+Only $k=3,4,5$ is needed, so this step is linear in $n$.
+
 \subsection{Correctness and computational complexity}
+
+Proposition~\ref{prop:weighted-hoeffding-ranks} shows algebraic equality with
+the direct distinct-tuple estimator. The resulting algorithm consists of a
+fixed number of sorts, weighted merge passes, and linear scans. Its overall
+running time is therefore $O(n\log n)$ and its auxiliary memory requirement is
+$O(n)$. Computing each bivariate rank directly would take $O(n^2)$ time, even
+after the order-five tuple sums had been reduced algebraically.
+
+The representation also makes several finite-sample properties immediate.
+It is invariant under a common positive scaling of the original weights,
+under permutations of the observations, and under strictly increasing
+transformations of either margin. Exchanging $X$ and $Y$ leaves the statistic
+unchanged. Zero-mass observations can be removed before computation. For
+uniform weights, the denominators become
+
+\begin{align*}
+  k!e_k(1/n,\ldots,1/n)
+  &= \frac{n(n-1)\cdots(n-k+1)}{n^k},
+\end{align*}
+
+and the rank formula reduces to the classical unweighted statistic.
+
+The current method assumes continuous marginals and hence no ties. Strict and
+weak inequalities agree almost surely in that setting. A tie-corrected
+weighted Hoeffding coefficient would need a deliberate fractional convention
+for bivariate ranks and corresponding diagonal identities; silently applying
+midranks would not preserve Proposition~\ref{prop:weighted-hoeffding-ranks}.
+Moreover, highly concentrated masses make $e_5(p_1,\ldots,p_n)$ small and the
+estimator unstable even when it is formally defined. The asymptotic test in
+Section~\ref{sec:independence-tests} therefore requires diffuse weights in
+addition to five positive observations.
