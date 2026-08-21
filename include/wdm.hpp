@@ -32,8 +32,10 @@ namespace wdm {
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
-//!   - `"chatterjee"`, `"cxi"`: Chatterjee's \f$ \xi \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
+//! @note Chatterjee's xi measures dependence of `y` on `x` and is asymmetric.
+//!   Its weights must be finite, nonnegative, and have a positive sum.
 //! @return the dependence measure
 inline double
 wdm(std::vector<double> x,
@@ -76,6 +78,12 @@ wdm(std::vector<double> x,
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
+//!
+//! @note Weighted analytic inference for Chatterjee's xi assumes that the
+//!   weights are fixed or depend only on `x`, the normalized weights are
+//!   diffuse, and `y` is continuous. The weighted estimate remains available
+//!   when `y` is tied, but analytic inference with unequal weights does not.
 //!
 class Indep_test
 {
@@ -91,7 +99,8 @@ public:
   //! @param alternative indicates the alternative hypothesis and must be one
   //!    of `"two-sided"``, `"greater"` or `"less"`; `"greater"` corresponds
   //!    to positive association, `"less"` to negative association. For
-  //!    Hoeffding's \f$ D \f$, only `"two-sided"` is allowed.
+  //!    Hoeffding's \f$ D \f$, only `"two-sided"` is allowed. The natural
+  //!    one-sided alternative for Chatterjee's xi is `"greater"`.
   Indep_test(std::vector<double> x,
              std::vector<double> y,
              std::string method,

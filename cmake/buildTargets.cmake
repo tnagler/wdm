@@ -5,6 +5,7 @@ target_include_directories(wdm INTERFACE
         )
 
 if(BUILD_TESTING)
+    enable_testing()
     set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
     add_subdirectory(test)
 endif(BUILD_TESTING)

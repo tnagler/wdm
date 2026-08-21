@@ -36,6 +36,7 @@ convert_vec(const Eigen::VectorXd& x)
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
 //! @return the dependence measure
 inline double
@@ -65,8 +66,11 @@ wdm(const Eigen::VectorXd& x,
 //!   - `"kendall"`, `"ktau"`, `"tau"`: Kendall's \f$ \tau \f$
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
+//!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
-//! @return a matrix of pairwise dependence measures.
+//! @return a matrix of pairwise dependence measures. Chatterjee matrices are
+//!   generally asymmetric; all other supported measures produce symmetric
+//!   matrices.
 inline Eigen::MatrixXd
 wdm(const Eigen::MatrixXd& x,
     std::string method,

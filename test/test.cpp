@@ -242,6 +242,9 @@ test_cxi()
   check_near(wdm::wdm(x, x, "chatterjee"),
              wdm::wdm(x, x, "cxi"),
              "xi method names are aliases");
+  check_near(wdm::wdm(x, x, "xi"),
+             wdm::wdm(x, x, "cxi"),
+             "short xi method name is an alias");
 
   // xi picks up a non-monotonic relationship, and is asymmetric: the square is
   // a measurable function of the argument, but not the other way around

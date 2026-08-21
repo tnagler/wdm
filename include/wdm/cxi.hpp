@@ -100,7 +100,18 @@ xi_std(const std::vector<double>& r,
   return std::sqrt(tau2) / std::sqrt(n);
 }
 
-// Weighted Chatterjee's xi statistic
+//! Weighted Chatterjee's xi statistic and conditional null inference.
+//! @param x predictor values.
+//! @param y response values.
+//! @param weights optional case weights, normalized internally.
+//! @param calculate_std whether to calculate analytic null inference.
+//! @param ties_method rank convention for tied responses.
+//! @return `(estimate, standard_error, null_mean)`. The inferential values are
+//!   `NaN` when `calculate_std` is false.
+//! @details Weights must be finite, nonnegative, and have a positive sum.
+//!   Analytic inference with unequal weights assumes a continuous response and
+//!   weights that are fixed or depend only on `x`. It is unavailable when the
+//!   response is tied.
 inline std::tuple<double, double, double>
 cxi(std::vector<double> x,
     std::vector<double> y,
