@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['wdm_8',['wdm',['../index.html',1,'(Global Namespace)'],['../namespacewdm.html',1,'wdm'],['../namespacewdm.html#a4bd3f75ecf83b1a8ddbc6716eb0d49ec',1,'wdm::wdm(std::vector&lt; double &gt; x, std::vector&lt; double &gt; y, std::string method, std::vector&lt; double &gt; weights=std::vector&lt; double &gt;(), bool remove_missing=true, std::vector&lt; int &gt; seeds=std::vector&lt; int &gt;())'],['../namespacewdm.html#a9fd23b006abbd7fc02d609bd8e83e32c',1,'wdm::wdm(const Eigen::VectorXd &amp;x, const Eigen::VectorXd &amp;y, std::string method, Eigen::VectorXd weights=Eigen::VectorXd(), bool remove_missing=true, std::vector&lt; int &gt; seeds=std::vector&lt; int &gt;())'],['../namespacewdm.html#a5944b64fe28779bb45bf839b2de4cd1e',1,'wdm::wdm(const Eigen::MatrixXd &amp;x, std::string method, Eigen::VectorXd weights=Eigen::VectorXd(), bool remove_missing=true, std::vector&lt; int &gt; seeds=std::vector&lt; int &gt;())']]]
+];

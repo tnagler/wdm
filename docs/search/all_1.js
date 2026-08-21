@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['estimate',['estimate',['../classwdm_1_1_indep__test.html#aa25d38db5d71cac47b859db63516dc47',1,'wdm::Indep_test']]]
+  ['estimate_1',['estimate',['../classwdm_1_1_indep__test.html#a65e9fa81eb31f14434937060d7f0ab22',1,'wdm::Indep_test']]]
 ];

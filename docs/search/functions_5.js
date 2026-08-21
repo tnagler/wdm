@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['p_5fvalue',['p_value',['../classwdm_1_1_indep__test.html#a2ca55f71b53bf1f423a0f9a3d6fd81f6',1,'wdm::Indep_test']]]
+  ['p_5fvalue_17',['p_value',['../classwdm_1_1_indep__test.html#a27d375620fe7e93c8762274247f64379',1,'wdm::Indep_test']]]
 ];
