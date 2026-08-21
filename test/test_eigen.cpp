@@ -15,9 +15,13 @@ main()
     ++row;
   }
 
-  Eigen::MatrixXd chatterjee = wdm::wdm(observations, "cxi");
-  double forward = wdm::wdm(observations.col(0), observations.col(1), "cxi");
-  double reverse = wdm::wdm(observations.col(1), observations.col(0), "cxi");
+  std::vector<int> seeds{ 17, 29, 43 };
+  Eigen::MatrixXd chatterjee =
+    wdm::wdm(observations, "cxi", Eigen::VectorXd(), true, seeds);
+  double forward =
+    wdm::wdm(observations.col(0), observations.col(1), "cxi", {}, true, seeds);
+  double reverse =
+    wdm::wdm(observations.col(1), observations.col(0), "cxi", {}, true, seeds);
   if (std::fabs(chatterjee(0, 1) - forward) > 1e-12 ||
       std::fabs(chatterjee(1, 0) - reverse) > 1e-12 ||
       chatterjee(0, 1) <= chatterjee(1, 0) + 0.5) {

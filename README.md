@@ -32,6 +32,8 @@ normalized internally and must be finite, nonnegative, and have a positive
 sum. The weighted estimate supports tied responses. Analytic inference with
 unequal weights currently requires a continuous response, weights that are
 fixed or depend only on `x`, and sufficiently diffuse normalized weights.
+Ties in `x` are broken uniformly at random without consulting `y`; pass seeds
+through the optional final argument to reproduce the same tie ordering.
 
 For details, see the [API documentation](https://tnagler.github.io/wdm/) 
 and the [example](#example) below.

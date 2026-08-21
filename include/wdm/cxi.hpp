@@ -8,10 +8,47 @@
 
 #include "ranks.hpp"
 #include "utils.hpp"
+#include <memory>
 #include <tuple>
 
 namespace wdm {
 namespace impl {
+
+//! Sort observations by the predictor and break predictor ties uniformly at
+//! random, independently of the response.
+inline void
+sort_chatterjee_observations(std::vector<double>& x,
+                             std::vector<double>& y,
+                             std::vector<double>& weights,
+                             const std::vector<int>& seeds)
+{
+  std::vector<size_t> order = utils::get_order(x);
+  std::unique_ptr<random::RandomGenerator> tie_generator;
+  for (size_t begin = 0, end; begin < order.size(); begin = end) {
+    end = begin + 1;
+    while (end < order.size() && x[order[end]] == x[order[begin]])
+      ++end;
+    if (end - begin > 1) {
+      if (!tie_generator)
+        tie_generator.reset(new random::RandomGenerator(seeds));
+      std::vector<size_t> tied_order(order.begin() + begin,
+                                     order.begin() + end);
+      random::shuffle(tied_order, *tie_generator);
+      std::copy(tied_order.begin(), tied_order.end(), order.begin() + begin);
+    }
+  }
+
+  std::vector<double> sorted_x(x.size()), sorted_y(y.size()),
+    sorted_weights(weights.size());
+  for (size_t i = 0; i < order.size(); ++i) {
+    sorted_x[i] = x[order[i]];
+    sorted_y[i] = y[order[i]];
+    sorted_weights[i] = weights[order[i]];
+  }
+  x = sorted_x;
+  y = sorted_y;
+  weights = sorted_weights;
+}
 
 // Conditional null mean and standard deviation for a continuous response.
 inline std::tuple<double, double>
@@ -106,6 +143,7 @@ xi_std(const std::vector<double>& r,
 //! @param weights optional case weights, normalized internally.
 //! @param calculate_std whether to calculate analytic null inference.
 //! @param ties_method rank convention for tied responses.
+//! @param seeds optional seeds for random predictor-tie breaking.
 //! @return `(estimate, standard_error, null_mean)`. The inferential values are
 //!   `NaN` when `calculate_std` is false.
 //! @details Weights must be finite, nonnegative, and have a positive sum.
@@ -117,7 +155,8 @@ cxi(std::vector<double> x,
     std::vector<double> y,
     std::vector<double> weights = std::vector<double>(),
     bool calculate_std = true,
-    std::string ties_method = "max")
+    std::string ties_method = "max",
+    std::vector<int> seeds = std::vector<int>())
 {
   utils::check_sizes(x, y, weights);
 
@@ -132,8 +171,8 @@ cxi(std::vector<double> x,
   if (!std::isfinite(weight_sum) || weight_sum <= 0.0)
     throw std::runtime_error("weights must have a finite, positive sum.");
 
-  // Sort x, y, and weights in x order
-  utils::sort_all(x, y, weights);
+  // Sort in x order and break x ties uniformly without consulting y.
+  sort_chatterjee_observations(x, y, weights, seeds);
 
   std::vector<double> probabilities = weights;
   for (auto& probability : probabilities)

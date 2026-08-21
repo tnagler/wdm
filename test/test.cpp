@@ -259,7 +259,7 @@ test_cxi()
   check(wdm::wdm(v, v_sq, "cxi") > wdm::wdm(v_sq, v, "cxi") + 0.5,
         "xi is asymmetric");
 
-  // reordering the observations must not change either direction
+  // Reordering observations does not matter when the predictor has no ties.
   std::vector<double> v_rev(v.rbegin(), v.rend());
   std::vector<double> v_sq_rev(v_sq.rbegin(), v_sq.rend());
   check_near(wdm::wdm(v_rev, v_sq_rev, "cxi"),
@@ -339,6 +339,66 @@ test_cxi()
                "xi rejects zero total weight");
   check_throws([&]() { wdm::wdm(short_x, { 1, 1, 1 }, "cxi"); },
                "xi rejects a constant response");
+
+  std::vector<double> tied_predictor{ 2, 1, 1, 2, 1 };
+  std::vector<double> tied_predictor_response{ 10, 20, 30, 40, 50 };
+  std::vector<double> tied_predictor_weights{ 1, 2, 3, 4, 5 };
+  std::vector<int> tie_seeds{ 17, 29, 43 };
+  check_near(wdm::wdm(tied_predictor,
+                      tied_predictor_response,
+                      "cxi",
+                      tied_predictor_weights,
+                      true,
+                      tie_seeds),
+             wdm::wdm(tied_predictor,
+                      tied_predictor_response,
+                      "cxi",
+                      tied_predictor_weights,
+                      true,
+                      tie_seeds),
+             "seeded predictor-tie breaking is reproducible");
+  check_near(wdm::wdm(v, v_sq, "cxi", {}, true, { 1 }),
+             wdm::wdm(v, v_sq, "cxi", {}, true, { 2 }),
+             "predictor-tie seeds do not affect untied data");
+
+  std::vector<double> shifted_response = tied_predictor_response;
+  for (auto& response : shifted_response)
+    response += 100.0;
+  std::vector<double> sorted_predictor = tied_predictor;
+  std::vector<double> sorted_response = tied_predictor_response;
+  std::vector<double> sorted_weights = tied_predictor_weights;
+  wdm::impl::sort_chatterjee_observations(
+    sorted_predictor, sorted_response, sorted_weights, tie_seeds);
+  wdm::impl::sort_chatterjee_observations(
+    tied_predictor, shifted_response, tied_predictor_weights, tie_seeds);
+  check(std::is_sorted(sorted_predictor.begin(), sorted_predictor.end()),
+        "Chatterjee observations are sorted by the predictor");
+  for (size_t i = 0; i < sorted_response.size(); ++i) {
+    check_near(sorted_response[i],
+               10.0 * sorted_weights[i],
+               "predictor-tie breaking keeps weights with observations");
+    check_near(shifted_response[i],
+               sorted_response[i] + 100.0,
+               "predictor-tie breaking does not consult the response");
+  }
+
+  auto tied_predictor_inference = wdm::impl::cxi(
+    sorted_predictor, sorted_response, sorted_weights, true, "max", tie_seeds);
+  wdm::Indep_test tied_predictor_test(sorted_predictor,
+                                      sorted_response,
+                                      "cxi",
+                                      sorted_weights,
+                                      true,
+                                      "two-sided",
+                                      tie_seeds);
+  check_near(tied_predictor_test.estimate(),
+             std::get<0>(tied_predictor_inference),
+             "xi test reuses the seeded predictor-tie ordering");
+  check_near(tied_predictor_test.statistic(),
+             (std::get<0>(tied_predictor_inference) -
+              std::get<2>(tied_predictor_inference)) /
+               std::get<1>(tied_predictor_inference),
+             "xi inference uses the realized predictor-tie ordering");
 
   wdm::Indep_test test(v, v_sq, "cxi");
   check(std::isfinite(test.p_value()), "xi p-value is finite");

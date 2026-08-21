@@ -24,6 +24,7 @@ namespace wdm {
 //! @param weights an optional vector of weights for the data.
 //! @param remove_missing if `true`, all observations containing a `nan` are
 //!    removed; otherwise throws an error if `nan`s are present.
+//! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
 //!
 //! @details
 //! Available methods:
@@ -42,7 +43,8 @@ wdm(std::vector<double> x,
     std::vector<double> y,
     std::string method,
     std::vector<double> weights = std::vector<double>(),
-    bool remove_missing = true)
+    bool remove_missing = true,
+    std::vector<int> seeds = std::vector<int>())
 {
   utils::check_sizes(x, y, weights);
   // na handling
@@ -60,7 +62,7 @@ wdm(std::vector<double> x,
   if (methods::is_blomqvist(method))
     return impl::bbeta(x, y, weights);
   if (methods::is_chatterjee(method)) {
-    auto xi_and_std = impl::cxi(x, y, weights, false);
+    auto xi_and_std = impl::cxi(x, y, weights, false, "max", seeds);
     return std::get<0>(xi_and_std);
   }
   throw std::runtime_error("method not implemented.");
@@ -101,12 +103,14 @@ public:
   //!    to positive association, `"less"` to negative association. For
   //!    Hoeffding's \f$ D \f$, only `"two-sided"` is allowed. The natural
   //!    one-sided alternative for Chatterjee's xi is `"greater"`.
+  //! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
   Indep_test(std::vector<double> x,
              std::vector<double> y,
              std::string method,
              std::vector<double> weights = std::vector<double>(),
              bool remove_missing = true,
-             std::string alternative = "two-sided")
+             std::string alternative = "two-sided",
+             std::vector<int> seeds = std::vector<int>())
     : method_(method)
     , alternative_(alternative)
   {
@@ -118,8 +122,15 @@ public:
       p_value_ = std::numeric_limits<double>::quiet_NaN();
     } else {
       n_eff_ = utils::effective_sample_size(x.size(), weights);
-      estimate_ = wdm(x, y, method, weights, false);
-      statistic_ = compute_test_stat(estimate_, method, n_eff_, x, y, weights);
+      if (methods::is_chatterjee(method)) {
+        auto stats = impl::cxi(x, y, weights, true, "max", seeds);
+        estimate_ = std::get<0>(stats);
+        statistic_ = (estimate_ - std::get<2>(stats)) / std::get<1>(stats);
+      } else {
+        estimate_ = wdm(x, y, method, weights, false);
+        statistic_ =
+          compute_test_stat(estimate_, method, n_eff_, x, y, weights);
+      }
       p_value_ = compute_p_value(statistic_, method, alternative, n_eff_);
     }
   }
@@ -167,9 +178,6 @@ private:
       stat = std::atanh(estimate) * std::sqrt((n_eff - 3) / 1.06);
     } else if (methods::is_blomqvist(method)) {
       stat = std::atanh(estimate) * std::sqrt(n_eff);
-    } else if (methods::is_chatterjee(method)) {
-      auto stats = impl::cxi(x, y, weights, true);
-      stat = (std::get<0>(stats) - std::get<2>(stats)) / std::get<1>(stats);
     } else {
       throw std::runtime_error("method not implemented.");
     }
