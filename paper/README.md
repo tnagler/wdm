@@ -24,8 +24,8 @@ second user manual for the C++ or R packages.
 - Explain why naively replacing counts by weights is insufficient for
   higher-order statistics and null inference.
 - State the three main contributions precisely.
-- Position the software as a reproducible implementation, not the principal
-  contribution.
+- Mention the C++ library and R interface briefly as reproducible
+  implementations, not as separate contributions.
 
 ### 2. Weighted empirical framework
 
@@ -103,20 +103,6 @@ second user manual for the C++ or R packages.
 - Keep the design targeted at the theoretical claims rather than producing a
   broad software benchmark.
 
-### 8. Software implementation
-
-- Briefly describe the header-only C++ implementation and its R interface.
-- Record algorithmic complexity, reproducible random tie breaking, and links
-  between formulas and implementation units.
-- Point readers to package documentation for API details.
-
-### 9. Discussion
-
-- Summarize the statistical and computational contributions.
-- Discuss highly concentrated weights, discrete responses for weighted
-  Chatterjee inference, and possible extensions to other weighted rank
-  statistics.
-
 ### Appendices
 
 - Combinatorial derivation for weighted Hoeffding's measure.
@@ -137,3 +123,11 @@ second user manual for the C++ or R packages.
   title page.
 - Choose a target venue or technical-report series only after the main results
   and proof lengths are clear.
+
+## Building
+
+From the repository root, run:
+
+```sh
+latexmk -cd -pdf paper/main.tex
+```

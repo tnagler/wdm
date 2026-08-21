@@ -1,0 +1,54 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Measures of dependence reduce different aspects of a joint distribution to a
+small number of interpretable summaries. Pearson's correlation quantifies
+linear association, while the rank coefficients of \citet{spearman1904} and
+\citet{kendall1938} describe monotone association and are invariant under
+strictly increasing marginal transformations. Blomqvist's beta gives a
+particularly simple quadrant-based summary \citep{blomqvist1950}. These
+coefficients are useful and easy to compute, but none characterizes general
+dependence. Hoeffding's rank statistic instead compares the joint distribution
+with the product of its marginals and yields a consistent test of independence
+under broad conditions \citep{hoeffding1948}. More recently,
+\citet{chatterjee2021} introduced a directional rank coefficient that is zero
+if and only if the variables are independent and reaches one when the response
+is almost surely a measurable function of the predictor.
+
+Many applications attach a nonnegative weight to every observation. Examples
+include survey and inverse-probability weights, importance weights, and local
+weights used to focus an analysis on a subpopulation. For means and
+covariances, weighting amounts to replacing the empirical distribution by a
+weighted empirical distribution. For rank statistics of order two or higher,
+this substitution is not enough. Products containing repeated observations
+must be removed, ties require compatible weighted counts, and the variability
+of a weighted statistic depends on the concentration of the weights rather
+than only on the nominal sample size. In particular, the familiar effective
+sample size of \citet{kish1965} is exact for the conditional variance of a
+weighted mean, but it is not automatically the complete variance correction
+for nonlinear rank statistics.
+
+This report develops a common case-weight framework for several dependence
+measures and concentrates on three less standard contributions. First, it
+derives a finite-sample version of Hoeffding's statistic based on products of
+weights over distinct observations. The apparently high-order sums can be
+written in terms of marginal ranks, bivariate ranks, powers of the weights,
+and elementary symmetric weight sums. Weighted bivariate ranks are then
+computed by sorting and inversion counting, giving an
+$O(n\log n)$ algorithm instead of direct enumeration. Second, the report
+states an asymptotic framework for weighted independence tests, separating
+ordinary Gaussian limits from the degenerate null limit of Hoeffding's
+statistic and making explicit where effective sample size and tie corrections
+enter. Third, it studies a weighted extension of Chatterjee's coefficient and
+derives its conditional permutation-null mean and variance for a continuous
+response.
+
+The formulas are implemented in the header-only C++ library \texttt{wdm} and
+are exposed to most users through its R interface. The software serves as a
+reproducible implementation of the methods; API details are intentionally left
+to the package documentation. Section~\ref{sec:framework} fixes notation and
+the interpretation of the weights. Section~\ref{sec:standard-measures}
+records the standard weighted coefficients used for comparison.
+Sections~4--6 develop weighted Hoeffding computation, independence-test
+asymptotics, and weighted Chatterjee correlation. Section~7 assesses the
+identities, computational scaling, null calibration, and power numerically.

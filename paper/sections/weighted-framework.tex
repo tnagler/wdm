@@ -1,0 +1,165 @@
+\section{Weighted empirical framework}
+\label{sec:framework}
+
+\subsection{Observations and normalized case weights}
+
+Let $(X_i,Y_i)$, $i=1,\ldots,n$, denote the observed pairs and let
+$w_i\geq 0$ be their case weights, with at least one positive weight. Write
+
+\begin{align*}
+  W_n &= \sum_{i=1}^n w_i,
+  &
+  p_i &= \frac{w_i}{W_n}.
+\end{align*}
+
+The normalized weights satisfy $\sum_i p_i=1$ and define the weighted
+empirical measure
+
+\begin{align*}
+  \mathbb{P}_{n,w}
+  &= \sum_{i=1}^n p_i\,\delta_{(X_i,Y_i)},
+  &
+  \mathbb{P}_{n,w}f
+  &= \sum_{i=1}^n p_i f(X_i,Y_i).
+\end{align*}
+
+All coefficients considered below depend on the weights only through the
+$p_i$. They are therefore invariant under multiplication of all weights by a
+common positive constant. An observation with zero weight has zero mass and
+is treated as absent. The weights are case masses, not weights attached to
+particular rank positions; this distinction matters because ``weighted rank
+correlation'' is also used for coefficients that deliberately emphasize the
+top or bottom of a ranking \citep{shieh1998}.
+
+The concentration of the case masses is summarized by Kish's effective sample
+size \citep{kish1965},
+
+\begin{align*}
+  n_{\mathrm{eff}}
+  &= \frac{\left(\sum_{i=1}^n w_i\right)^2}
+           {\sum_{i=1}^n w_i^2}
+   = \frac{1}{\sum_{i=1}^n p_i^2}.
+\end{align*}
+
+If the observations are independent and identically distributed, the weights
+are held fixed, and $h(X_i,Y_i)$ has variance $\sigma_h^2$, then
+
+\begin{align*}
+  \operatorname{Var}\!\left(
+    \mathbb{P}_{n,w}h\mid p_1,\ldots,p_n
+  \right)
+  &= \sigma_h^2\sum_{i=1}^n p_i^2
+   = \frac{\sigma_h^2}{n_{\mathrm{eff}}}.
+\end{align*}
+
+Thus $n_{\mathrm{eff}}$ is the exact conditional precision-equivalent sample
+size for a weighted mean in this setting. It equals $n$ under uniform weights
+and decreases as mass is concentrated on fewer observations. Later sections
+will identify when this scalar also gives the appropriate normalization for a
+dependence statistic and when further weight functionals are required.
+
+\subsection{Weighted ranks and distinct-index sums}
+
+For a marginal variable, define the strict and weak weighted empirical
+distribution functions by
+
+\begin{align*}
+  F_{X,w}^{-}(x)
+  &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j<x),
+  &
+  F_{X,w}(x)
+  &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j\leq x),
+\end{align*}
+
+and analogously for $Y$. The strict weighted bivariate rank at observation
+$i$ is
+
+\begin{align*}
+  H_{i,w}^{-}
+  &= \sum_{j=1}^n p_j
+     \mathbf{1}(X_j<X_i,\,Y_j<Y_i).
+\end{align*}
+
+This rank is the basic computational quantity in the weighted Hoeffding
+statistic.
+
+Spearman's coefficient uses a weighted average-rank convention. Let
+$G_i^X=\{j:X_j=X_i\}$ be the tie group containing $X_i$, and define its total
+mass and pair mass by
+
+\begin{align*}
+  P_i^X
+  &= \sum_{j\in G_i^X}p_j,
+  &
+  E_i^X
+  &= \sum_{\substack{j<k\\j,k\in G_i^X}}p_jp_k.
+\end{align*}
+
+The zero-based average score assigned to every member of this tie group is
+
+\begin{align*}
+  R_i^X
+  &= F_{X,w}^{-}(X_i)+\frac{E_i^X}{P_i^X}.
+\end{align*}
+
+Define $R_i^Y$ in the same way. Under uniform weights, $nR_i^X$ and $nR_i^Y$
+are the usual zero-based midranks. With unequal weights, the pair-mass term is
+part of the definition and should not be replaced silently by one half of the
+mass of the tie group.
+
+Higher-order statistics require sums over distinct observations. For
+$k\leq n$, let
+
+\begin{align*}
+  e_k(p_1,\ldots,p_n)
+  &= \sum_{1\leq i_1<\cdots<i_k\leq n}
+     p_{i_1}\cdots p_{i_k}.
+\end{align*}
+
+In particular,
+
+\begin{align*}
+  e_2(p_1,\ldots,p_n)
+  &= \frac{1-\sum_{i=1}^n p_i^2}{2}.
+\end{align*}
+
+The quantities $k!e_k$ are the total masses of ordered $k$-tuples of distinct
+observations. Section~4 uses Newton's identities to evaluate these terms from
+power sums of the weights without enumerating tuples.
+
+\subsection{Asymptotic regime and the role of the weights}
+
+For asymptotic statements the weights form a triangular array, although the
+sample index is suppressed when no confusion is possible. The baseline regime
+requires
+
+\begin{align*}
+  n_{\mathrm{eff}} &\longrightarrow \infty,
+  &
+  \frac{\max_{1\leq i\leq n}p_i}
+       {\sqrt{\sum_{i=1}^n p_i^2}}
+  &\longrightarrow 0.
+\end{align*}
+
+The second condition is a Lindeberg-type diffuseness requirement: no single
+case may contribute a non-negligible fraction of the standard deviation of a
+weighted sum. Uniform weights satisfy it, whereas a sequence dominated by a
+fixed number of observations does not.
+
+Finite-sample identities in this report are conditional on the observed
+weights and need no stochastic model for them. For null distributions, that
+model matters. Deterministic weights can be conditioned on directly. If the
+weights are functions only of the predictors, independence of $X$ and $Y$
+leaves the responses conditionally identically distributed given the
+predictors and weights; this is the setting used for the weighted Chatterjee
+null calculation. Response-dependent weights invalidate this conditional
+exchangeability argument, and weights that depend jointly on both variables
+can even induce dependence after reweighting. Such weights require a separate
+sampling-design argument and are not covered automatically by the results
+below.
+
+Finally, ties caused by atoms in a population distribution are distinct from
+accidental equalities in finite-precision data. The formulas below specify
+their finite-sample treatment explicitly. Limit results that require
+continuous marginals will be labeled as such rather than inferred from the
+absence of observed ties.
