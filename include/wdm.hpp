@@ -18,12 +18,15 @@
 //! Weighted dependence measures
 namespace wdm {
 
-//! calculates (weighted) dependence measures.
-//! @param x, y input data.
+//! Calculates a weighted or unweighted dependence measure.
+//! @param x, y input vectors of equal length. For Chatterjee's xi, `x` is the
+//!   predictor and `y` is the response.
 //! @param method the dependence measure; see details for possible values.
-//! @param weights an optional vector of weights for the data.
-//! @param remove_missing if `true`, all observations containing a `nan` are
-//!    removed; otherwise throws an error if `nan`s are present.
+//! @param weights optional case weights. Nonempty weights must match the input
+//!   length, be finite and nonnegative, and have a positive sum. Their scale
+//!   does not affect the result, and zero-weight rows are ignored.
+//! @param remove_missing if `true`, rows containing a `NaN` are removed;
+//!   otherwise a `NaN` raises an exception.
 //! @param seeds optional seeds for random Chatterjee predictor-tie breaking.
 //!
 //! @details
@@ -35,9 +38,13 @@ namespace wdm {
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
 //!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
 //!
-//! @note Chatterjee's xi measures dependence of `y` on `x` and is asymmetric.
-//!   Its weights must be finite, nonnegative, and have a positive sum.
-//! @return the dependence measure
+//! @note Chatterjee's xi is asymmetric. Predictor ties are broken without
+//!   consulting the response; use `seeds` for a reproducible ordering.
+//! @return The requested estimate, or `NaN` if missing-value removal leaves
+//!   fewer than two observations (five for Hoeffding's D).
+//! @throws std::runtime_error for size mismatches, invalid weights, unknown
+//!   methods, disallowed missing or insufficient input, or an undefined
+//!   Chatterjee estimate with a constant response.
 inline double
 wdm(std::vector<double> x,
     std::vector<double> y,
@@ -68,10 +75,12 @@ wdm(std::vector<double> x,
   throw std::runtime_error("method not implemented.");
 }
 
-//! Independence test
+//! Asymptotic independence test based on a dependence measure.
 //!
-//! The test calcualtes asymptotic p-values of independence tests based on
-//! (weighted) dependence measures.
+//! The test stores the estimate, transformed test statistic, effective sample
+//! size, and p-value. Weighted transformations use Kish's effective sample
+//! size. The approximation must have enough effective observations for the
+//! selected method.
 //!
 //! @details
 //! Available methods:
@@ -81,6 +90,9 @@ wdm(std::vector<double> x,
 //!   - `"blomqvist"`, `"bbeta"`, `"beta"`: Blomqvist's \f$ \beta \f$
 //!   - `"hoeffding"`, `"hoeffd"`, `"d"`: Hoeffding's \f$ D \f$
 //!   - `"chatterjee"`, `"cxi"`, `"xi"`: Chatterjee's \f$ \xi \f$
+//!
+//! Hoeffding's D supports only the two-sided alternative. Other methods support
+//! `"two-sided"`, `"less"`, and `"greater"`.
 //!
 //! @note Weighted analytic inference for Chatterjee's xi assumes that the
 //!   weights are fixed or depend only on `x`, the normalized weights are
@@ -95,14 +107,16 @@ class Indep_test
 public:
   Indep_test() = delete;
 
-  //! @param x, y input data.
+  //! Constructs and evaluates an independence test.
+  //! @param x, y input vectors of equal length.
   //! @param method the dependence measure; see class details for possible
   //! values.
-  //! @param weights an optional vector of weights for the data.
-  //! @param remove_missing if `true`, all observations containing a `nan` are
-  //!    removed; otherwise throws an error if `nan`s are present.
+  //! @param weights optional finite, nonnegative case weights with positive
+  //!   total weight.
+  //! @param remove_missing if `true`, rows containing a `NaN` are removed;
+  //!   otherwise a `NaN` raises an exception.
   //! @param alternative indicates the alternative hypothesis and must be one
-  //!    of `"two-sided"``, `"greater"` or `"less"`; `"greater"` corresponds
+  //!    of `"two-sided"`, `"greater"` or `"less"`; `"greater"` corresponds
   //!    to positive association, `"less"` to negative association. For
   //!    Hoeffding's \f$ D \f$, only `"two-sided"` is allowed. The natural
   //!    one-sided alternative for Chatterjee's xi is `"greater"`.
@@ -111,6 +125,9 @@ public:
   //!    to be continuous. Set this to `false` for a discrete response even if
   //!    the sample has no observed response ties. Observed ties always override
   //!    this value.
+  //! @throws std::runtime_error for invalid inputs, method or alternative
+  //!   names, unsupported Hoeffding alternatives, or unavailable weighted
+  //!   Chatterjee inference for a discrete or tied response.
   Indep_test(std::vector<double> x,
              std::vector<double> y,
              std::string method,
@@ -144,22 +161,22 @@ public:
     }
   }
 
-  //! the method used for the test
+  //! Returns the requested method name.
   std::string method() const { return method_; }
 
-  //! the alternative hypothesis used for the test
+  //! Returns the requested alternative hypothesis.
   std::string alternative() const { return alternative_; }
 
-  //! the effective sample size in the test
+  //! Returns Kish's effective sample size after missing-value removal.
   double n_eff() const { return n_eff_; }
 
-  //! the estimated dependence measure
+  //! Returns the estimated dependence measure.
   double estimate() const { return estimate_; }
 
-  //! the test statistic
+  //! Returns the method-specific transformed test statistic.
   double statistic() const { return statistic_; }
 
-  //! the p-value
+  //! Returns the asymptotic p-value.
   double p_value() const { return p_value_; }
 
 private:
