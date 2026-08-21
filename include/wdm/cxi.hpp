@@ -176,6 +176,16 @@ cxi(std::vector<double> x,
   if (!std::isfinite(weight_sum) || weight_sum <= 0.0)
     throw std::runtime_error("weights must have a finite, positive sum.");
 
+  // Zero-mass observations are absent from the weighted empirical measure and
+  // must not create additional edges in predictor order.
+  for (size_t i = weights.size(); i-- > 0;) {
+    if (weights[i] == 0.0) {
+      x.erase(x.begin() + i);
+      y.erase(y.begin() + i);
+      weights.erase(weights.begin() + i);
+    }
+  }
+
   // Sort in x order and break x ties uniformly without consulting y.
   sort_chatterjee_observations(x, y, weights, seeds);
 
