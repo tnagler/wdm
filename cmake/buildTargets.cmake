@@ -1,4 +1,7 @@
 add_library(wdm INTERFACE)
+if(USE_BOOST)
+    target_compile_definitions(wdm INTERFACE USE_BOOST)
+endif()
 target_include_directories(wdm INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
