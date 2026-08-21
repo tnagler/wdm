@@ -168,8 +168,9 @@ rank0(std::vector<double> x,
       std::vector<double> ww(reps);
       for (size_t k = 0; k < reps; ++k)
         ww[k] = weights[perm[i + k]];
+      double offset = utils::perm_sum(ww, 2) / w_batch;
       for (size_t k = 0; k < reps; ++k)
-        x[perm[i + k]] += utils::perm_sum(ww, 2) / w_batch;
+        x[perm[i + k]] += offset;
     } else if (ties_method == "max") {
       // w_acc now holds the weight of everything up to and including the batch
       for (size_t k = 0; k < reps; ++k)

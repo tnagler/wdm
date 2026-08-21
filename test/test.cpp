@@ -155,6 +155,25 @@ test_rank0_ties_methods()
   check(threw, "rank0 rejects an unknown ties_method");
 }
 
+//! rank0 takes the weights as they are, so an average rank sits halfway up the
+//! weight of its own tie group.
+void
+test_rank0_average_ties()
+{
+  std::vector<double> x{ 1, 2, 2, 2, 2, 2, 2, 3, 4, 5 };
+  std::vector<double> weights{ 1, 1, 2, 2, 1, 3, 1, 1, 1, 1 };
+
+  check(all_close(wdm::impl::rank0(x, weights),
+                  { 0, 1, 1, 1, 1, 1, 1, 11, 12, 13 }),
+        "weighted rank0 'min' accumulates the weights");
+  check(all_close(wdm::impl::rank0(x, {}, "average"),
+                  { 0, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 7, 8, 9 }),
+        "rank0 'average' assigns tied values the average rank");
+  check(all_close(wdm::impl::rank0(x, weights, "average"),
+                  { 0, 5, 5, 5, 5, 5, 5, 11, 12, 13 }),
+        "weighted rank0 'average' assigns the average weighted rank");
+}
+
 //! for strictly increasing data the ranks are 1, ..., n, so the numerator is
 //! n - 1 and xi is 1 - 3 / (n + 1).
 void
@@ -221,6 +240,7 @@ main()
 
   test_rank_ties();
   test_rank0_ties_methods();
+  test_rank0_average_ties();
   test_cxi();
 
   if (failures > 0) {
