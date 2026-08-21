@@ -294,12 +294,18 @@ test_cxi()
   check_near(std::get<2>(unequal_inference),
              23.0 / 72.0,
              "weighted xi has the finite-sample null mean");
+  check_near(std::get<3>(unequal_inference),
+             1.0 / 4.0,
+             "weighted xi exposes the continuous inferential estimate");
   check_near(std::get<1>(scaled_inference),
              std::get<1>(unequal_inference),
              "weighted xi standard error is invariant to weight scaling");
   check_near(std::get<2>(scaled_inference),
              std::get<2>(unequal_inference),
              "weighted xi null mean is invariant to weight scaling");
+  check_near(std::get<3>(scaled_inference),
+             std::get<3>(unequal_inference),
+             "weighted xi inferential estimate is invariant to weight scaling");
 
   std::vector<double> large_x(1000), large_y(1000);
   for (size_t i = 0; i < large_x.size(); ++i) {
@@ -395,7 +401,7 @@ test_cxi()
              std::get<0>(tied_predictor_inference),
              "xi test reuses the seeded predictor-tie ordering");
   check_near(tied_predictor_test.statistic(),
-             (std::get<0>(tied_predictor_inference) -
+             (std::get<3>(tied_predictor_inference) -
               std::get<2>(tied_predictor_inference)) /
                std::get<1>(tied_predictor_inference),
              "xi inference uses the realized predictor-tie ordering");
@@ -404,10 +410,13 @@ test_cxi()
   check(std::isfinite(test.p_value()), "xi p-value is finite");
 
   wdm::Indep_test weighted_test(short_x, short_y, "cxi", { 1, 2, 3 });
+  check_near(weighted_test.estimate(),
+             std::get<0>(unequal_inference),
+             "xi test reports the denominator-corrected estimate");
   check_near(weighted_test.statistic(),
-             (std::get<0>(unequal_inference) - std::get<2>(unequal_inference)) /
+             (std::get<3>(unequal_inference) - std::get<2>(unequal_inference)) /
                std::get<1>(unequal_inference),
-             "xi test statistic uses the finite-sample null mean");
+             "xi test uses the derived continuous-response statistic");
   wdm::Indep_test scaled_weight_test(short_x, short_y, "cxi", { 10, 20, 30 });
   check_near(scaled_weight_test.statistic(),
              weighted_test.statistic(),
@@ -415,6 +424,24 @@ test_cxi()
   check_near(scaled_weight_test.p_value(),
              weighted_test.p_value(),
              "xi p-value is invariant to weight scaling");
+
+  auto unweighted_discrete_inference =
+    wdm::impl::cxi(short_x, short_y, {}, true, "max", {}, false);
+  wdm::Indep_test unweighted_discrete_test(
+    short_x, short_y, "cxi", {}, true, "two-sided", {}, false);
+  check(std::isfinite(unweighted_discrete_test.p_value()),
+        "unweighted discrete-response xi inference remains available");
+  check_near(unweighted_discrete_test.statistic(),
+             (std::get<3>(unweighted_discrete_inference) -
+              std::get<2>(unweighted_discrete_inference)) /
+               std::get<1>(unweighted_discrete_inference),
+             "declared discrete response uses tied-response inference");
+  check_throws(
+    [&]() {
+      wdm::Indep_test weighted_discrete_test(
+        short_x, short_y, "cxi", { 1, 2, 3 }, true, "two-sided", {}, false);
+    },
+    "unequally weighted discrete-response xi inference is unavailable");
 
   std::vector<double> tied_x{ 1, 2, 3, 4 };
   std::vector<double> tied_y{ 1, 2, 2, 1 };

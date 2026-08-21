@@ -32,8 +32,14 @@ normalized internally and must be finite, nonnegative, and have a positive
 sum. The weighted estimate supports tied responses. Analytic inference with
 unequal weights currently requires a continuous response, weights that are
 fixed or depend only on `x`, and sufficiently diffuse normalized weights.
-Ties in `x` are broken uniformly at random without consulting `y`; pass seeds
-through the optional final argument to reproduce the same tie ordering.
+Ties in `x` are broken uniformly at random without consulting `y`; pass the
+optional seeds argument to reproduce the same tie ordering.
+Because distributional continuity cannot be inferred from the observed sample,
+set the final `Indep_test` argument `y_continuous` to `false` for a discrete
+response, even when that sample happens to contain no response ties.
+For a continuous response, `Indep_test::estimate()` reports the general
+denominator-corrected coefficient, while the test statistic standardizes the
+analytically covered approximation `1 - 3 A`.
 
 For details, see the [API documentation](https://tnagler.github.io/wdm/) 
 and the [example](#example) below.

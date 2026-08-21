@@ -144,19 +144,24 @@ xi_std(const std::vector<double>& r,
 //! @param calculate_std whether to calculate analytic null inference.
 //! @param ties_method rank convention for tied responses.
 //! @param seeds optional seeds for random predictor-tie breaking.
-//! @return `(estimate, standard_error, null_mean)`. The inferential values are
-//!   `NaN` when `calculate_std` is false.
+//! @param y_continuous whether the response distribution is known to be
+//!   continuous. Observed response ties always select tied-response inference.
+//! @return `(estimate, standard_error, null_mean, inference_estimate)`. The
+//!   inferential values are `NaN` when `calculate_std` is false.
 //! @details Weights must be finite, nonnegative, and have a positive sum.
 //!   Analytic inference with unequal weights assumes a continuous response and
-//!   weights that are fixed or depend only on `x`. It is unavailable when the
-//!   response is tied.
-inline std::tuple<double, double, double>
+//!   weights that are fixed or depend only on `x`. With unequal weights, it is
+//!   unavailable for a discrete or tied response. For a continuous response,
+//!   `inference_estimate` is \f$1 - 3 A\f$; otherwise it is the reported
+//!   denominator-corrected estimate.
+inline std::tuple<double, double, double, double>
 cxi(std::vector<double> x,
     std::vector<double> y,
     std::vector<double> weights = std::vector<double>(),
     bool calculate_std = true,
     std::string ties_method = "max",
-    std::vector<int> seeds = std::vector<int>())
+    std::vector<int> seeds = std::vector<int>(),
+    bool y_continuous = true)
 {
   utils::check_sizes(x, y, weights);
 
@@ -215,18 +220,20 @@ cxi(std::vector<double> x,
   if (!calculate_std) {
     return std::make_tuple(xi,
                            std::numeric_limits<double>::quiet_NaN(),
+                           std::numeric_limits<double>::quiet_NaN(),
                            std::numeric_limits<double>::quiet_NaN());
-  } else if (!response_has_ties) {
+  } else if (y_continuous && !response_has_ties) {
     auto inference = xi_continuous_inference(probabilities);
-    return std::make_tuple(xi, std::get<0>(inference), std::get<1>(inference));
+    return std::make_tuple(
+      xi, std::get<0>(inference), std::get<1>(inference), 1.0 - 3.0 * num);
   } else {
     if (weights_are_unequal)
       throw std::runtime_error(
-        "analytic Chatterjee inference is unavailable for a weighted, tied "
-        "response.");
+        "analytic Chatterjee inference is unavailable for an unequally "
+        "weighted, discrete or tied response.");
     std::vector<double> raw_r = rank0(y, {}, ties_method);
     std::vector<double> raw_l = rank0(y_neg, {}, ties_method);
-    return std::make_tuple(xi, xi_std(raw_r, raw_l), 0.0);
+    return std::make_tuple(xi, xi_std(raw_r, raw_l), 0.0, xi);
   }
 }
 
