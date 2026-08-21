@@ -127,7 +127,9 @@ rank(std::vector<double> x,
 //! ranks for ties.
 //! @param x input vector.
 //! @param ties_method `"min"` (default) assigns all tied values the minimum
-//!   score; `"average"` assigns the average score.
+//!   score; `"average"` assigns the average score; `"max"` assigns the
+//!   maximum score, so that a rank is the total weight of the observations
+//!   that are less than or equal to the corresponding value.
 //! @param weights (optional), weights for each observation.
 //! @return a vector containing the ranks of each element in `x`.
 inline std::vector<double>
@@ -135,8 +137,10 @@ rank0(std::vector<double> x,
       std::vector<double> weights = std::vector<double>(),
       std::string ties_method = "min")
 {
-  if ((ties_method != "min") && (ties_method != "average"))
-    throw std::runtime_error("ties_method must be either 'min' or 'average.");
+  if ((ties_method != "min") && (ties_method != "average") &&
+      (ties_method != "max"))
+    throw std::runtime_error(
+      "ties_method must be either 'min', 'average', or 'max'.");
 
   // set default weights if necessary
   size_t n = x.size();
@@ -168,6 +172,10 @@ rank0(std::vector<double> x,
         ww[k] = weights[perm[i + k]];
       for (size_t k = 0; k < reps; ++k)
         x[perm[i + k]] += utils::perm_sum(ww, 2) / w_batch;
+    } else if (ties_method == "max") {
+      // w_acc now holds the weight of everything up to and including the batch
+      for (size_t k = 0; k < reps; ++k)
+        x[perm[i + k]] = w_acc;
     }
   }
 
