@@ -106,7 +106,6 @@ cxi(std::vector<double> x,
     std::vector<double> y,
     std::vector<double> weights = std::vector<double>(),
     bool calculate_std = true,
-    bool y_continuous = true,
     std::string ties_method = "max")
 {
   utils::check_sizes(x, y, weights);
@@ -128,6 +127,16 @@ cxi(std::vector<double> x,
   std::vector<double> probabilities = weights;
   for (auto& probability : probabilities)
     probability /= weight_sum;
+  bool weights_are_unequal = false;
+  for (size_t i = 1; i < probabilities.size(); ++i)
+    weights_are_unequal =
+      weights_are_unequal || probabilities[i] != probabilities[0];
+
+  std::vector<double> ordered_response = y;
+  std::sort(ordered_response.begin(), ordered_response.end());
+  bool response_has_ties =
+    std::adjacent_find(ordered_response.begin(), ordered_response.end()) !=
+    ordered_response.end();
 
   // Weighted empirical distribution at each response.
   std::vector<double> r = rank0(y, probabilities, ties_method);
@@ -157,13 +166,17 @@ cxi(std::vector<double> x,
     return std::make_tuple(xi,
                            std::numeric_limits<double>::quiet_NaN(),
                            std::numeric_limits<double>::quiet_NaN());
-  } else if (y_continuous) {
+  } else if (!response_has_ties) {
     auto inference = xi_continuous_inference(probabilities);
     return std::make_tuple(xi, std::get<0>(inference), std::get<1>(inference));
   } else {
-    std::vector<double> raw_r = rank0(y, weights, ties_method);
-    std::vector<double> raw_l = rank0(y_neg, weights, ties_method);
-    return std::make_tuple(xi, xi_std(raw_r, raw_l, weights), 0.0);
+    if (weights_are_unequal)
+      throw std::runtime_error(
+        "analytic Chatterjee inference is unavailable for a weighted, tied "
+        "response.");
+    std::vector<double> raw_r = rank0(y, {}, ties_method);
+    std::vector<double> raw_l = rank0(y_neg, {}, ties_method);
+    return std::make_tuple(xi, xi_std(raw_r, raw_l), 0.0);
   }
 }
 

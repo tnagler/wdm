@@ -339,6 +339,35 @@ test_cxi()
 
   wdm::Indep_test test(v, v_sq, "cxi");
   check(std::isfinite(test.p_value()), "xi p-value is finite");
+
+  wdm::Indep_test weighted_test(short_x, short_y, "cxi", { 1, 2, 3 });
+  check_near(weighted_test.statistic(),
+             (std::get<0>(unequal_inference) - std::get<2>(unequal_inference)) /
+               std::get<1>(unequal_inference),
+             "xi test statistic uses the finite-sample null mean");
+  wdm::Indep_test scaled_weight_test(short_x, short_y, "cxi", { 10, 20, 30 });
+  check_near(scaled_weight_test.statistic(),
+             weighted_test.statistic(),
+             "xi test statistic is invariant to weight scaling");
+  check_near(scaled_weight_test.p_value(),
+             weighted_test.p_value(),
+             "xi p-value is invariant to weight scaling");
+
+  std::vector<double> tied_x{ 1, 2, 3, 4 };
+  std::vector<double> tied_y{ 1, 2, 2, 1 };
+  wdm::Indep_test tied_test(tied_x, tied_y, "cxi");
+  check(std::isfinite(tied_test.p_value()),
+        "unweighted tied-response xi inference remains available");
+  wdm::Indep_test uniformly_weighted_tied_test(
+    tied_x, tied_y, "cxi", { 10, 10, 10, 10 });
+  check_near(uniformly_weighted_tied_test.statistic(),
+             tied_test.statistic(),
+             "uniform weights retain tied-response xi inference");
+  check_throws(
+    [&]() {
+      wdm::Indep_test weighted_tied_test(tied_x, tied_y, "cxi", { 1, 2, 1, 2 });
+    },
+    "weighted tied-response xi inference is unavailable");
 }
 
 } // namespace

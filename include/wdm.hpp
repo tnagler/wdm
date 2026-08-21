@@ -160,7 +160,7 @@ private:
       stat = std::atanh(estimate) * std::sqrt(n_eff);
     } else if (methods::is_chatterjee(method)) {
       auto stats = impl::cxi(x, y, weights, true);
-      stat = std::get<0>(stats) / std::get<1>(stats);
+      stat = (std::get<0>(stats) - std::get<2>(stats)) / std::get<1>(stats);
     } else {
       throw std::runtime_error("method not implemented.");
     }
