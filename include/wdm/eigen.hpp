@@ -85,7 +85,15 @@ wdm(const Eigen::MatrixXd& x,
                      method,
                      utils::convert_vec(weights),
                      remove_missing);
-      ms(j, i) = ms(i, j);
+      if (methods::is_chatterjee(method)) {
+        ms(j, i) = wdm(utils::convert_vec(x.col(j)),
+                       utils::convert_vec(x.col(i)),
+                       method,
+                       utils::convert_vec(weights),
+                       remove_missing);
+      } else {
+        ms(j, i) = ms(i, j);
+      }
     }
   }
 
