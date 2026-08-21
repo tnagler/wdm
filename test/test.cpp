@@ -10,6 +10,7 @@ namespace {
 using test::check;
 using test::check_near;
 using test::check_throws;
+using wdm::impl::default_tie_seeds;
 
 double
 continuous_xi_for_inference(const std::vector<double>& y,
@@ -160,14 +161,26 @@ test_cxi()
              0.0,
              "xi uses the general denominator for tied responses");
 
-  check_throws([&]() { wdm::wdm(short_x, short_y, "cxi", { 1, -1, 1 }); },
-               "xi rejects negative weights");
-  check_throws([&]() { wdm::wdm(short_x, short_y, "cxi", { 1, INFINITY, 1 }); },
-               "xi rejects nonfinite weights");
-  check_throws([&]() { wdm::wdm(short_x, short_y, "cxi", { 0, 0, 0 }); },
-               "xi rejects zero total weight");
-  check_throws([&]() { wdm::wdm(short_x, { 1, 1, 1 }, "cxi"); },
-               "xi rejects a constant response");
+  check_throws(
+    [&]() {
+      wdm::wdm(short_x, short_y, "cxi", { 1, -1, 1 });
+    },
+    "xi rejects negative weights");
+  check_throws(
+    [&]() {
+      wdm::wdm(short_x, short_y, "cxi", { 1, INFINITY, 1 });
+    },
+    "xi rejects nonfinite weights");
+  check_throws(
+    [&]() {
+      wdm::wdm(short_x, short_y, "cxi", { 0, 0, 0 });
+    },
+    "xi rejects zero total weight");
+  check_throws(
+    [&]() {
+      wdm::wdm(short_x, { 1, 1, 1 }, "cxi");
+    },
+    "xi rejects a constant response");
 
   std::vector<double> tied_predictor{ 2, 1, 1, 2, 1 };
   std::vector<double> tied_predictor_response{ 10, 20, 30, 40, 50 };
@@ -189,6 +202,39 @@ test_cxi()
   check_near(wdm::wdm(v, v_sq, "cxi", {}, true, { 1 }),
              wdm::wdm(v, v_sq, "cxi", {}, true, { 2 }),
              "predictor-tie seeds do not affect untied data");
+
+  // Without a seed the tie ordering must still be reproducible: two large tie
+  // groups leave enough orderings that a random seed would essentially never
+  // repeat itself.
+  std::vector<double> wide_x(60), wide_y(60);
+  for (size_t i = 0; i < wide_x.size(); ++i) {
+    wide_x[i] = static_cast<double>(i / 30);
+    wide_y[i] = static_cast<double>((37 * i) % wide_x.size());
+  }
+  double unseeded = wdm::wdm(wide_x, wide_y, "cxi");
+  for (int repetition = 0; repetition < 5; ++repetition) {
+    check_near(wdm::wdm(wide_x, wide_y, "cxi"),
+               unseeded,
+               "unseeded predictor-tie breaking is reproducible");
+  }
+  check_near(wdm::wdm(wide_x, wide_y, "cxi", {}, true, default_tie_seeds()),
+             unseeded,
+             "the unseeded default is default_tie_seeds()");
+  wdm::Indep_test unseeded_test(wide_x, wide_y, "cxi");
+  wdm::Indep_test unseeded_test_again(wide_x, wide_y, "cxi");
+  check_near(unseeded_test.p_value(),
+             unseeded_test_again.p_value(),
+             "unseeded xi inference is reproducible");
+
+  // The randomization is still available: explicit seeds must reach it.
+  std::vector<double> seeded_values;
+  for (int seed = 1; seed <= 6; ++seed)
+    seeded_values.push_back(
+      wdm::wdm(wide_x, wide_y, "cxi", {}, true, { seed }));
+  bool some_seed_differs = false;
+  for (const auto& value : seeded_values)
+    some_seed_differs = some_seed_differs || value != seeded_values.front();
+  check(some_seed_differs, "explicit seeds change the tie ordering");
 
   std::vector<double> shifted_response = tied_predictor_response;
   for (auto& response : shifted_response)
