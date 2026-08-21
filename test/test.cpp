@@ -7,6 +7,7 @@ int main(int argc, char **argv) {
 */
 
 // #include <wdm/include/wdm.hpp>
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -37,6 +38,97 @@ check_near(double actual, double expected, const std::string& what)
   }
 }
 
+bool
+all_close(std::vector<double> x, std::vector<double> y, double tol = 1e-12)
+{
+  if (x.size() != y.size())
+    return false;
+  for (size_t i = 0; i < x.size(); ++i) {
+    if (std::fabs(x[i] - y[i]) > tol)
+      return false;
+  }
+  return true;
+}
+
+std::vector<double>
+sorted(std::vector<double> x)
+{
+  std::sort(x.begin(), x.end());
+  return x;
+}
+
+//! successive differences, the first one taken from 0.
+std::vector<double>
+diff(const std::vector<double>& x)
+{
+  std::vector<double> res(x.size());
+  for (size_t i = 0; i < x.size(); ++i)
+    res[i] = x[i] - (i > 0 ? x[i - 1] : 0.0);
+  return res;
+}
+
+//! every tie breaking method assigns the same ranks to a tie group, differing
+//! only in how it distributes them; `"random"` draws the order.
+void
+test_rank_ties()
+{
+  std::vector<int> seeds{ 1, 2, 3 };
+
+  // a tie group of six, occupying the rank slots 2, ..., 7
+  std::vector<double> x{ 1, 2, 2, 2, 2, 2, 2, 3, 4, 5 };
+  std::vector<double> consecutive{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+  auto first = wdm::impl::rank(x, {}, "first");
+  check(all_close(first, consecutive),
+        "'first' ranks tied values in order of appearance");
+  check(
+    all_close(wdm::impl::rank(x, {}, "min"), { 1, 2, 2, 2, 2, 2, 2, 8, 9, 10 }),
+    "'min' assigns tied values the minimum rank");
+  check(all_close(wdm::impl::rank(x, {}, "average"),
+                  { 1, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 8, 9, 10 }),
+        "'average' assigns tied values the average rank");
+
+  // 'random' assigns the same ranks as 'first', in a different order
+  auto random = wdm::impl::rank(x, {}, "random", seeds);
+  check(all_close(sorted(random), consecutive),
+        "'random' permutes the ranks assigned by 'first'");
+  check(all_close(random, wdm::impl::rank(x, {}, "random", seeds)),
+        "'random' is reproducible for identical seeds");
+
+  // weights are normalized to mean one, so a single tie group spanning the
+  // whole vector receives the cumulative weights in the order it drew
+  std::vector<double> tied(5, 2.0);
+  std::vector<double> weights{ 1, 2, 3, 4, 5 };
+  auto weighted = sorted(wdm::impl::rank(tied, weights, "random", seeds));
+  check(
+    all_close(sorted(diff(weighted)), { 1. / 3, 2. / 3, 1., 4. / 3, 5. / 3 }),
+    "weighted 'random' ranks are the cumulative weights in drawn order");
+  check_near(weighted.back(), 5.0, "largest rank of a tie group");
+
+  // separate tie groups are shuffled independently
+  std::vector<double> pairs;
+  for (size_t i = 0; i < 20; ++i)
+    pairs.insert(pairs.end(), 2, static_cast<double>(i));
+  auto shuffled = wdm::impl::rank(pairs, {}, "random", seeds);
+  bool ascending = false, descending = false;
+  for (size_t i = 0; i < shuffled.size(); i += 2) {
+    ascending = ascending || (shuffled[i] < shuffled[i + 1]);
+    descending = descending || (shuffled[i] > shuffled[i + 1]);
+  }
+  check(ascending && descending, "tie groups are shuffled independently");
+  check(all_close(sorted(diff(sorted(shuffled))),
+                  std::vector<double>(pairs.size(), 1.0)),
+        "'random' leaves no ties behind");
+
+  // NaNs keep their place and take no rank
+  std::vector<double> with_nan{ 2, NAN, 2, 2 };
+  auto nan_ranks = wdm::impl::rank(with_nan, {}, "random", seeds);
+  check(std::isnan(nan_ranks[1]), "'random' preserves NaNs");
+  nan_ranks.erase(nan_ranks.begin() + 1);
+  check(all_close(sorted(nan_ranks), { 1, 2, 3 }),
+        "'random' ranks the non-NaN observations among themselves");
+}
+
 //! a rank under `"min"` is the weight of the strictly smaller observations, one
 //! under `"max"` the weight of those less than or equal, so the two differ by
 //! the weight of the tied batch.
@@ -61,6 +153,25 @@ test_rank0_ties_methods()
     threw = true;
   }
   check(threw, "rank0 rejects an unknown ties_method");
+}
+
+//! rank0 takes the weights as they are, so an average rank sits halfway up the
+//! weight of its own tie group.
+void
+test_rank0_average_ties()
+{
+  std::vector<double> x{ 1, 2, 2, 2, 2, 2, 2, 3, 4, 5 };
+  std::vector<double> weights{ 1, 1, 2, 2, 1, 3, 1, 1, 1, 1 };
+
+  check(all_close(wdm::impl::rank0(x, weights),
+                  { 0, 1, 1, 1, 1, 1, 1, 11, 12, 13 }),
+        "weighted rank0 'min' accumulates the weights");
+  check(all_close(wdm::impl::rank0(x, {}, "average"),
+                  { 0, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 7, 8, 9 }),
+        "rank0 'average' assigns tied values the average rank");
+  check(all_close(wdm::impl::rank0(x, weights, "average"),
+                  { 0, 5, 5, 5, 5, 5, 5, 11, 12, 13 }),
+        "weighted rank0 'average' assigns the average weighted rank");
 }
 
 //! for strictly increasing data the ranks are 1, ..., n, so the numerator is
@@ -127,7 +238,9 @@ main()
   std::cout << "statistic: " << test.statistic() << std::endl;
   std::cout << "p-value: " << test.p_value() << std::endl;
 
+  test_rank_ties();
   test_rank0_ties_methods();
+  test_rank0_average_ties();
   test_cxi();
 
   if (failures > 0) {
