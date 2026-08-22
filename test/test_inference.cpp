@@ -202,6 +202,28 @@ test_kendall_tie_adjustment()
                    kendall_score(x, y) /
                      std::sqrt(kendall_score_variance(x, y)),
                    "Kendall statistic uses the independent tie variance");
+
+  std::vector<double> triple_x{ 1, 1, 1, 2, 3, 4, 5, 6 };
+  std::vector<double> triple_y{ 1, 2, 3, 3, 3, 4, 5, 6 };
+  wdm::Indep_test triple_result(triple_x, triple_y, "kendall");
+  test::check_near(
+    triple_result.statistic(),
+    kendall_score(triple_x, triple_y) /
+      std::sqrt(kendall_score_variance(triple_x, triple_y)),
+    "Kendall statistic includes triplet terms from both margins");
+}
+
+void
+test_tied_triplet_counts()
+{
+  std::vector<double> values{ 1, 1, 1, 2, 3, 3, 3, 3, 4, 5, 5, 5 };
+  std::vector<double> weights{ 1, 2, 3, 9, 1, 2, 3, 4, 8, 2, 3, 5 };
+  test::check_near(wdm::utils::count_tied_triplets(values, {}),
+                   6.0,
+                   "unweighted triplet count spans several tie groups");
+  test::check_near(wdm::utils::count_tied_triplets(values, weights),
+                   86.0,
+                   "weighted triplet count spans several tie groups");
 }
 
 void
@@ -372,6 +394,7 @@ main()
   test_alternatives_and_p_values();
   test_aliases();
   test_kendall_tie_adjustment();
+  test_tied_triplet_counts();
   test_effective_sample_size();
   test_chatterjee_inference_paths();
   test_fixed_seed_null_simulation();

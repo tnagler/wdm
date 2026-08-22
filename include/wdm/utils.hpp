@@ -280,10 +280,10 @@ count_tied_triplets(const std::vector<double>& x,
   for (size_t i = 2; i < x.size(); i++) {
     if ((x[i] == x[i - 1]) && (x[i] == x[i - 2])) {
       if (weighted) {
-        if (reps == 1) {
-          w1 = weights[i - 1];
-          w2 = std::pow(weights[i - 1], 2);
-          w3 = std::pow(weights[i - 1], 3);
+        if (reps == 2) {
+          w1 = weights[i - 2] + weights[i - 1];
+          w2 = std::pow(weights[i - 2], 2) + std::pow(weights[i - 1], 2);
+          w3 = std::pow(weights[i - 2], 3) + std::pow(weights[i - 1], 3);
         }
         w1 += weights[i];
         w2 += std::pow(weights[i], 2);
@@ -296,7 +296,7 @@ count_tied_triplets(const std::vector<double>& x,
       } else {
         count += reps * (reps - 1) * (reps - 2) / 6.0;
       }
-      reps = 1;
+      reps = 2;
     }
   }
 
