@@ -51,6 +51,29 @@ test_statistic_transformations()
 }
 
 void
+test_hoeffding_tail_table()
+{
+  test::check_near(wdm::utils::linear_interp(1.25, { 1, 2 }, { 10, 20 }),
+                   12.5,
+                   "linear interpolation uses the lower endpoint weight");
+  test::check_near(wdm::impl::phoeffb(2.2 / std::pow(wdm::impl::pi, 4), 2.0),
+                   0.5297,
+                   "Hoeffding table lower boundary");
+  test::check_near(wdm::impl::phoeffb(11.0 / std::pow(wdm::impl::pi, 4), 2.0),
+                   0.0025,
+                   "Hoeffding table value at 5.5");
+  test::check_near(wdm::impl::phoeffb(11.5 / std::pow(wdm::impl::pi, 4), 2.0),
+                   0.00195,
+                   "Hoeffding interpolation between table nodes");
+  test::check_near(wdm::impl::phoeffb(12.0 / std::pow(wdm::impl::pi, 4), 2.0),
+                   0.0014,
+                   "Hoeffding table value at 6.0");
+  test::check_near(wdm::impl::phoeffb(17.0 / std::pow(wdm::impl::pi, 4), 2.0),
+                   0.0001,
+                   "Hoeffding table upper boundary");
+}
+
+void
 test_alternatives_and_p_values()
 {
   std::vector<double> x{ 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -345,6 +368,7 @@ int
 main()
 {
   test_statistic_transformations();
+  test_hoeffding_tail_table();
   test_alternatives_and_p_values();
   test_aliases();
   test_kendall_tie_adjustment();

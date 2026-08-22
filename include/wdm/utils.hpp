@@ -35,7 +35,7 @@ linear_interp(const double& x,
 
   // linear interpolation
   double w = (x - grid[i - 1]) / (grid[i] - grid[i - 1]);
-  return w * values[i - 1] + (1 - w) * values[i];
+  return (1 - w) * values[i - 1] + w * values[i];
 }
 
 inline void
