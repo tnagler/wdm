@@ -29,7 +29,7 @@ The weighted means, variances, and covariance are
 The weighted Pearson coefficient is
 
 \begin{align*}
-  \rho_{P,w}
+  \widehat\rho_{P,w}
   &= \frac{s_{XY,w}}{s_{X,w}s_{Y,w}}.
 \end{align*}
 
@@ -42,7 +42,7 @@ Weighted Spearman correlation is defined as weighted Pearson correlation
 between the average scores from Section~\ref{sec:framework}:
 
 \begin{align*}
-  \rho_{S,w}
+  \widehat\rho_{S,w}
   &= \frac{
       \sum_{i=1}^n p_i(R_i^X-\bar R_w^X)(R_i^Y-\bar R_w^Y)
     }{
@@ -79,7 +79,7 @@ concordance difference and the masses of pairs untied in each margin as
 The weighted tau-b coefficient is
 
 \begin{align*}
-  \tau_w
+  \widehat\tau_w
   &= \frac{S_w}{\sqrt{Q_{X,w}Q_{Y,w}}}.
 \end{align*}
 
@@ -142,7 +142,7 @@ weighted median.
 The sample coefficient is
 
 \begin{align*}
-  \beta_w
+  \widehat\beta_w
   &= 2\sum_{i=1}^n p_i
      \left\{
        \mathbf{1}(X_i\leq m_{X,w},\,Y_i\leq m_{Y,w})
@@ -178,4 +178,5 @@ $O(n\log n)$ time.
 Pearson, Spearman, Kendall, and Blomqvist coefficients are symmetric in the two
 variables. The first three are undefined when their displayed denominator
 vanishes. Their independence-test transformations and the more elaborate tie
-adjustment for Kendall's statistic are deferred to Section~5.
+adjustment for Kendall's statistic are deferred to
+Section~\ref{sec:independence-tests}.

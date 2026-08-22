@@ -1,10 +1,129 @@
-\section{Weighted Chatterjee's correlation}
+\subsection{Weighted Chatterjee's correlation}
 \label{sec:weighted-chatterjee}
 
-\subsection{Estimator and treatment of ties}
+\subsubsection{Population coefficient and weighted estimator}
 
-\subsection{Finite-sample properties}
+Chatterjee's coefficient is directional: it measures the extent to which the
+response $Y$ is determined by the predictor $X$ rather than treating the two
+variables symmetrically.  If $Y$ is not almost surely constant and $\mu_Y$
+denotes its law, the population coefficient is
 
-\subsection{Conditional null mean and variance}
+\begin{align*}
+  \xi(X,Y)
+  &=
+  \frac{
+    \displaystyle
+    \int
+    \operatorname{Var}\!\left\{
+      \mathbb{P}(Y\geq t\mid X)
+    \right\}\,\mathrm{d}\mu_Y(t)
+  }{
+    \displaystyle
+    \int
+    \operatorname{Var}\!\left\{
+      \mathbf{1}(Y\geq t)
+    \right\}\,\mathrm{d}\mu_Y(t)
+  }.
+\end{align*}
 
-\subsection{Asymptotic normality and test statistic}
+It belongs to $[0,1]$, equals zero if and only if $X$ and $Y$ are
+independent, and equals one if and only if $Y$ is almost surely a measurable
+function of $X$ \citep{chatterjee2021}.  In general,
+$\xi(X,Y)\neq\xi(Y,X)$.
+
+We now define the case-weighted sample coefficient.  Remove zero-mass
+observations, let $m$ be the number remaining, and relabel them so that
+
+\begin{align*}
+  X_1\leq X_2\leq\cdots\leq X_m.
+\end{align*}
+
+Ties in $X$ are broken uniformly at random without using $Y$; the response
+and mass attached to an observation move with it.  Conditional on the
+realized ordering, define the weak weighted response rank and survival rank
+by
+
+\begin{align*}
+  R_{i,w}
+  &= \sum_{j=1}^m p_j\mathbf{1}(Y_j\leq Y_i),
+  &
+  L_{i,w}
+  &= \sum_{j=1}^m p_j\mathbf{1}(Y_j\geq Y_i).
+\end{align*}
+
+The weighted path variation and response normalizer are
+
+\begin{align*}
+  A_w
+  &= \sum_{i=1}^{m-1}
+     p_i\left|R_{i+1,w}-R_{i,w}\right|,\\
+  C_w
+  &= 2\sum_{i=1}^m p_iL_{i,w}(1-L_{i,w}),
+\end{align*}
+
+and the weighted coefficient is
+
+\begin{align}
+  \widehat\xi_w
+  &= 1-\frac{A_w}{C_w}.
+  \label{eq:weighted-chatterjee}
+\end{align}
+
+The base-point mass $p_i$ is attached to the outgoing edge from predictor
+position $i$ to $i+1$.  This convention makes a case contribute to the local
+path variation in proportion to its empirical mass and, unlike an edge
+weight chosen independently of the cases, retains the case-weight
+interpretation of Section~\ref{sec:framework}.  The last predictor position
+has no outgoing edge.
+
+For uniform masses and an untied response, $R_{i,w}=r_i/m$, where $r_i$ is
+the ordinary response rank, and
+
+\begin{align*}
+  A_w
+  &= \frac{1}{m^2}\sum_{i=1}^{m-1}|r_{i+1}-r_i|,\\
+  C_w
+  &= \frac{m^2-1}{3m^2}.
+\end{align*}
+
+Consequently, \eqref{eq:weighted-chatterjee} reduces exactly to
+
+\begin{align*}
+  \widehat\xi
+  &= 1-
+     \frac{3\sum_{i=1}^{m-1}|r_{i+1}-r_i|}{m^2-1},
+\end{align*}
+
+the continuous-response statistic of \citet{chatterjee2021}. For uniform
+masses, the same weak-rank formula gives Chatterjee's denominator for response
+ties; $C_w$ is its case-weighted extension.
+
+\subsubsection{Finite-sample properties and computation}
+
+The coefficient is invariant under a common positive rescaling of the
+original weights and under strictly increasing transformations of either
+variable. Because the outgoing edge carries its base-point mass, reversing
+the predictor order can change the coefficient when the masses are unequal;
+this orientation sensitivity disappears under uniform masses. Zero-mass
+observations must be removed before the predictor is
+ordered: retaining one would create a spurious edge between two positive-mass
+observations.  The coefficient is undefined when the response is constant on
+the positive-mass observations, because then $C_w=0$.  Otherwise $C_w>0$ and
+$\widehat\xi_w\leq1$, although, like the ordinary finite-sample coefficient,
+it can be negative.
+
+Predictor ties need special care.  Ordering a tied predictor group by its
+responses would manufacture short response-rank jumps and hence artificial
+dependence.  Uniform tie breaking independent of the responses preserves the
+null exchangeability used in Section~\ref{sec:independence-tests}.  A fixed
+random seed makes the reported coefficient reproducible; averaging over tie
+orders would define a different estimator.
+
+Sorting by the predictor and computing the two weighted response ranks by a
+second sort takes $O(m\log m)$ time and $O(m)$ auxiliary memory.  The path
+variation and normalizer are then obtained in a linear scan.  Equation
+\eqref{eq:weighted-chatterjee} is the coefficient reported for both
+continuous and tied responses.  Its continuous-response independence test
+uses a closely related statistic with a deterministic denominator; that
+choice and its null theory are developed entirely in
+Section~\ref{sec:independence-tests}.

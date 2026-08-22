@@ -5,10 +5,13 @@
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{booktabs}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage[round]{natbib}
 
-\newtheorem{proposition}{Proposition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
 
 \title{Fast Weighted Dependence Measures and Independence Tests}
 \author{}
@@ -19,24 +22,34 @@
 \maketitle
 
 \begin{abstract}
-% State the three main contributions: weighted Hoeffding computation,
-% weighted independence-test asymptotics, and weighted Chatterjee inference.
+We develop case-weighted versions of six dependence measures and their
+independence tests. For Hoeffding's $D$, a distinct-index construction leads
+to an exact weighted rank representation and an $O(n\log n)$ algorithm; under
+diffuse exogenous weights, its degenerate null distribution converges to the
+classical quadratic Gaussian series after an explicit effective-sample-size
+correction. We also define a directional weighted extension of Chatterjee's
+$\xi$. Conditional on the predictor order and weights, its continuous-null
+path statistic has an exact mean, and its inferential surrogate has a
+closed-form first-order variance and an asymptotic normal test. Pearson,
+Spearman, Kendall, and Blomqvist tests are
+placed in the same framework, with a clear separation between proved limits,
+tie corrections, and finite-sample software approximations.
 \end{abstract}
 
 \input{sections/introduction}
 \input{sections/weighted-framework}
 \input{sections/standard-measures}
 \input{sections/weighted-hoeffding}
-\input{sections/independence-tests}
 \input{sections/weighted-chatterjee}
+\input{sections/independence-tests}
 \input{sections/numerical-experiments}
 
+\clearpage
 \appendix
 
 \input{appendices/hoeffding-identities}
 \input{appendices/null-asymptotics}
 \input{appendices/chatterjee-null-moments}
-\input{appendices/supplementary-results}
 
 \bibliographystyle{plainnat}
 \bibliography{references}

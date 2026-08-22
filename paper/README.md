@@ -8,8 +8,8 @@ recorded elsewhere:
 1. the finite-sample representation and fast algorithm for weighted
    Hoeffding's dependence measure;
 2. the asymptotic framework used for weighted independence tests; and
-3. the weighted extension of Chatterjee's correlation, including its
-   conditional null mean and variance.
+3. the weighted extension of Chatterjee's correlation, including its exact
+   conditional path-statistic mean and first-order null variance.
 
 Pearson correlation, Spearman's rho, Kendall's tau, and Blomqvist's beta
 provide context and a common notation, but should receive only a concise
@@ -47,7 +47,7 @@ second user manual for the C++ or R packages.
 - Summarize computation and test transformations in one table; move lengthy
   tie-correction formulas to an appendix.
 
-### 4. Weighted Hoeffding's dependence measure
+### 4. Weighted Hoeffding's D and Chatterjee's xi
 
 - Begin with the population target and the unweighted sample statistic.
 - Derive the weighted distinct-index sums rather than presenting a heuristic
@@ -60,6 +60,11 @@ second user manual for the C++ or R packages.
   time and memory complexity.
 - Discuss ties, zero weights, numerical behavior, and the unweighted special
   case.
+- Define the directional weighted Chatterjee estimator after sorting by the
+  predictor.
+- Motivate the base-point edge weights and weighted-rank denominator.
+- Explain response-independent predictor-tie breaking, scale invariance,
+  zero-mass equivalence, directionality, and response ties.
 
 ### 5. Asymptotic independence tests
 
@@ -73,25 +78,12 @@ second user manual for the C++ or R packages.
   Kendall, and Blomqvist.
 - Treat Hoeffding's degenerate null separately, including the connection to
   the Blum--Kiefer--Rosenblatt limit and the approximation used for p-values.
+- Derive the weighted Chatterjee path statistic's conditional null mean,
+  projection variance, and central limit theorem for a continuous response.
 - Distinguish proved asymptotic results from finite-sample approximations used
   by the software.
 
-### 6. Weighted Chatterjee's correlation
-
-- Define the directional weighted estimator after sorting by the predictor.
-- Motivate the base-point edge weights and the weighted-rank denominator.
-- Explain randomized predictor-tie breaking and why it must not depend on the
-  response.
-- Establish scale invariance, zero-mass equivalence, reduction to the
-  unweighted coefficient, directionality, and behavior under response ties.
-- Derive the conditional permutation-null mean and the full variance for a
-  continuous response.
-- Explain why inference standardizes the continuous-response numerator while
-  the reported coefficient retains its denominator correction.
-- State assumptions for asymptotic normality and delimit the currently
-  unsupported unequally weighted discrete-response case.
-
-### 7. Numerical experiments
+### 6. Numerical experiments
 
 - Compare each optimized estimator with a small direct implementation.
 - Benchmark the weighted Hoeffding algorithm against the direct combinatorial
@@ -125,6 +117,18 @@ second user manual for the C++ or R packages.
   and proof lengths are clear.
 
 ## Building
+
+The numerical results require R package `wdm` version 0.3.0 or newer.
+From the repository root, reproduce the committed tables and run metadata
+with:
+
+```sh
+Rscript paper/simulation/run-study.R
+```
+
+The default study is single-threaded and is designed to finish in less than
+five minutes.  For a quick pipeline check, reduce the replications with the
+`WDM_NULL_REPS` and `WDM_POWER_REPS` environment variables.
 
 From the repository root, run:
 

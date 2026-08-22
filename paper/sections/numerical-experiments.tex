@@ -1,10 +1,80 @@
 \section{Numerical experiments}
 \label{sec:numerical-experiments}
 
-\subsection{Agreement with direct reference calculations}
+We conduct a compact simulation to assess the finite-sample behavior of the
+six independence tests.  The experiment is deliberately targeted at two
+questions raised by the preceding theory: whether effective-sample-size
+calibration remains adequate under moderately unequal exogenous weights, and
+whether the general-dependence statistics detect a symmetric nonmonotone
+alternative that is difficult for signed or quadrant-based coefficients.  The
+complete design is implemented in
+\texttt{paper/simulation/run-study.R} using version 0.3.0 of the R package.
 
-\subsection{Runtime and scaling of the Hoeffding algorithm}
+\subsection{Design}
 
-\subsection{Null calibration under unequal weights}
+For each design point, predictors and innovations are independent standard
+normal random variables.  Under the null, $Y=\varepsilon$.  The two
+alternatives are
+\begin{align*}
+  Y &= 0.25X + \sqrt{1-0.25^2}\,\varepsilon,
+      &&\text{(linear)}, \\
+  Y &= \frac{0.5(X^2-1)}{\sqrt{2}}
+       + \sqrt{1-0.5^2}\,\varepsilon,
+      &&\text{(quadratic)}.
+\end{align*}
+The linear design has correlation $0.25$.  In the quadratic design the
+standardized quadratic component and the response both have unit variance,
+while all signed first-order association vanishes by symmetry.
 
-\subsection{Power and sensitivity to ties}
+We compare equal weights with the deterministic profile
+\begin{align*}
+  w_i
+  &= \exp\left\{0.8\Phi^{-1}
+       \left(\frac{i-1/2}{n}\right)\right\},
+  & i&=1,\ldots,n.
+\end{align*}
+The profile approximates log-normal weights but is fixed independently of the
+observations, exactly matching the exogenous-weight setting of
+Section~\ref{sec:independence-tests}.  We consider nominal sample sizes
+$n\in\{50,100,200,500\}$.  Null rejection probabilities use 2000 replications
+at each combination of sample size and weight profile; power uses 1000
+replications.  Pearson, Spearman, Kendall, Blomqvist, and Hoeffding tests are
+two-sided, while the Chatterjee test uses its natural upper-tailed alternative.
+All variables are continuous because the current Hoeffding implementation does
+not support ties.  The complete default study ran single-threaded in 50 seconds
+on the reference machine.
+
+\subsection{Null calibration}
+
+\input{simulation/results/null-size}
+
+Table~\ref{tab:simulation-size} shows that most rejection probabilities are
+close to the nominal level.  The entries are to be read against a maximum
+Monte Carlo standard error of $0.0049$.  Unequal weighting does not create a
+systematic size distortion, although its nominal sample sizes correspond to
+substantially smaller effective samples.  Blomqvist's asymptotic test is
+liberal in the smallest equal-weight samples, with rejection probability
+$0.096$ at $n=50$, but approaches the nominal level as $n$ increases.
+Unequal-weight Hoeffding is mildly liberal at $n=50$ and $100$, with rejection
+probabilities $0.067$ and $0.072$, and is close to nominal from $n=200$ onward.
+At $n=500$, all entries lie between $0.035$ and $0.056$.
+
+\subsection{Power}
+
+\input{simulation/results/power}
+
+The linear design in Table~\ref{tab:simulation-power} favors the classical
+correlation and monotone rank tests.  With equal weights, Pearson power grows
+from $0.427$ at $n=50$ to $0.957$ at $n=200$, followed closely by Spearman and
+Kendall.  Chatterjee's coefficient is less sensitive here because its
+population signal is of second order in a weak linear association.  The
+ordering changes for the quadratic alternative: at $n=200$ with equal weights,
+Hoeffding's $D$ and Chatterjee's $\xi$ attain power $0.927$ and $0.779$, while
+Spearman, Kendall, and Blomqvist remain between $0.060$ and $0.080$ because
+their population coefficients vanish by symmetry.
+Pearson's test also has a nonzero rejection probability despite zero
+covariance because its usual Gaussian calibration is not designed for this
+form of nonlinear dependence.  As expected, weight concentration reduces
+power in both designs by lowering the effective sample size.  Thus the
+experiment supports the main qualitative claims without suggesting that any
+single coefficient is uniformly preferable.

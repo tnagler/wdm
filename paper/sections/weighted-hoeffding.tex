@@ -1,7 +1,11 @@
-\section{Weighted Hoeffding's dependence measure}
+\section{Weighted Hoeffding's \texorpdfstring{$D$}{D} and Chatterjee's
+\texorpdfstring{$\xi$}{xi}}
+\label{sec:nonstandard-measures}
+
+\subsection{Weighted Hoeffding's dependence measure}
 \label{sec:weighted-hoeffding}
 
-\subsection{Definition and finite-sample representation}
+\subsubsection{Definition and finite-sample representation}
 
 Let $H$ denote the joint distribution function of $(X,Y)$ and let $F_X$ and
 $F_Y$ denote its marginals. Throughout this section the marginal
@@ -109,7 +113,7 @@ weights sum to one. Uniform weights recover Hoeffding's ordinary estimator.
 Observation-dependent weights instead define a reweighted target and require
 the sampling assumptions discussed in Section~\ref{sec:framework}.
 
-\subsection{Fast computation from weighted bivariate ranks}
+\subsubsection{Fast computation from weighted bivariate ranks}
 
 Direct evaluation of the preceding sums would require up to $O(n^5)$
 operations. They can be collapsed to one-dimensional and bivariate rank sums.
@@ -317,7 +321,7 @@ $e_0=1$. Then
 
 Only $k=3,4,5$ is needed, so this step is linear in $n$.
 
-\subsection{Correctness and computational complexity}
+\subsubsection{Correctness and computational complexity}
 
 Proposition~\ref{prop:weighted-hoeffding-ranks} shows algebraic equality with
 the direct distinct-tuple estimator. The resulting algorithm consists of a

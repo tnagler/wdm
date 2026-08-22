@@ -39,9 +39,10 @@ $O(n\log n)$ algorithm instead of direct enumeration. Second, the report
 states an asymptotic framework for weighted independence tests, separating
 ordinary Gaussian limits from the degenerate null limit of Hoeffding's
 statistic and making explicit where effective sample size and tie corrections
-enter. Third, it studies a weighted extension of Chatterjee's coefficient and
-derives its conditional permutation-null mean and variance for a continuous
-response.
+enter. Third, it studies a weighted extension of Chatterjee's coefficient,
+derives the exact conditional null mean of its path statistic for a continuous
+response, and establishes a closed-form first-order null variance and central
+limit theorem for the associated inferential surrogate.
 
 The formulas are implemented in the header-only C++ library \texttt{wdm} and
 are exposed to most users through its R interface. The software serves as a
@@ -49,6 +50,8 @@ reproducible implementation of the methods; API details are intentionally left
 to the package documentation. Section~\ref{sec:framework} fixes notation and
 the interpretation of the weights. Section~\ref{sec:standard-measures}
 records the standard weighted coefficients used for comparison.
-Sections~4--6 develop weighted Hoeffding computation, independence-test
-asymptotics, and weighted Chatterjee correlation. Section~7 assesses the
-identities, computational scaling, null calibration, and power numerically.
+Section~\ref{sec:nonstandard-measures} develops the weighted Hoeffding and
+Chatterjee coefficients. Section~\ref{sec:independence-tests} treats all six
+independence tests, including detailed null-limit calculations for the weighted
+Hoeffding and Chatterjee statistics. Section~\ref{sec:numerical-experiments}
+examines finite-sample calibration and power in a compact simulation study.
