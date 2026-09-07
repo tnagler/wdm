@@ -1,163 +1,14 @@
 \section{Standard weighted dependence measures}
 \label{sec:standard-measures}
 
-This section records four familiar coefficients in the case-weight notation
-of Section~\ref{sec:framework}. The formulas are included to fix conventions
-and to provide comparators for the less standard developments in later
-sections. Every coefficient is invariant to a common positive rescaling of the
-original weights, and zero-mass observations make no contribution.
-
-\subsection{Pearson correlation and Spearman's rho}
-
-The weighted means, variances, and covariance are
-
-\begin{align*}
-  \bar X_w
-  &= \sum_{i=1}^n p_iX_i,
-  &
-  \bar Y_w
-  &= \sum_{i=1}^n p_iY_i,\\
-  s_{X,w}^2
-  &= \sum_{i=1}^n p_i(X_i-\bar X_w)^2,
-  &
-  s_{Y,w}^2
-  &= \sum_{i=1}^n p_i(Y_i-\bar Y_w)^2,\\
-  s_{XY,w}
-  &= \sum_{i=1}^n p_i(X_i-\bar X_w)(Y_i-\bar Y_w).
-\end{align*}
-
-The weighted Pearson coefficient is
-
-\begin{align*}
-  \widehat\rho_{P,w}
-  &= \frac{s_{XY,w}}{s_{X,w}s_{Y,w}}.
-\end{align*}
-
-It is undefined if either weighted marginal variance is zero. Apart from the
-replacement of empirical averages by weighted empirical averages, this is the
-classical product-moment coefficient associated with Pearson's work on
-correlation and regression \citep{pearson1895}.
-
-Weighted Spearman correlation is defined as weighted Pearson correlation
-between the average scores from Section~\ref{sec:framework}:
-
-\begin{align*}
-  \widehat\rho_{S,w}
-  &= \frac{
-      \sum_{i=1}^n p_i(R_i^X-\bar R_w^X)(R_i^Y-\bar R_w^Y)
-    }{
-      \sqrt{\sum_{i=1}^n p_i(R_i^X-\bar R_w^X)^2}
-      \sqrt{\sum_{i=1}^n p_i(R_i^Y-\bar R_w^Y)^2}
-    },\\
-  \bar R_w^X
-  &= \sum_{i=1}^n p_iR_i^X,
-  &
-  \bar R_w^Y
-  &= \sum_{i=1}^n p_iR_i^Y.
-\end{align*}
-
-Uniform weights recover the ordinary coefficient with midranks for ties
-\citep{spearman1904}. Sorting dominates the computation, so the weighted
-coefficient can be obtained in $O(n\log n)$ time and $O(n)$ memory.
-
-\subsection{Kendall's tau}
-
-Kendall's coefficient is based on pairwise concordance
-\citep{kendall1938}. With $\operatorname{sgn}(0)=0$, define the weighted
-concordance difference and the masses of pairs untied in each margin as
-
-\begin{align*}
-  S_w
-  &= \sum_{1\leq i<j\leq n}p_ip_j
-     \operatorname{sgn}(X_i-X_j)\operatorname{sgn}(Y_i-Y_j),\\
-  Q_{X,w}
-  &= \sum_{1\leq i<j\leq n}p_ip_j\mathbf{1}(X_i\neq X_j),\\
-  Q_{Y,w}
-  &= \sum_{1\leq i<j\leq n}p_ip_j\mathbf{1}(Y_i\neq Y_j).
-\end{align*}
-
-The weighted tau-b coefficient is
-
-\begin{align*}
-  \widehat\tau_w
-  &= \frac{S_w}{\sqrt{Q_{X,w}Q_{Y,w}}}.
-\end{align*}
-
-Thus each pair receives the product of its two case masses. The denominator
-removes pairs tied in either margin and reduces to $e_2(p_1,\ldots,p_n)$ in
-both factors when there are no ties. Uniform weights give the ordinary sample
-tau-b. Multiplicative pair weights are also used in other weighted Kendall
-constructions \citep{shieh1998}, although those constructions need not share
-the present case-weight interpretation.
-
-Direct evaluation is quadratic. \citet{knight1966} showed that ordinary
-Kendall correlation can instead be computed in $O(n\log n)$ time by counting
-discordant pairs during merge sort. Fast algorithms for weighted Kendall
-correlations have subsequently been developed as well; in particular,
-\citet{lin2018} give an $O(n\log n)$-time and $O(n)$-space method for an
-approximate weighted Kendall correlation.
-
-For the product case weights used here, Knight's inversion merge needs only
-one modification. When a record of mass $p_j$ is taken from the right half,
-its contribution is $p_j$ times the total mass still unmerged in the left
-half. This sums $p_ip_j$ over the newly exposed discordant pairs. An initial
-lexicographic sort by $(X,Y)$ prevents $X$ ties from becoming inversions,
-equal $Y$ values are treated as non-inversions, and the three required tie
-masses are obtained by linear group scans. The resulting calculation retains
-$O(n\log n)$ running time and $O(n)$ auxiliary memory. Since this is a direct
-weighted adaptation of established inversion-counting algorithms, the details
-are not repeated here.
-
-\subsection{Blomqvist's beta}
-
-Blomqvist's beta is a quadrant-based coefficient \citep{blomqvist1950}. It
-records whether observations fall in matching quadrants about the marginal
-centers. To specify the finite-sample center used here, sort the observations
-by $X$ and let $R_{(k)}^X$ denote the weighted
-average score attached to the $k$th ordered value. With
-
-\begin{align*}
-  k_X
-  &= \min\left\{k:R_{(k)}^X\geq e_2(p_1,\ldots,p_n)\right\},
-\end{align*}
-
-define
-
-\begin{align*}
-  m_{X,w}
-  &=
-  \begin{cases}
-    X_{(k_X)},
-      & R_{(k_X)}^X=e_2(p_1,\ldots,p_n),\\
-    \left(X_{(k_X-1)}+X_{(k_X)}\right)/2,
-      & R_{(k_X)}^X>e_2(p_1,\ldots,p_n).
-  \end{cases}
-\end{align*}
-
-Define $m_{Y,w}$ analogously. This pair-mass center agrees with the ordinary
-sample median under uniform weights and makes the treatment of unequal case
-weights explicit. It is not interchangeable with every convention called a
-weighted median.
-
-The sample coefficient is
-
-\begin{align*}
-  \widehat\beta_w
-  &= 2\sum_{i=1}^n p_i
-     \left\{
-       \mathbf{1}(X_i\leq m_{X,w},\,Y_i\leq m_{Y,w})
-       +
-       \mathbf{1}(X_i>m_{X,w},\,Y_i>m_{Y,w})
-     \right\}-1.
-\end{align*}
-
-The lower-left quadrant includes observations on either center and the
-upper-right quadrant is strict. For continuous population marginals this
-corresponds to the familiar copula functional
-$4C(1/2,1/2)-1$. Computing both centers by sorting takes
-$O(n\log n)$ time.
-
-\subsection{Summary}
+This section records four familiar coefficients in the case-weight notation of
+Section~\ref{sec:framework}. The formulas fix conventions and provide
+comparators for the less standard developments in
+Sections~\ref{sec:weighted-hoeffding} and~\ref{sec:weighted-chatterjee}. Every
+coefficient below is symmetric in the two variables, invariant under a common
+positive rescaling of the weights, and unaffected by zero-mass observations.
+Table~\ref{tab:standard-measures} summarizes the section; the corresponding
+independence tests are treated in Section~\ref{subsec:standard-tests}.
 
 \begin{table}[ht]
   \centering
@@ -175,8 +26,100 @@ $O(n\log n)$ time.
   \end{tabular}
 \end{table}
 
-Pearson, Spearman, Kendall, and Blomqvist coefficients are symmetric in the two
-variables. The first three are undefined when their displayed denominator
-vanishes. Their independence-test transformations and the more elaborate tie
-adjustment for Kendall's statistic are deferred to
-Section~\ref{sec:independence-tests}.
+\subsection{Pearson correlation and Spearman's rho}
+
+With the weighted means $\bar X_w = \sum_{i=1}^n p_iX_i$ and
+$\bar Y_w = \sum_{i=1}^n p_iY_i$, the weighted Pearson coefficient is
+\begin{align*}
+    \widehat\rho_{P,w}
+    &= \frac{\sum_{i=1}^n p_i(X_i-\bar X_w)(Y_i-\bar Y_w)}
+            {\sqrt{\sum_{i=1}^n p_i(X_i-\bar X_w)^2}
+             \sqrt{\sum_{i=1}^n p_i(Y_i-\bar Y_w)^2}}.
+\end{align*}
+It is undefined if either weighted variance is zero and reduces to the
+classical product-moment coefficient \citep{pearson1895} under uniform
+weights.
+
+Weighted Spearman correlation is the weighted Pearson correlation of the
+average scores $R_i^X$ and $R_i^Y$ from Section~\ref{subsec:weighted-ranks},
+\begin{align*}
+    \widehat\rho_{S,w}
+    &= \frac{\sum_{i=1}^n p_i(R_i^X-\bar R_w^X)(R_i^Y-\bar R_w^Y)}
+            {\sqrt{\sum_{i=1}^n p_i(R_i^X-\bar R_w^X)^2}
+             \sqrt{\sum_{i=1}^n p_i(R_i^Y-\bar R_w^Y)^2}},
+\end{align*}
+where $\bar R_w^X=\sum_{i=1}^n p_iR_i^X$ and
+$\bar R_w^Y=\sum_{i=1}^n p_iR_i^Y$. Uniform weights recover the ordinary coefficient with midranks for ties
+\citep{spearman1904}. Sorting dominates the computation, so the coefficient
+costs $O(n\log n)$ time and $O(n)$ memory.
+
+\subsection{Kendall's tau}
+
+Kendall's coefficient is based on pairwise concordance \citep{kendall1938},
+and each pair of observations receives the product of its two case masses.
+With $\operatorname{sgn}(0)=0$, the weighted concordance difference and the
+masses of pairs untied in each margin are
+\begin{align*}
+    S_w
+    &= \sum_{1\leq i<j\leq n}p_ip_j
+       \operatorname{sgn}(X_i-X_j)\operatorname{sgn}(Y_i-Y_j),\\
+    Q_{X,w}
+    &= \sum_{1\leq i<j\leq n}p_ip_j\mathbf{1}(X_i\neq X_j),
+    &
+    Q_{Y,w}
+    &= \sum_{1\leq i<j\leq n}p_ip_j\mathbf{1}(Y_i\neq Y_j),
+\end{align*}
+and the weighted tau-b coefficient is
+$\widehat\tau_w = S_w/\sqrt{Q_{X,w}Q_{Y,w}}$. Without ties both denominator
+factors equal $e_2(p_1,\ldots,p_n)$, and uniform weights give the ordinary
+sample tau-b. Multiplicative pair weights also appear in other weighted Kendall
+constructions \citep{shieh1998}, which need not share the case-weight
+interpretation.
+
+Direct evaluation is quadratic. \citet{knight1966} computes the ordinary
+coefficient in $O(n\log n)$ time by counting discordant pairs during a merge
+sort, and \citet{lin2018} give a method of the same complexity for an
+approximate weighted Kendall correlation. For product case weights, Knight's
+merge needs only one modification: when a record of mass $p_j$ is taken from
+the right half, its contribution is $p_j$ times the mass still unmerged in the
+left half, which sums $p_ip_j$ over the newly exposed discordant pairs. An
+initial lexicographic sort by $(X,Y)$ prevents $X$ ties from becoming
+inversions, equal $Y$ values are treated as non-inversions, and the tie masses
+in the denominator come from linear group scans. The weighted dominance merge
+in Section~\ref{sec:weighted-hoeffding} uses the same idea, so we do not
+repeat the details here.
+
+\subsection{Blomqvist's beta}
+
+Blomqvist's beta \citep{blomqvist1950} records whether observations fall in
+matching quadrants about the marginal centers. The weighted center is defined
+through the average scores. Sort the observations by $X$ and let
+$R_{(k)}^X$ be the average score of the $k$th ordered value. With $k_X$ the
+smallest index $k$ such that $R_{(k)}^X\geq e_2(p_1,\ldots,p_n)$, the center
+is
+\begin{align*}
+    m_{X,w}
+    &=
+    \begin{cases}
+        X_{(k_X)},
+        & R_{(k_X)}^X = e_2(p_1,\ldots,p_n),\\
+        \bigl(X_{(k_X-1)}+X_{(k_X)}\bigr)/2,
+        & R_{(k_X)}^X > e_2(p_1,\ldots,p_n),
+    \end{cases}
+\end{align*}
+and $m_{Y,w}$ is defined analogously. This pair-mass center agrees with the
+ordinary sample median under uniform weights; it is not interchangeable with
+every convention called a weighted median. The sample coefficient is
+\begin{align*}
+    \widehat\beta_w
+    &= 2\sum_{i=1}^n p_i
+       \left\{
+         \mathbf{1}(X_i\leq m_{X,w},\,Y_i\leq m_{Y,w})
+         +
+         \mathbf{1}(X_i>m_{X,w},\,Y_i>m_{Y,w})
+       \right\}-1,
+\end{align*}
+where the lower-left quadrant includes observations on either center and the
+upper-right quadrant is strict. For continuous marginals, the population
+target is the copula functional $4C(1/2,1/2)-1$. Computing both centers by
+sorting takes $O(n\log n)$ time.

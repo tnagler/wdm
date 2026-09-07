@@ -1,230 +1,220 @@
-\section{Kendall calibration with ties}
+\section{Kendall calibration}
 \label{app:null-asymptotics}
 
-This appendix gives the algebra behind the Kendall calibration described in
-Section~\ref{subsec:standard-tests}.  There are two distinct statements.  For
-uniform masses, the variance conditional on the two observed marginal tie
-patterns is an exact permutation identity.  For unequal masses, the software
-inserts fractional pseudo-counts into that identity.  The latter construction
-has the correct first-order null limit under diffuse exogenous weighting, but
-is not an exact finite-sample permutation variance.
+This appendix records the algebra behind the Kendall calibration described in
+Section~\ref{subsec:standard-tests}. Three statements are involved. Without
+ties, the weighted concordance numerator has an exact conditional null
+variance. With ties and uniform masses, the variance conditional on the two
+observed marginal tie patterns is an exact permutation identity. For unequal
+masses, the software inserts fractional pseudo-counts into that identity; the
+resulting construction has the correct first-order null limit under diffuse
+exogenous weighting, but is not an exact finite-sample permutation variance.
 
-\subsection{Exact conditional variance for uniform masses}
+\subsection{Exact conditional variance without ties}
+
+With $S_w$ as in Section~\ref{sec:standard-measures} and no ties, the
+weighted numerator has exact conditional null variance
+\begin{align*}
+ \operatorname{Var}_0(S_w\mid p)
+ &= \sum_{i<j}p_i^2p_j^2
+ +\frac{2}{9}\sum_{i<j<k}
+ p_ip_jp_k(p_i+p_j+p_k),
+\end{align*}
+because each pair kernel has variance one, disjoint pair kernels are
+independent, and two kernels that share one observation have covariance
+$1/9$. Since $\widehat\tau_w=S_w/e_2(p_1,\ldots,p_n)$ without ties, division
+by $e_2(p_1,\ldots,p_n)^2$ gives the exact variance of $\widehat\tau_w$, and
+under \eqref{eq:weight-diffuseness},
+$\operatorname{Var}_0(\widehat\tau_w\mid p)\sim\frac{4}{9}s_{2,n}$.
+
+\subsection{Exact conditional variance with ties for uniform masses}
 
 For $n\geq3$, let the non-singleton $X$-tie groups have sizes
 $t_1,t_2,\ldots$ and let the
-non-singleton $Y$-tie groups have sizes $u_1,u_2,\ldots$.  Write
-
+non-singleton $Y$-tie groups have sizes $u_1,u_2,\ldots$. Write
 \begin{align*}
-  S
-  &= \sum_{1\leq i<j\leq n}
-     \operatorname{sgn}(X_i-X_j)\operatorname{sgn}(Y_i-Y_j).
+ S
+ &= \sum_{1\leq i<j\leq n}
+ \operatorname{sgn}(X_i-X_j)\operatorname{sgn}(Y_i-Y_j).
 \end{align*}
-
 Under $H_0$, condition on both marginal multisets and assign the observed
-$Y$ values uniformly over the fixed $X$ positions.  The conditional mean of
+$Y$ values uniformly over the fixed $X$ positions. The conditional mean of
 $S$ is zero and its exact variance is \citep{kendall1945,kendall1947}
-
 \begin{align}
-  V_{S,0}
-  ={}&
-  \frac{1}{18}
-  \left\{
-    n(n-1)(2n+5)
-    -\sum_g t_g(t_g-1)(2t_g+5)
-    -\sum_h u_h(u_h-1)(2u_h+5)
-  \right\}
-  \notag\\
-  &+
-  \frac{
-    \left\{\sum_g t_g(t_g-1)\right\}
-    \left\{\sum_h u_h(u_h-1)\right\}
-  }{2n(n-1)}
-  \notag\\
-  &+
-  \frac{
-    \left\{\sum_g t_g(t_g-1)(t_g-2)\right\}
-    \left\{\sum_h u_h(u_h-1)(u_h-2)\right\}
-  }{9n(n-1)(n-2)}.
-  \label{eq:kendall-uniform-tie-variance}
+ V_{S,0}
+ ={}&
+ \frac{1}{18}
+ \left\{
+ n(n-1)(2n+5)
+ -\sum_g t_g(t_g-1)(2t_g+5)
+ -\sum_h u_h(u_h-1)(2u_h+5)
+ \right\}
+ \notag\\
+ &+
+ \frac{
+ \left\{\sum_g t_g(t_g-1)\right\}
+ \left\{\sum_h u_h(u_h-1)\right\}
+ }{2n(n-1)}
+ \notag\\
+ &+
+ \frac{
+ \left\{\sum_g t_g(t_g-1)(t_g-2)\right\}
+ \left\{\sum_h u_h(u_h-1)(u_h-2)\right\}
+ }{9n(n-1)(n-2)}.
+ \label{eq:kendall-uniform-tie-variance}
 \end{align}
-
-The two tau-b denominator factors are fixed under these permutations.  In the
+The two tau-b denominator factors are fixed under these permutations. In the
 notation of Section~\ref{sec:standard-measures}, they are
-
 \begin{align*}
-  Q_X
-  &= \binom{n}{2}-\sum_g\binom{t_g}{2},
-  &
-  Q_Y
-  &= \binom{n}{2}-\sum_h\binom{u_h}{2}.
+ Q_X
+ &= \binom{n}{2}-\sum_g\binom{t_g}{2},
+ &
+ Q_Y
+ &= \binom{n}{2}-\sum_h\binom{u_h}{2}.
 \end{align*}
-
 Consequently,
-
 \begin{align*}
-  \widehat\tau_b
-  &= \frac{S}{\sqrt{Q_XQ_Y}},
-  &
-  \widehat\tau_b
-     \sqrt{\frac{Q_XQ_Y}{V_{S,0}}}
-  &= \frac{S}{\sqrt{V_{S,0}}}.
+ \widehat\tau_b
+ &= \frac{S}{\sqrt{Q_XQ_Y}},
+ &
+ \widehat\tau_b
+ \sqrt{\frac{Q_XQ_Y}{V_{S,0}}}
+ &= \frac{S}{\sqrt{V_{S,0}}}.
 \end{align*}
-
 The last statistic has conditional mean zero and conditional variance one
-exactly.  Its standard normal calibration is nevertheless an asymptotic
+exactly. Its standard normal calibration is nevertheless an asymptotic
 approximation; equation~\eqref{eq:kendall-uniform-tie-variance} does not make
 the finite permutation distribution Gaussian.
 
 It is useful to rewrite the same identity in terms of elementary symmetric
-sums.  For a tie group $G$ of unit masses,
-
+sums. For a tie group $G$ of unit masses,
 \begin{align*}
-  e_2((1)_{i\in G})
-  &= \binom{|G|}{2},
-  &
-  e_3((1)_{i\in G})
-  &= \binom{|G|}{3},\\
-  \left\{|G|^2-|G|\right\}(2|G|+5)
-  &= |G|(|G|-1)(2|G|+5).
+ e_2((1)_{i\in G})
+ &= \binom{|G|}{2},
+ &
+ e_3((1)_{i\in G})
+ &= \binom{|G|}{3},\\
+ \left\{|G|^2-|G|\right\}(2|G|+5)
+ &= |G|(|G|-1)(2|G|+5).
 \end{align*}
-
 These are respectively the pair, triplet, and variance tie terms that the
 unequal-weight construction replaces by pseudo-count analogues.
 
 \subsection{Fractional pseudo-count adjustment for unequal masses}
 
 Put $N=n_{\mathrm{eff}}$ and rescale the normalized case masses as
-
 \begin{align*}
-  q_i
-  &= Np_i.
+ q_i
+ &= Np_i.
 \end{align*}
-
 This scale is characterized by
-
 \begin{align*}
-  \sum_iq_i
-  &=N,
-  &
-  \sum_iq_i^2
-  &=N,
-  &
-  e_2(q_1,\ldots,q_n)
-  &=\frac{N(N-1)}{2}.
+ \sum_iq_i
+ &=N,
+ &
+ \sum_iq_i^2
+ &=N,
+ &
+ e_2(q_1,\ldots,q_n)
+ &=\frac{N(N-1)}{2}.
 \end{align*}
-
 For a marginal tie group $G$, define its pseudo-count power sums and its pair
 and triplet masses by
-
 \begin{align*}
-  q(G)
-  &=\sum_{i\in G}q_i,
-  &
-  q_r(G)
-  &=\sum_{i\in G}q_i^r,\\
-  E_2(G)
-  &=e_2((q_i)_{i\in G})
-    =\frac{q(G)^2-q_2(G)}{2},\\
-  E_3(G)
-  &=e_3((q_i)_{i\in G})
-    =\frac{q(G)^3-3q(G)q_2(G)+2q_3(G)}{6}.
+ q(G)
+ &=\sum_{i\in G}q_i,
+ &
+ q_r(G)
+ &=\sum_{i\in G}q_i^r,\\
+ E_2(G)
+ &=e_2((q_i)_{i\in G})
+ =\frac{q(G)^2-q_2(G)}{2},\\
+ E_3(G)
+ &=e_3((q_i)_{i\in G})
+ =\frac{q(G)^3-3q(G)q_2(G)+2q_3(G)}{6}.
 \end{align*}
-
 For the collections $\mathcal G_X$ and $\mathcal G_Y$ of maximal marginal
 tie groups, set
-
 \begin{align*}
-  T_{X,2}
-  &=\sum_{G\in\mathcal G_X}E_2(G),
-  &
-  T_{Y,2}
-  &=\sum_{G\in\mathcal G_Y}E_2(G),\\
-  T_{X,3}
-  &=\sum_{G\in\mathcal G_X}E_3(G),
-  &
-  T_{Y,3}
-  &=\sum_{G\in\mathcal G_Y}E_3(G),\\
-  T_{X,v}
-  &=\sum_{G\in\mathcal G_X}
-    \{q(G)^2-q_2(G)\}\{2q(G)+5\},\\
-  T_{Y,v}
-  &=\sum_{G\in\mathcal G_Y}
-    \{q(G)^2-q_2(G)\}\{2q(G)+5\}.
+ T_{X,2}
+ &=\sum_{G\in\mathcal G_X}E_2(G),
+ &
+ T_{Y,2}
+ &=\sum_{G\in\mathcal G_Y}E_2(G),\\
+ T_{X,3}
+ &=\sum_{G\in\mathcal G_X}E_3(G),
+ &
+ T_{Y,3}
+ &=\sum_{G\in\mathcal G_Y}E_3(G),\\
+ T_{X,v}
+ &=\sum_{G\in\mathcal G_X}
+ \{q(G)^2-q_2(G)\}\{2q(G)+5\},\\
+ T_{Y,v}
+ &=\sum_{G\in\mathcal G_Y}
+ \{q(G)^2-q_2(G)\}\{2q(G)+5\}.
 \end{align*}
-
 Also write
-
 \begin{align*}
-  E_2
-  &=e_2(q_1,\ldots,q_n),
-  &
-  E_3
-  &=e_3(q_1,\ldots,q_n).
+ E_2
+ &=e_2(q_1,\ldots,q_n),
+ &
+ E_3
+ &=e_3(q_1,\ldots,q_n).
 \end{align*}
-
 The pseudo-count version of
 equation~\eqref{eq:kendall-uniform-tie-variance} is
-
 \begin{align}
-  V_{S,q}^{\mathrm{app}}
-  ={}&
-  \frac{2E_2(2N+5)-T_{X,v}-T_{Y,v}}{18}
-  +\frac{T_{X,2}T_{Y,2}}{E_2}
-  +\frac{2T_{X,3}T_{Y,3}}{3E_3}.
-  \label{eq:kendall-pseudocount-variance}
+ V_{S,q}^{\mathrm{app}}
+ ={}&
+ \frac{2E_2(2N+5)-T_{X,v}-T_{Y,v}}{18}
+ +\frac{T_{X,2}T_{Y,2}}{E_2}
+ +\frac{2T_{X,3}T_{Y,3}}{3E_3}.
+ \label{eq:kendall-pseudocount-variance}
 \end{align}
-
 The concordance numerator on this scale and the weighted tau-b coefficient
 are
-
 \begin{align*}
-  S_q
-  &=\sum_{i<j}q_iq_j
-    \operatorname{sgn}(X_i-X_j)\operatorname{sgn}(Y_i-Y_j),\\
-  \widehat\tau_w
-  &=\frac{S_q}{
-    \sqrt{(E_2-T_{X,2})(E_2-T_{Y,2})}}.
+ S_q
+ &=\sum_{i<j}q_iq_j
+ \operatorname{sgn}(X_i-X_j)\operatorname{sgn}(Y_i-Y_j),\\
+ \widehat\tau_w
+ &=\frac{S_q}{
+ \sqrt{(E_2-T_{X,2})(E_2-T_{Y,2})}}.
 \end{align*}
-
 Thus the implemented adjustment factor gives
-
 \begin{align}
-  Z_K^{\mathrm{app}}
-  &=\widehat\tau_w
-    \sqrt{
-      \frac{(E_2-T_{X,2})(E_2-T_{Y,2})}
-           {V_{S,q}^{\mathrm{app}}}
-    }
-   =\frac{S_q}{\sqrt{V_{S,q}^{\mathrm{app}}}}.
-  \label{eq:kendall-pseudocount-statistic}
+ Z_K^{\mathrm{app}}
+ &=\widehat\tau_w
+ \sqrt{
+ \frac{(E_2-T_{X,2})(E_2-T_{Y,2})}
+ {V_{S,q}^{\mathrm{app}}}
+ }
+ =\frac{S_q}{\sqrt{V_{S,q}^{\mathrm{app}}}}.
+ \label{eq:kendall-pseudocount-statistic}
 \end{align}
-
 If the original masses are uniform, then $N=n$, every $q_i=1$,
-$E_2=\binom n2$, and $E_3=\binom n3$.  The group terms above reduce to the
+$E_2=\binom n2$, and $E_3=\binom n3$. The group terms above reduce to the
 integer terms in equation~\eqref{eq:kendall-uniform-tie-variance}, so
 $V_{S,q}^{\mathrm{app}}=V_{S,0}$ exactly.
 
 For unequal masses, the equality with a conditional permutation variance no
-longer holds.  The $q_i$ need not be integers, literal replication would
+longer holds. The $q_i$ need not be integers, literal replication would
 introduce within-case ties absent from $S_q$, and permuting responses over
 unequal case masses changes the weighted mass of each response tie group and
-hence the tau-b denominator.  Equation~\eqref{eq:kendall-pseudocount-variance}
-is therefore a scale-invariant finite-sample approximation.  An exact
+hence the tau-b denominator. Equation~\eqref{eq:kendall-pseudocount-variance}
+is therefore a scale-invariant finite-sample approximation. An exact
 conditional test with unequal masses must permute the responses and recompute
 the complete weighted statistic, including its ranks and denominator, on
 every permutation.
 
 Without observed ties, equation~\eqref{eq:kendall-pseudocount-statistic}
 reduces to
-
 \begin{align*}
-  Z_K^{\mathrm{app}}
-  &=\widehat\tau_w
-    \sqrt{\frac{9N(N-1)}{2(2N+5)}}
-   =\frac{3}{2}\sqrt N\,\widehat\tau_w+o_p(1),
+ Z_K^{\mathrm{app}}
+ &=\widehat\tau_w
+ \sqrt{\frac{9N(N-1)}{2(2N+5)}}
+ =\frac{3}{2}\sqrt N\,\widehat\tau_w+o_p(1),
 \end{align*}
-
 which agrees with Proposition~\ref{prop:standard-null-limits} to first order.
 The software formula requires $E_3>0$, and all displayed studentizations
 require positive tau-b denominator factors.
@@ -232,20 +222,18 @@ require positive tau-b denominator factors.
 \subsection{First-order null variance with population ties}
 
 The pseudo-count formula is also compatible with a rigorous asymptotic
-calculation when ties arise from atoms.  Let $X'$ be an independent copy of
+calculation when ties arise from atoms. Let $X'$ be an independent copy of
 $X$ and define
-
 \begin{align*}
-  a_X
-  &=\mathbb P(X\neq X'),
-  &
-  r_X(x)
-  &=\mathbb E\{\operatorname{sgn}(x-X')\}
-    =F_X(x^-)+F_X(x)-1,\\
-  m_X
-  &=\mathbb E\{r_X(X)^2\}.
+ a_X
+ &=\mathbb P(X\neq X'),
+ &
+ r_X(x)
+ &=\mathbb E\{\operatorname{sgn}(x-X')\}
+ =F_X(x^-)+F_X(x)-1,\\
+ m_X
+ &=\mathbb E\{r_X(X)^2\}.
 \end{align*}
-
 Define $a_Y$, $r_Y$, and $m_Y$ analogously.
 
 \begin{proposition}[Weighted tau-b under independence with ties]
@@ -253,134 +241,117 @@ Define $a_Y$, $r_Y$, and $m_Y$ analogously.
 Suppose that the observations are independent and identically distributed,
 the weights are exogenous and satisfy
 equation~\eqref{eq:weight-diffuseness}, $X$ and $Y$ are independent, and
-$a_Xa_Y>0$.  Then
-
+$a_Xa_Y>0$. Then
 \begin{align*}
-  \sqrt{n_{\mathrm{eff}}}\,\widehat\tau_w
-  &\mathrel{\Longrightarrow}
-  N\!\left(0,\frac{4m_Xm_Y}{a_Xa_Y}\right),\\
-  \frac{\sqrt{n_{\mathrm{eff}}}\,\widehat\tau_w}
-       {2\sqrt{m_Xm_Y/(a_Xa_Y)}}
-  &\mathrel{\Longrightarrow}N(0,1).
+ \sqrt{n_{\mathrm{eff}}}\,\widehat\tau_w
+ &\mathrel{\Longrightarrow}
+ N\!\left(0,\frac{4m_Xm_Y}{a_Xa_Y}\right),\\
+ \frac{\sqrt{n_{\mathrm{eff}}}\,\widehat\tau_w}
+ {2\sqrt{m_Xm_Y/(a_Xa_Y)}}
+ &\mathrel{\Longrightarrow}N(0,1).
 \end{align*}
 \end{proposition}
 
 \begin{proof}
 Let
-
 \begin{align*}
-  h((x,y),(x',y'))
-  &=\operatorname{sgn}(x-x')\operatorname{sgn}(y-y').
+ h((x,y),(x',y'))
+ &=\operatorname{sgn}(x-x')\operatorname{sgn}(y-y').
 \end{align*}
-
 Under independence, its expectation is zero and its first projection is
-
 \begin{align*}
-  \mathbb E\{h((x,y),(X',Y'))\}
-  &=r_X(x)r_Y(y).
+ \mathbb E\{h((x,y),(X',Y'))\}
+ &=r_X(x)r_Y(y).
 \end{align*}
-
 The weighted Hoeffding decomposition of the concordance numerator, followed
 by division by its two tau-b denominator factors, gives
-
 \begin{align*}
-  \widehat\tau_w
-  &=\frac{1}{\sqrt{a_Xa_Y}}
-    \sum_i
-    \frac{p_i(1-p_i)}{e_2(p_1,\ldots,p_n)}
-    r_X(X_i)r_Y(Y_i)
-    +o_p(\sqrt{s_{2,n}})\\
-  &=\frac{2}{\sqrt{a_Xa_Y}}
-    \sum_i p_i r_X(X_i)r_Y(Y_i)
-    +o_p(\sqrt{s_{2,n}}).
+ \widehat\tau_w
+ &=\frac{1}{\sqrt{a_Xa_Y}}
+ \sum_i
+ \frac{p_i(1-p_i)}{e_2(p_1,\ldots,p_n)}
+ r_X(X_i)r_Y(Y_i)
+ +o_p(\sqrt{s_{2,n}})\\
+ &=\frac{2}{\sqrt{a_Xa_Y}}
+ \sum_i p_i r_X(X_i)r_Y(Y_i)
+ +o_p(\sqrt{s_{2,n}}).
 \end{align*}
-
 The denominator fluctuations do not enter at first order because the null
-concordance numerator is zero.  Moreover, independence gives
-
+concordance numerator is zero. Moreover, independence gives
 \begin{align*}
-  \mathbb E\{r_X(X)r_Y(Y)\}
-  &=0,\\
-  \operatorname{Var}\{r_X(X)r_Y(Y)\}
-  &=m_Xm_Y.
+ \mathbb E\{r_X(X)r_Y(Y)\}
+ &=0,\\
+ \operatorname{Var}\{r_X(X)r_Y(Y)\}
+ &=m_Xm_Y.
 \end{align*}
-
 The weighted triangular-array central limit theorem now proves both claims.
 \end{proof}
 
 If the atom masses of $X$ are $(\pi_{X,g})_g$, then
-
 \begin{align}
-  a_X
-  &=1-\sum_g\pi_{X,g}^2,
-  &
-  m_X
-  &=\frac{1-\sum_g\pi_{X,g}^3}{3},
-  \label{eq:kendall-atom-functionals}
+ a_X
+ &=1-\sum_g\pi_{X,g}^2,
+ &
+ m_X
+ &=\frac{1-\sum_g\pi_{X,g}^3}{3},
+ \label{eq:kendall-atom-functionals}
 \end{align}
-
-and similarly for $Y$.  The second identity follows by introducing two
+and similarly for $Y$. The second identity follows by introducing two
 independent copies $X'$ and $X''$:
-
 \begin{align*}
-  m_X
-  &=\mathbb E\{
-    \operatorname{sgn}(X-X')\operatorname{sgn}(X-X'')
-  \}.
+ m_X
+ &=\mathbb E\{
+ \operatorname{sgn}(X-X')\operatorname{sgn}(X-X'')
+ \}.
 \end{align*}
-
 If the three values are distinct, the sign product is $1$ for either extreme
 and $-1$ for the middle value, so its average over the three labels is $1/3$.
 If exactly two values are equal, the product is $1$ for the singleton and
-zero for either tied label, again giving average $1/3$.  The product is zero
-when all three values are equal.  The probability of the latter event is
+zero for either tied label, again giving average $1/3$. The product is zero
+when all three values are equal. The probability of the latter event is
 $\sum_g\pi_{X,g}^3$, proving
 equation~\eqref{eq:kendall-atom-functionals}.
 
 Finally, the leading terms of the pseudo-count summaries explain why the
-finite-sample approximation has the same population-tie limit.  Under the
+finite-sample approximation has the same population-tie limit. Under the
 conditions of Proposition~\ref{prop:kendall-population-ties}, diffuseness and
 exogeneity imply
-
 \begin{align*}
-  \frac{T_{X,2}}{N^2}
-  &\mathrel{\longrightarrow_p}
-    \frac12\sum_g\pi_{X,g}^2,
-  &
-  \frac{T_{X,3}}{N^3}
-  &\mathrel{\longrightarrow_p}
-    \frac16\sum_g\pi_{X,g}^3,\\
-  \frac{T_{X,v}}{N^3}
-  &\mathrel{\longrightarrow_p}
-    2\sum_g\pi_{X,g}^3,
-  &
-  \frac{E_2}{N^2}
-  &\longrightarrow\frac12,
-  &
-  \frac{E_3}{N^3}
-  &\longrightarrow\frac16,
+ \frac{T_{X,2}}{N^2}
+ &\mathrel{\longrightarrow_p}
+ \frac12\sum_g\pi_{X,g}^2,
+ &
+ \frac{T_{X,3}}{N^3}
+ &\mathrel{\longrightarrow_p}
+ \frac16\sum_g\pi_{X,g}^3,\\
+ \frac{T_{X,v}}{N^3}
+ &\mathrel{\longrightarrow_p}
+ 2\sum_g\pi_{X,g}^3,
+ &
+ \frac{E_2}{N^2}
+ &\longrightarrow\frac12,
+ &
+ \frac{E_3}{N^3}
+ &\longrightarrow\frac16,
 \end{align*}
-
-with analogous limits for $Y$.  Substitution into
+with analogous limits for $Y$. Substitution into
 equation~\eqref{eq:kendall-pseudocount-variance} yields
-
 \begin{align*}
-  \frac{V_{S,q}^{\mathrm{app}}}{N^3}
-  &\mathrel{\longrightarrow_p}
-  \frac{
-    \left(1-\sum_g\pi_{X,g}^3\right)
-    \left(1-\sum_h\pi_{Y,h}^3\right)
-  }{9},\\
-  \frac{E_2-T_{X,2}}{N^2}
-  &\mathrel{\longrightarrow_p}\frac{a_X}{2},
-  &
-  \frac{E_2-T_{Y,2}}{N^2}
-  &\mathrel{\longrightarrow_p}\frac{a_Y}{2}.
+ \frac{V_{S,q}^{\mathrm{app}}}{N^3}
+ &\mathrel{\longrightarrow_p}
+ \frac{
+ \left(1-\sum_g\pi_{X,g}^3\right)
+ \left(1-\sum_h\pi_{Y,h}^3\right)
+ }{9},\\
+ \frac{E_2-T_{X,2}}{N^2}
+ &\mathrel{\longrightarrow_p}\frac{a_X}{2},
+ &
+ \frac{E_2-T_{Y,2}}{N^2}
+ &\mathrel{\longrightarrow_p}\frac{a_Y}{2}.
 \end{align*}
-
 Consequently, the factor in
 equation~\eqref{eq:kendall-pseudocount-statistic} is asymptotically the same
 as the standardization in
-Proposition~\ref{prop:kendall-population-ties}.  This agreement is a
+Proposition~\ref{prop:kendall-population-ties}. This agreement is a
 first-order result and does not turn the unequal-weight construction into an
 exact finite-sample permutation identity.

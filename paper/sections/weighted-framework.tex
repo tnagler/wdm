@@ -1,116 +1,89 @@
 \section{Weighted empirical framework}
 \label{sec:framework}
 
-\subsection{Observations and normalized case weights}
+\subsection{Case weights and effective sample size}
 
 Let $(X_i,Y_i)$, $i=1,\ldots,n$, denote the observed pairs and let
-$w_i\geq 0$ be their case weights, with at least one positive weight. Write
+$w_i\geq 0$ be their case weights, with at least one positive weight. All
+statistics below depend on the weights only through the normalized masses
+$p_i = w_i/\sum_{j=1}^n w_j$, which define the weighted empirical measure
+$\mathbb{P}_{n,w} = \sum_{i=1}^n p_i\,\delta_{(X_i,Y_i)}$. They are therefore
+invariant under multiplication of all weights by a common positive constant,
+and an observation with zero weight is treated as absent. The weights are case
+masses, not weights attached to rank positions; the latter are used by
+coefficients that deliberately emphasize the top or bottom of a ranking
+\citep{shieh1998} and are not considered here.
 
+The concentration of the masses is summarized by Kish's effective sample size
+\citep{kish1965},
 \begin{align*}
-  W_n &= \sum_{i=1}^n w_i,
-  &
-  p_i &= \frac{w_i}{W_n}.
+    n_{\mathrm{eff}}
+    &= \frac{\bigl(\sum_{i=1}^n w_i\bigr)^2}{\sum_{i=1}^n w_i^2}
+    = \frac{1}{\sum_{i=1}^n p_i^2}.
 \end{align*}
-
-The normalized weights satisfy $\sum_i p_i=1$ and define the weighted
-empirical measure
-
+It equals $n$ under uniform weights and decreases as mass concentrates on
+fewer observations. Its role is explained by the weighted mean: if the
+observations are independent and identically distributed, the weights are
+fixed, and $h(X_i,Y_i)$ has variance $\sigma_h^2$, then
 \begin{align*}
-  \mathbb{P}_{n,w}
-  &= \sum_{i=1}^n p_i\,\delta_{(X_i,Y_i)},
-  &
-  \mathbb{P}_{n,w}f
-  &= \sum_{i=1}^n p_i f(X_i,Y_i).
+    \operatorname{Var}\bigl(\mathbb{P}_{n,w}h \mid p_1,\ldots,p_n\bigr)
+    &= \sigma_h^2\sum_{i=1}^n p_i^2
+    = \frac{\sigma_h^2}{n_{\mathrm{eff}}}.
 \end{align*}
+Thus $n_{\mathrm{eff}}$ is the exact precision-equivalent sample size for a
+weighted mean. Section~\ref{sec:independence-tests} identifies when this
+scalar also gives the correct normalization for a dependence statistic and
+when further weight functionals are required.
 
-All coefficients considered below depend on the weights only through the
-$p_i$. They are therefore invariant under multiplication of all weights by a
-common positive constant. An observation with zero weight has zero mass and
-is treated as absent. The weights are case masses, not weights attached to
-particular rank positions; this distinction matters because ``weighted rank
-correlation'' is also used for coefficients that deliberately emphasize the
-top or bottom of a ranking \citep{shieh1998}.
+\subsection{Weighted ranks}
+\label{subsec:weighted-ranks}
 
-The concentration of the case masses is summarized by Kish's effective sample
-size \citep{kish1965},
-
+The strict and weak weighted empirical distribution functions of $X$ are
 \begin{align*}
-  n_{\mathrm{eff}}
-  &= \frac{\left(\sum_{i=1}^n w_i\right)^2}
-           {\sum_{i=1}^n w_i^2}
-   = \frac{1}{\sum_{i=1}^n p_i^2}.
+    F_{X,w}^{-}(x)
+    &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j<x),
+    &
+    F_{X,w}(x)
+    &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j\leq x),
 \end{align*}
-
-If the observations are independent and identically distributed, the weights
-are held fixed, and $h(X_i,Y_i)$ has variance $\sigma_h^2$, then
-
-\begin{align*}
-  \operatorname{Var}\!\left(
-    \mathbb{P}_{n,w}h\mid p_1,\ldots,p_n
-  \right)
-  &= \sigma_h^2\sum_{i=1}^n p_i^2
-   = \frac{\sigma_h^2}{n_{\mathrm{eff}}}.
-\end{align*}
-
-Thus $n_{\mathrm{eff}}$ is the exact conditional precision-equivalent sample
-size for a weighted mean in this setting. It equals $n$ under uniform weights
-and decreases as mass is concentrated on fewer observations. Later sections
-will identify when this scalar also gives the appropriate normalization for a
-dependence statistic and when further weight functionals are required.
-
-\subsection{Weighted ranks and distinct-index sums}
-
-For a marginal variable, define the strict and weak weighted empirical
-distribution functions by
-
-\begin{align*}
-  F_{X,w}^{-}(x)
-  &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j<x),
-  &
-  F_{X,w}(x)
-  &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j\leq x),
-\end{align*}
-
 and analogously for $Y$. The strict weighted bivariate rank at observation
-$i$ is
-
+$i$,
 \begin{align*}
-  H_{i,w}^{-}
-  &= \sum_{j=1}^n p_j
-     \mathbf{1}(X_j<X_i,\,Y_j<Y_i).
+    H_{i,w}^{-}
+    &= \sum_{j=1}^n p_j\,\mathbf{1}(X_j<X_i,\,Y_j<Y_i),
 \end{align*}
+is the basic computational quantity of the weighted Hoeffding statistic in
+Section~\ref{sec:weighted-hoeffding}.
 
-This rank is the basic computational quantity in the weighted Hoeffding
-statistic.
-
-Spearman's coefficient uses a weighted average-rank convention. Let
-$G_i^X=\{j:X_j=X_i\}$ be the tie group containing $X_i$, and define its total
-mass and pair mass by
-
+Spearman's coefficient and Blomqvist's beta use a weighted average-rank
+convention for ties. Let $G_i^X=\{j\colon X_j=X_i\}$ be the tie group
+containing $X_i$, and let
 \begin{align*}
-  P_i^X
-  &= \sum_{j\in G_i^X}p_j,
-  &
-  E_i^X
-  &= \sum_{\substack{j<k\\j,k\in G_i^X}}p_jp_k.
+    P_i^X
+    &= \sum_{j\in G_i^X}p_j,
+    &
+    E_i^X
+    &= \sum_{\substack{j<k\\ j,k\in G_i^X}}p_jp_k
 \end{align*}
-
-The zero-based average score assigned to every member of this tie group is
-
+be its total mass and pair mass. Every member of the tie group receives the
+zero-based average score
 \begin{align*}
-  R_i^X
-  &= F_{X,w}^{-}(X_i)+\frac{E_i^X}{P_i^X}.
+    R_i^X
+    &= F_{X,w}^{-}(X_i)+\frac{E_i^X}{P_i^X},
 \end{align*}
-
-Define $R_i^Y$ in the same way. Under uniform weights, $nR_i^X$ and $nR_i^Y$
-are the usual zero-based midranks. With unequal weights, the pair-mass term is
-part of the definition and should not be replaced silently by one half of the
-mass of the tie group.
+and $R_i^Y$ is defined in the same way. Under uniform weights, $nR_i^X$ is the
+usual zero-based midrank. With unequal weights, the pair-mass term is part of
+the definition and should not be replaced by one half of the mass of the tie
+group.
 
 Algorithm~\ref{alg:weighted-ranks} computes the strict ranks, weak ranks, and
-average scores in one group scan after sorting. For a tie group $G$, its total
-mass and pair mass are denoted by $P_G$ and $E_G$, while $C$ is the mass of all
-preceding groups.
+average scores in one scan over tie groups after sorting. For a tie group $G$,
+its total mass and pair mass are denoted by $P_G$ and $E_G$, and $P_{<G}$ is
+the mass of all preceding groups. The running time is $O(n\log n)$ and the
+auxiliary storage is $O(n)$. The same scan computes strict rank sums for other
+masses, such as $p_i^a$, by replacing $p_i$ by the desired mass; normalization
+matters only when the output is interpreted as an empirical distribution
+function.
 
 \begin{algorithm}[ht]
   \caption{Weighted marginal ranks and average scores}
@@ -135,66 +108,18 @@ preceding groups.
   \end{algorithmic}
 \end{algorithm}
 
-The scan is linear after sorting, so its running time is $O(n\log n)$ and its
-auxiliary storage is $O(n)$. The same scan also computes strict rank sums with
-unnormalized masses, such as $p_i^a$, by replacing $p_i$ by the desired mass;
-normalization is needed only when the output is interpreted as an empirical
-distribution function.
+\subsection{Distinct-index sums}
+\label{subsec:distinct-index-sums}
 
-Higher-order statistics require sums over distinct observations. For
-$k\leq n$, let
-
+Weighted statistics of order two or higher involve sums over distinct
+observations. For $k\leq n$, the elementary symmetric sum
 \begin{align*}
-  e_k(p_1,\ldots,p_n)
-  &= \sum_{1\leq i_1<\cdots<i_k\leq n}
-     p_{i_1}\cdots p_{i_k}.
+    e_k(p_1,\ldots,p_n)
+    &= \sum_{1\leq i_1<\cdots<i_k\leq n} p_{i_1}\cdots p_{i_k}
 \end{align*}
-
-In particular,
-
-\begin{align*}
-  e_2(p_1,\ldots,p_n)
-  &= \frac{1-\sum_{i=1}^n p_i^2}{2}.
-\end{align*}
-
-The quantities $k!e_k$ are the total masses of ordered $k$-tuples of distinct
-observations. Section~\ref{sec:weighted-hoeffding} uses Newton's identities to
-evaluate these terms from power sums of the weights without enumerating
-tuples.
-
-\subsection{Asymptotic regime and the role of the weights}
-
-For asymptotic statements the weights form a triangular array, although the
-sample index is suppressed when no confusion is possible. The baseline regime
-requires
-
-\begin{align*}
-  n_{\mathrm{eff}} &\longrightarrow \infty,
-  &
-  \frac{\max_{1\leq i\leq n}p_i}
-       {\sqrt{\sum_{i=1}^n p_i^2}}
-  &\longrightarrow 0.
-\end{align*}
-
-The second condition is a Lindeberg-type diffuseness requirement: no single
-case may contribute a non-negligible fraction of the standard deviation of a
-weighted sum. Uniform weights satisfy it, whereas a sequence dominated by a
-fixed number of observations does not.
-
-Finite-sample identities in this report are conditional on the observed
-weights and need no stochastic model for them. For null distributions, that
-model matters. Deterministic weights can be conditioned on directly. If the
-weights are functions only of the predictors, independence of $X$ and $Y$
-leaves the responses conditionally identically distributed given the
-predictors and weights; this is the setting used for the weighted Chatterjee
-null calculation. Response-dependent weights invalidate this conditional
-exchangeability argument, and weights that depend jointly on both variables
-can even induce dependence after reweighting. Such weights require a separate
-sampling-design argument and are not covered automatically by the results
-below.
-
-Finally, ties caused by atoms in a population distribution are distinct from
-accidental equalities in finite-precision data. The formulas below specify
-their finite-sample treatment explicitly. Limit results that require
-continuous marginals will be labeled as such rather than inferred from the
-absence of observed ties.
+is the total mass of unordered $k$-tuples of distinct observations, and
+$k!e_k(p_1,\ldots,p_n)$ is the mass of ordered tuples. In particular,
+$e_2(p_1,\ldots,p_n) = (1-\sum_{i=1}^n p_i^2)/2$. These sums normalize the
+weighted Kendall and Hoeffding statistics;
+Section~\ref{sec:weighted-hoeffding} evaluates them from power sums of the
+masses by Newton's identities.

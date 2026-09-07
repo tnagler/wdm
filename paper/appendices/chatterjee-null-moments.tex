@@ -1,29 +1,293 @@
-\section{Null moments for weighted Chatterjee's correlation}
+\section{Null theory for weighted Chatterjee's correlation}
 \label{app:chatterjee-null-moments}
 
-This appendix gives the finite conditional calculation behind
-Theorem~\ref{thm:weighted-chatterjee-null}.  All expectations and variances
-in the first part are conditional on the predictor order and the positive
-masses $p_1,\ldots,p_m$.  Thus $U_1,\ldots,U_m$ are independent uniform
-variables and
+This appendix proves Theorem~\ref{thm:weighted-chatterjee-null} and records
+the exact finite conditional variance of the weighted path statistic. All
+expectations and variances are conditional on the predictor order and the
+positive masses $p_1,\ldots,p_m$, so that $U_1,\ldots,U_m$ are independent
+uniform variables, and $s_{2,m}=\sum_{k=1}^m p_k^2$.
 
+\subsection{Proof of Theorem~\ref{thm:weighted-chatterjee-null}}
+
+We prove the theorem in four steps. First, we compute the exact conditional
+mean of each edge increment. Second, we project $A_w-\mu_{A,w}$ onto
+functions of single edges and single nodes and compute the variance of this
+projection. Third, we bound the remainder. Finally, we apply a central limit
+theorem for one-dependent arrays and pass from the surrogate to the reported
+coefficient.
+
+\begin{proof}
+For one predictor edge, set
 \begin{align*}
-  s_{2,m}
-  &=\sum_{k=1}^m p_k^2,\\
+  \Delta_i
+  &=|F_w(U_{i+1})-F_w(U_i)|
+  =\sum_{j=1}^m p_j
+    \mathbf{1}\!\left\{
+      \min(U_i,U_{i+1})<U_j
+      \leq\max(U_i,U_{i+1})
+    \right\},
+\end{align*}
+so that $A_w=\sum_{i=1}^{m-1}p_i\Delta_i$.
+
+\medskip\noindent
+\emph{Step 1: exact conditional mean.}
+For $j\notin\{i,i+1\}$, each of the three variables $U_i,U_{i+1},U_j$ is
+equally likely to be the middle order statistic, so the indicator has mean
+$1/3$. For either endpoint it has mean $1/2$, because the endpoint is
+included precisely when it is the larger one. Therefore
+\begin{align*}
+  \mathbb{E}_0(\Delta_i\mid X,p)
+  &=(1-p_i-p_{i+1})\frac13
+    +(p_i+p_{i+1})\frac12
+  =\frac13+\frac{p_i+p_{i+1}}6.
+\end{align*}
+Multiplication by $p_i$ and summation prove
+\eqref{eq:chatterjee-null-mean}.
+
+\medskip\noindent
+\emph{Step 2: projection and its variance.}
+For independent uniform $U,V,W$, let
+\begin{align*}
+  d(U,V)
+  &=|U-V|,
+  &
+  \psi(W)
+  &=2W(1-W)-\frac13.
+\end{align*}
+The leading path-and-node projection of $A_w-\mu_{A,w}$ is
+\begin{align}
+  L_w
+  &=\sum_{i=1}^{m-1}p_i\{d(U_i,U_{i+1})-1/3\}
+    +P_E\sum_{j=1}^m p_j\psi(U_j).
+  \label{eq:chatterjee-projection}
+\end{align}
+The required moments follow by elementary integration:
+\begin{align*}
+  \mathbb{E}d(U,V)
+  &=\frac13,
+  &
+  \mathbb{E}d(U,V)^2
+  &=\frac16,
+  &
+  \mathbb{E}\{d(U,V)d(V,W)\}
+  &=\frac{7}{60},\\
+  \mathbb{E}\psi(U)^2
+  &=\frac1{45},
+  &
+  \mathbb{E}\{d(U,V)\psi(U)\}
+  &=-\frac1{90}.
+\end{align*}
+The last covariance follows from
+$\mathbb{E}\{d(U,V)\mid U=u\}=u^2-u+1/2=1/3-\psi(u)/2$. Hence nonadjacent
+path terms are independent, adjacent path terms have covariance
+$7/60-(1/3)^2=1/180$, and a path term is correlated with a node term only at
+one of its two endpoints, where the covariance is $-1/90$. Expanding the
+variance of \eqref{eq:chatterjee-projection} gives
+\begin{align*}
+  \operatorname{Var}(L_w\mid X,p)
+  &=\frac{S_E}{18}+\frac{S_A}{90}
+    +\frac{P_E^2s_{2,m}}{45}
+    -\frac{P_ES_{EN}}{45}
+  =v_{A,w}^2,
+\end{align*}
+where the four terms are the edge variances, the adjacent-edge covariances,
+the node variances, and the edge--node covariances. This proves
+\eqref{eq:chatterjee-projection-variance}.
+
+\medskip\noindent
+\emph{Step 3: remainder.}
+Define
+\begin{align*}
+  h(u,v,w)
+  &=\mathbf{1}\{\min(u,v)<w\leq\max(u,v)\},
+  &
+  \eta(u,v,w)
+  &=h(u,v,w)-d(u,v)-\psi(w),
+\end{align*}
+write $q_m=\max_i p_i$, and abbreviate $\eta_{i,j}=\eta(U_i,U_{i+1},U_j)$.
+The identity for $\Delta_i$ gives the exact decomposition
+\begin{align*}
+  A_w-\mu_{A,w}
+  &=L_w+R_{\xi,w},
+  &
+  R_{\xi,w}
+  &=\sum_{i=1}^{m-1}\sum_{j=1}^m
+    p_ip_j\eta_{i,j}-\frac{S_{EN}}6.
+\end{align*}
+We separate the terms with three distinct labels from the endpoint
+collisions:
+\begin{align*}
+  R_{\xi,w}^{\mathrm d}
+  &=\sum_{i=1}^{m-1}
+    \sum_{j\notin\{i,i+1\}}p_ip_j\eta_{i,j},
+  &
+  R_{\xi,w}^{\mathrm c}
+  &=\sum_{i=1}^{m-1}p_i\left[
+      p_i\{\eta_{i,i}-1/6\}
+      +p_{i+1}\{\eta_{i,i+1}-1/6\}
+    \right].
+\end{align*}
+For three independent uniforms, direct conditioning gives
+\begin{align*}
+  \mathbb E\{h(U,V,W)\mid U,V\}
+  &=d(U,V),\\
+  \mathbb E\{h(U,V,W)\mid W=w\}
+  &=2w(1-w)=\psi(w)+\frac13,\\
+  \mathbb E\{h(U,V,W)\mid U=u\}
+  &=\int_0^1|u-v|\,\mathrm{d}v
+   =\mathbb E\{d(U,V)\mid U=u\}.
+\end{align*}
+Since $\mathbb E d(U,V)=1/3$ and $\mathbb E\psi(W)=0$, these identities show
+that $\eta(U,V,W)$ has mean zero conditional on any one argument and that
+$\mathbb E\{\eta(U,V,W)\mid U,V\}=0$. Each collision has mean $1/6$, because
+$\mathbb E h(U,V,U)=\mathbb E h(U,V,V)=1/2$, whereas
+$\mathbb E d(U,V)=1/3$ and $\mathbb E\psi(U)=0$. Hence
+$R_{\xi,w}=R_{\xi,w}^{\mathrm d}+R_{\xi,w}^{\mathrm c}$ is centered. Since
+$S_{EN}\leq 2s_{2,m}$ and $\eta$ is bounded, the collision part satisfies
+the pointwise bound $|R_{\xi,w}^{\mathrm c}|\leq C s_{2,m}$.
+
+It remains to bound $\mathbb E\{(R_{\xi,w}^{\mathrm d})^2\mid X,p\}$ by
+enumerating products. Two distinct-label summands have zero covariance when
+their triples share at most one label. For the same edge, conditioning on its
+two endpoints also makes different external-node terms uncorrelated, so only
+identical triples remain; their total squared weight is bounded by
+\begin{align*}
+  \sum_{i=1}^{m-1}p_i^2
+    \sum_{j\notin\{i,i+1\}}p_j^2
+  &\leq s_{2,m}^2.
+\end{align*}
+For adjacent edges $i$ and $i+1$, a second shared label can arise only from
+a common external node, from $j=i+2$, or from the second external node being
+$i$. The corresponding coefficient sums are bounded respectively by
+\begin{align*}
+  \sum_{i=1}^{m-2}p_ip_{i+1}\sum_jp_j^2
+  &\leq s_{2,m}^2,
+  &
+  \sum_{i=1}^{m-2}p_ip_{i+1}p_{i+2}
+  &\leq q_m s_{2,m},
+  &
+  \sum_{i=1}^{m-2}p_i^2p_{i+1}
+  &\leq q_m s_{2,m},
+\end{align*}
+where enlarging an external-node sum only increases its weight bound. For
+disjoint edges $i$ and $k$, two labels are shared only if each external node
+is an endpoint of the other edge. Their total coefficient is at most
+\begin{align*}
+  \sum_{i,k}p_ip_k(p_i+p_{i+1})(p_k+p_{k+1})
+  &\leq4q_m^2,
+\end{align*}
+where nonexistent outgoing-edge terms are omitted. Since $|\eta|\leq3$,
+these exhaustive same-edge, adjacent-edge, and disjoint-edge cases yield
+\begin{align*}
+  \mathbb{E}_0(R_{\xi,w}^2\mid X,p)
+  &\leq C\left\{
+    s_{2,m}^2+q_ms_{2,m}+q_m^2
+  \right\}
+  =o(s_{2,m}).
+\end{align*}
+Section~\ref{subsec:chatterjee-exact-moments} enumerates the same products
+explicitly and gives the exact finite conditional variance.
+
+Since $\operatorname{Var}(L_w\mid X,p)=v_{A,w}^2=O(s_{2,m})$,
+Cauchy--Schwarz gives
+\begin{align*}
+  \left|
+    \operatorname{Var}_0(A_w\mid X,p)-v_{A,w}^2
+  \right|
+  &\leq
+    \mathbb E_0(R_{\xi,w}^2\mid X,p)
+    +2v_{A,w}
+      \sqrt{\mathbb E_0(R_{\xi,w}^2\mid X,p)}
+  =o(s_{2,m}),
+\end{align*}
+which proves the variance assertion in the theorem.
+
+\medskip\noindent
+\emph{Step 4: central limit theorem.}
+Write $L_w$ as the sum of
+\begin{align*}
+  T_{i,w}
+  &=p_i\{d(U_i,U_{i+1})-1/3\}+P_Ep_i\psi(U_i),
+  &&i=1,\ldots,m-1,\\
+  T_{m,w}
+  &=P_Ep_m\psi(U_m).
+\end{align*}
+This is a row-wise one-dependent triangular array of centered, bounded
+variables. Its variance is comparable to $s_{2,m}$: one transparent positive
+form is
+\begin{align*}
+  v_{A,w}^2
+  &=\frac{2}{45}\sum_{i=1}^{m-1}p_i^2
+    +\frac1{180}\sum_{j=1}^m
+      \{p_{j-1}\mathbf{1}(j>1)
+        +p_j\mathbf{1}(j<m)-2P_Ep_j\}^2,
+\end{align*}
+where an edge-weight term is omitted when its indicated edge does not exist.
+The elementary bound
+\begin{align*}
+  \sum_{j=1}^m
+    \{p_{j-1}\mathbf 1(j>1)+p_j\mathbf 1(j<m)-2P_Ep_j\}^2
+  &\leq18s_{2,m}
+\end{align*}
+and $p_m^2\leq q_m^2=o(s_{2,m})$ show that
+$\frac{2}{45}(s_{2,m}-p_m^2)\leq v_{A,w}^2\leq C s_{2,m}$, so
+$v_{A,w}^2\asymp s_{2,m}$. Also $|T_{i,w}|\leq Cp_i$, so
+\begin{align*}
+  \max_i\frac{|T_{i,w}|}{v_{A,w}}
+  &\leq C\frac{q_m}{\sqrt{s_{2,m}}}
+  \longrightarrow0.
+\end{align*}
+For every $\varepsilon>0$, the indicators in the row-wise Lindeberg sum
+\begin{align*}
+  \frac1{v_{A,w}^2}\sum_{i=1}^m
+  \mathbb E_0\left[
+    T_{i,w}^2\mathbf 1\{|T_{i,w}|>\varepsilon v_{A,w}\}
+    \middle|X,p
+  \right]
+\end{align*}
+are therefore all zero for sufficiently large $m$. The fixed-dependence
+triangular-array theorem of \citet[Theorem~1.1]{janson2021} now gives
+$L_w/v_{A,w}\Longrightarrow N(0,1)$. The $L^2$ remainder bound of Step~3
+gives $R_{\xi,w}/v_{A,w}\to_p0$, and
+\begin{align*}
+  \frac{\widetilde\xi_w-(1-3\mu_{A,w})}{3v_{A,w}}
+  &=-\frac{A_w-\mu_{A,w}}{v_{A,w}}
+  \mathrel{\Longrightarrow}N(0,1),
+\end{align*}
+which proves the stated normal limit.
+
+Finally, in response-rank order, $C_w$ is a Riemann sum for
+$2\int_0^1u(1-u)\,\mathrm{d}u=1/3$. The integrand is Lipschitz, so
+$|C_w-1/3|\leq2\max_i p_i$. Since $A_w\leq1$, diffuseness implies
+\begin{align*}
+  \widehat\xi_w-\widetilde\xi_w
+  &=A_w\left(3-C_w^{-1}\right)
+  =o_p(\sqrt{s_{2,m}}),
+\end{align*}
+which completes the proof.
+\end{proof}
+
+\subsection{Exact conditional edge moments}
+\label{subsec:chatterjee-exact-moments}
+
+The projection variance in Theorem~\ref{thm:weighted-chatterjee-null} is a
+first-order approximation. The following proposition gives the exact finite
+conditional variance of $A_w$ by enumerating all products of edge increments.
+Write
+\begin{align*}
   I_{i,k}
   &=\mathbf{1}\!\left\{
     \min(U_i,U_{i+1})<U_k\leq\max(U_i,U_{i+1})
-  \right\},\\
+  \right\},
+  &
   \Delta_i
   &=\sum_{k=1}^m p_k I_{i,k}.
 \end{align*}
-
 The half-open interval is important when $k=i$ or $k=i+1$: exactly the
-larger endpoint is included.  It is the same convention as the weak weighted
+larger endpoint is included. It is the same convention as the weak weighted
 CDF in Sections~\ref{sec:weighted-chatterjee}
-and~\ref{subsec:chatterjee-test}.  For an index set $B\subseteq
-\{1,\ldots,m\}$, write
-
+and~\ref{subsec:chatterjee-test}. For an index set
+$B\subseteq\{1,\ldots,m\}$, write
 \begin{align*}
   P(B)
   &=\sum_{k\in B}p_k,
@@ -34,13 +298,11 @@ and~\ref{subsec:chatterjee-test}.  For an index set $B\subseteq
   \mathcal B_i
   &=\{i,i+1\}.
 \end{align*}
-
 In particular, $P(B^c)=1-P(B)$ and $S(B^c)=s_{2,m}-S(B)$.
 
 \begin{proposition}[Exact conditional edge moments]
 \label{prop:chatterjee-exact-edge-moments}
 For $i=1,\ldots,m-1$, set
-
 \begin{align*}
   M_i
   &=\frac13+\frac{P(\mathcal B_i)}6,\\
@@ -49,11 +311,9 @@ For $i=1,\ldots,m-1$, set
     +\frac{P(\mathcal B_i)P(\mathcal B_i^c)}3
     +\frac{P(\mathcal B_i^c)^2+S(\mathcal B_i^c)}6.
 \end{align*}
-
 Then $\mathbb E_0(\Delta_i\mid X,p)=M_i$ and
-$\mathbb E_0(\Delta_i^2\mid X,p)=Q_i$.  For adjacent edges, let
+$\mathbb E_0(\Delta_i^2\mid X,p)=Q_i$. For adjacent edges, let
 $\mathcal B_i^{(3)}=\{i,i+1,i+2\}$ and define
-
 \begin{align*}
   G_i
   &=\frac{p_i^2+p_{i+2}^2}{6}+\frac{p_{i+1}^2}{3}
@@ -65,10 +325,8 @@ $\mathcal B_i^{(3)}=\{i,i+1,i+2\}$ and define
     +\frac{7P((\mathcal B_i^{(3)})^c)^2}{60}
     +\frac{S((\mathcal B_i^{(3)})^c)}{20}.
 \end{align*}
-
 For disjoint edges $j\geq i+2$, let
 $\mathcal B_{ij}=\mathcal B_i\cup\mathcal B_j$ and define
-
 \begin{align*}
   H_{ij}
   &=\frac{P(\mathcal B_{ij})^2}{6}
@@ -76,9 +334,7 @@ $\mathcal B_{ij}=\mathcal B_i\cup\mathcal B_j$ and define
     +\frac{P(\mathcal B_{ij}^c)^2}{9}
     +\frac{S(\mathcal B_{ij}^c)}{45}.
 \end{align*}
-
 The remaining cross moments are exactly
-
 \begin{align*}
   \mathbb E_0(\Delta_i\Delta_{i+1}\mid X,p)
   &=G_i,
@@ -87,50 +343,45 @@ The remaining cross moments are exactly
   &=H_{ij},
   &j&\geq i+2.
 \end{align*}
-
 Consequently, the finite conditional variance of the weighted path
 $A_w=\sum_{i=1}^{m-1}p_i\Delta_i$ is
-
 \begin{align*}
   \operatorname{Var}_0(A_w\mid X,p)
-  &=\sum_{i=1}^{m-1}p_i^2(Q_i-M_i^2)\\
-  &\quad
+  &=\sum_{i=1}^{m-1}p_i^2(Q_i-M_i^2)
     +2\sum_{i=1}^{m-2}p_ip_{i+1}(G_i-M_iM_{i+1})\\
   &\quad
     +2\sum_{i=1}^{m-3}\sum_{j=i+2}^{m-1}
       p_ip_j(H_{ij}-M_iM_j).
 \end{align*}
-
 Sums whose upper limit is below their lower limit are understood to be
 empty.
 \end{proposition}
 
 \begin{proof}
 For $k\notin\mathcal B_i$, the indicator $I_{i,k}$ equals one precisely when
-$U_k$ is the middle of three independent continuous variables.  For an
+$U_k$ is the middle of three independent continuous variables. For an
 endpoint it equals one precisely when that endpoint is the larger one.
 Therefore
-
 \begin{align*}
   \mathbb E_0(I_{i,k}\mid X,p)
   &=
   \begin{cases}
     1/2,&k\in\mathcal B_i,\\
     1/3,&k\notin\mathcal B_i,
-  \end{cases}\\
+  \end{cases}
+  &
   \mathbb E_0(\Delta_i\mid X,p)
   &=\frac{P(\mathcal B_i)}2+\frac{P(\mathcal B_i^c)}3
    =M_i.
 \end{align*}
 
-For the second moment, both endpoint indicators cannot equal one.  An
+For the second moment, both endpoint indicators cannot equal one. An
 endpoint and one external label are simultaneously included in one of the
 $3!=6$ strict orders; the factor two from the quadratic expansion makes the
-coefficient of their weight product $2/6=1/3$.  Two distinct external labels
+coefficient of their weight product $2/6=1/3$. Two distinct external labels
 are both between the endpoints in $4$ of the $4!=24$ orders, which again
-gives coefficient $2(4/24)=1/3$.  An external square has coefficient $1/3$.
+gives coefficient $2(4/24)=1/3$. An external square has coefficient $1/3$.
 It follows that
-
 \begin{align*}
   \mathbb E_0(\Delta_i^2\mid X,p)
   &=\frac12S(\mathcal B_i)
@@ -143,21 +394,15 @@ It follows that
     +\frac{P(\mathcal B_i^c)^2+S(\mathcal B_i^c)}6
    =Q_i,
 \end{align*}
-
 where the second equality uses
-
-\begin{align*}
-  2\sum_{\substack{k<\ell\\k,\ell\in B}}p_kp_\ell
-  &=P(B)^2-S(B).
-\end{align*}
+$2\sum_{k<\ell;\,k,\ell\in B}p_kp_\ell=P(B)^2-S(B)$.
 
 The adjacent- and disjoint-edge calculations use the same order counting.
-For completeness, the following tables list every coefficient.  A table
-entry is the coefficient of the displayed unordered monomial after expanding
-$\Delta_i\Delta_j$.  Thus, for a product of two distinct labels, its count
-includes the two possible assignments of those labels to the two factors.
-In the adjacent table, $k$ and $\ell$ are distinct indices outside
-$\mathcal B_i^{(3)}$.
+The following tables list every coefficient. A table entry is the coefficient
+of the displayed unordered monomial after expanding $\Delta_i\Delta_j$. Thus,
+for a product of two distinct labels, its count includes the two possible
+assignments of those labels to the two factors. In the adjacent table, $k$
+and $\ell$ are distinct indices outside $\mathcal B_i^{(3)}$.
 
 \begin{center}
 \begin{tabular}{lll}
@@ -177,11 +422,10 @@ $\mathcal B_i^{(3)}$.
 \end{center}
 
 For example, the common endpoint contributes $p_{i+1}^2/3$ because it must
-be larger than both other endpoints.  A fixed external label lies in both
-adjacent intervals in $4$ of the $4!$ orders.  For two external labels, the
+be larger than both other endpoints. A fixed external label lies in both
+adjacent intervals in $4$ of the $4!$ orders. For two external labels, the
 two assignments to the two intervals are favorable in $28$ of the $5!$
-orders.  Summing the adjacent table gives
-
+orders. Summing the adjacent table gives
 \begin{align*}
   \mathbb E_0(\Delta_i\Delta_{i+1}\mid X,p)
   &=\frac{p_i^2+p_{i+2}^2}{6}+\frac{p_{i+1}^2}{3}
@@ -193,13 +437,13 @@ orders.  Summing the adjacent table gives
     +\frac{S((\mathcal B_i^{(3)})^c)}{6}
     +\frac7{30}
       \sum_{\substack{k<\ell\\k,\ell\in(\mathcal B_i^{(3)})^c}}
-      p_kp_\ell\\
-  &=G_i.
+      p_kp_\ell
+  =G_i.
 \end{align*}
 
 For disjoint edges, let $a,b\in\mathcal B_{ij}$ denote distinct endpoint
 indices and let $k,\ell\in\mathcal B_{ij}^c$ denote distinct external
-indices.  The exhaustive count is
+indices. The exhaustive count is
 
 \begin{center}
 \begin{tabular}{lll}
@@ -217,41 +461,28 @@ indices.  The exhaustive count is
 \end{center}
 
 Consequently,
-
 \begin{align*}
   \mathbb E_0(\Delta_i\Delta_j\mid X,p)
   &=\frac{P(\mathcal B_{ij})^2}{6}
     +\frac{4P(\mathcal B_{ij})P(\mathcal B_{ij}^c)}{15}
-    +\frac{2S(\mathcal B_{ij}^c)}{15}\\
-  &\quad
+    +\frac{2S(\mathcal B_{ij}^c)}{15}
     +\frac29
       \sum_{\substack{k<\ell\\k,\ell\in\mathcal B_{ij}^c}}
       p_kp_\ell\\
   &=\frac{P(\mathcal B_{ij})^2}{6}
     +\frac{4P(\mathcal B_{ij})P(\mathcal B_{ij}^c)}{15}
     +\frac{P(\mathcal B_{ij}^c)^2}{9}
-    +\frac{S(\mathcal B_{ij}^c)}{45}\\
-  &=H_{ij}.
+    +\frac{S(\mathcal B_{ij}^c)}{45}
+  =H_{ij}.
 \end{align*}
-
-This proves all product formulas.  Expanding the variance of
+This proves all product formulas. Expanding the variance of
 $\sum_i p_i\Delta_i$ into diagonal and unordered off-diagonal terms gives
 the stated finite conditional variance.
 \end{proof}
 
-For direct calculation, put
-
-\begin{align*}
-  q_i
-  &=p_i+p_{i+1},
-  &
-  t_i
-  &=p_i^2+p_{i+1}^2.
-\end{align*}
-
+For direct calculation, put $q_i=p_i+p_{i+1}$ and $t_i=p_i^2+p_{i+1}^2$.
 The covariance terms in Proposition~\ref{prop:chatterjee-exact-edge-moments}
 can equivalently be written as
-
 \begin{align*}
   Q_i-M_i^2
   &=\frac{
@@ -266,54 +497,42 @@ can equivalently be written as
   \bigr\},\\
   H_{ij}-M_iM_j
   &=\frac1{180}\bigl\{
-    4s_{2,m}-4(t_i+t_j)+2q_i^2+2q_j^2\\
-  &\quad
-    {}-q_iq_j-2q_i-2q_j
+    4s_{2,m}-4(t_i+t_j)+2q_i^2+2q_j^2
+    -q_iq_j-2q_i-2q_j
   \bigr\},\qquad j\geq i+2.
 \end{align*}
-
-The last expression also shows that the apparently quadratic disjoint-edge
-sum can be evaluated in linear time after forming suffix sums of $p_j$,
-$p_jt_j$, $p_jq_j$, and $p_jq_j^2$.
+The last expression shows that the apparently quadratic disjoint-edge sum
+can be evaluated in linear time after forming suffix sums of $p_j$, $p_jt_j$,
+$p_jq_j$, and $p_jq_j^2$.
 
 \subsection{Uniform continuous-response check}
 
 If $p_i=1/m$, substitution in the exact formulas gives
-
 \begin{align*}
   \mathbb E_0(A_w)
-  &=\frac{m^2-1}{3m^2},\\
+  &=\frac{m^2-1}{3m^2},
+  &
   \operatorname{Var}_0(A_w)
   &=\frac{(m-2)(m+1)(4m-7)}{90m^4}.
 \end{align*}
-
 Here $C_w=(m^2-1)/(3m^2)$ is deterministic and
-
-\begin{align*}
-  \widetilde\xi_w
-  &=1-3A_w
-   =\frac1{m^2}+\left(1-\frac1{m^2}\right)\widehat\xi.
-\end{align*}
-
-It follows that
-
+$\widetilde\xi_w=1-3A_w=m^{-2}+(1-m^{-2})\widehat\xi$. It follows that
 \begin{align*}
   \mathbb E_0(\widehat\xi)
-  &=0,\\
+  &=0,
+  &
   \operatorname{Var}_0(\widehat\xi)
   &=\frac{(m-2)(4m-7)}{10(m-1)^2(m+1)},
 \end{align*}
-
 which is the finite continuous-response variance quoted after
-Theorem~\ref{thm:weighted-chatterjee-null}.  This calculation also checks
+Theorem~\ref{thm:weighted-chatterjee-null}. This calculation also checks
 both the outgoing base-point edge weight and the half-open endpoint
 convention.
 
 \subsection{Unweighted tie-adjusted asymptotic variance}
 
-For completeness, consider uniform masses and allow response ties.  Use the
+For completeness, consider uniform masses and allow response ties. Use the
 unnormalized weak and survival ranks
-
 \begin{align*}
   r_i
   &=\sum_{j=1}^m\mathbf{1}(Y_j\leq Y_i),
@@ -321,58 +540,43 @@ unnormalized weak and survival ranks
   \ell_i
   &=\sum_{j=1}^m\mathbf{1}(Y_j\geq Y_i).
 \end{align*}
-
-Let $u_1\leq\cdots\leq u_m$ be the sorted values of
-$r_1,\ldots,r_m$, and set $v_i=\sum_{j=1}^i u_j$.  The sample quantities in
-the tie-adjusted variance of \citet{chatterjee2021} are
-
+Let $u_1\leq\cdots\leq u_m$ be the sorted values of $r_1,\ldots,r_m$, and
+set $v_i=\sum_{j=1}^i u_j$. The sample quantities in the tie-adjusted
+variance of \citet{chatterjee2021} are
 \begin{align*}
   a_m
-  &=\frac1{m^4}\sum_{i=1}^m(2m-2i+1)u_i^2,\\
+  &=\frac1{m^4}\sum_{i=1}^m(2m-2i+1)u_i^2,
+  &
   b_m
   &=\frac1{m^5}\sum_{i=1}^m
     \{v_i+(m-i)u_i\}^2,\\
   c_m
-  &=\frac1{m^3}\sum_{i=1}^m(2m-2i+1)u_i,\\
+  &=\frac1{m^3}\sum_{i=1}^m(2m-2i+1)u_i,
+  &
   d_m
-  &=\frac1{m^3}\sum_{i=1}^m\ell_i(m-\ell_i),\\
-  \widehat\tau_m^2
-  &=\frac{a_m-2b_m+c_m^2}{d_m^2}.
+  &=\frac1{m^3}\sum_{i=1}^m\ell_i(m-\ell_i),
 \end{align*}
-
-Provided the response is not constant, the unweighted tie-adjusted standard
-error used by the library is
-
-\begin{align*}
-  \widehat{\operatorname{se}}_0(\widehat\xi)
-  &=\frac{\widehat\tau_m}{\sqrt m}.
-\end{align*}
-
-Under the independence conditions of the cited asymptotic theorem,
-
-\begin{align*}
-  \frac{\sqrt m\,\widehat\xi}{\widehat\tau_m}
-  &\mathrel{\Longrightarrow}N(0,1).
-\end{align*}
-
-This is an asymptotic plug-in variance, not the exact finite conditional
-variance above.  As a scaling check, without response ties $u_i=i$ and the
-survival ranks are a permutation of $1,\ldots,m$, so
-
+and $\widehat\tau_m^2=(a_m-2b_m+c_m^2)/d_m^2$. Provided the response is not
+constant, the library uses the standard error
+$\widehat{\operatorname{se}}_0(\widehat\xi)=\widehat\tau_m/\sqrt m$, and
+under the independence conditions of the cited asymptotic theorem,
+$\sqrt m\,\widehat\xi/\widehat\tau_m\Longrightarrow N(0,1)$. This is an
+asymptotic plug-in variance, not the exact finite conditional variance
+above. As a scaling check, without response ties $u_i=i$ and the survival
+ranks are a permutation of $1,\ldots,m$, so
 \begin{align*}
   a_m
-  &=\frac{(m+1)(m^2+m+1)}{6m^3},\\
+  &=\frac{(m+1)(m^2+m+1)}{6m^3},
+  &
   b_m
   &=\frac{(m+1)(2m+1)(2m^2+2m+1)}{30m^4},\\
   c_m
-  &=\frac{(m+1)(2m+1)}{6m^2},\\
+  &=\frac{(m+1)(2m+1)}{6m^2},
+  &
   d_m
-  &=\frac{(m-1)(m+1)}{6m^2},\\
-  \widehat\tau_m^2
-  &=\frac{2m^2+7}{5(m-1)(m+1)}
-   \longrightarrow\frac25.
+  &=\frac{(m-1)(m+1)}{6m^2},
 \end{align*}
-
-Thus the tie-adjusted formula has the same leading continuous-null variance
-$2/(5m)$ as Theorem~\ref{thm:weighted-chatterjee-null}, while its finite
-value should not be confused with the exact variance of $\widehat\xi$.
+and $\widehat\tau_m^2=(2m^2+7)/\{5(m-1)(m+1)\}\to2/5$. Thus the
+tie-adjusted formula has the same leading continuous-null variance $2/(5m)$
+as Theorem~\ref{thm:weighted-chatterjee-null}, while its finite value should
+not be confused with the exact variance of $\widehat\xi$.

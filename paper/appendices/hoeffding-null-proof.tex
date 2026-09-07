@@ -1,0 +1,244 @@
+\section{Proof of Theorem~\ref{thm:weighted-hoeffding-null}}
+\label{app:hoeffding-null-proof}
+
+We prove the theorem in four steps. First, we compute the second-order
+expansion of the functional $D/30$ at the independence copula and identify
+its quadratic kernel $K$. Second, we decompose the distinct-index statistic
+into a weighted quadratic form in $K$ and a remainder that is negligible
+under \eqref{eq:weight-diffuseness}. Third, we identify the limit law of the
+quadratic form through the spectral decomposition of $K$. Finally, we derive
+the variance expansion.
+
+\begin{proof}
+Apply the probability integral transform and write $Z_i=(U_i,V_i)$, where
+all coordinates are independent uniform variables. Let $T(P)=D(P)/30$ and
+let $P_0$ be the uniform measure on $[0,1]^2$.
+
+\medskip\noindent
+\emph{Step 1: second-order expansion of the functional.}
+For $z=(u,v)$, contamination in the direction $\delta_z-P_0$ changes the
+joint-minus-product discrepancy at $(x,y)$ at the rate
+\begin{align*}
+  \dot\Delta_z(x,y)
+  &= \{\mathbf{1}(u\leq x)-x\}
+     \{\mathbf{1}(v\leq y)-y\}.
+\end{align*}
+Because the discrepancy itself is zero at $P_0$, the first derivative of $T$
+vanishes. The change in the integrating measure contributes only at third
+order, while the mixed second derivative is
+\begin{align*}
+  K(z,z')
+  &= \int_0^1\int_0^1
+     \dot\Delta_z(x,y)\dot\Delta_{z'}(x,y)
+     \,\mathrm{d}x\,\mathrm{d}y
+   = k(u,u')k(v,v'),
+\end{align*}
+where direct integration gives
+\begin{align*}
+  k(a,b)
+  &= \int_0^1
+     \{\mathbf{1}(a\leq t)-t\}
+     \{\mathbf{1}(b\leq t)-t\}\,\mathrm{d}t
+   = \frac{a^2+b^2}{2}-\max(a,b)+\frac13.
+\end{align*}
+More precisely, let $\nu$ and $\gamma$ be zero-mass signed directions with
+bounded densities relative to $P_0$, and set
+$\dot\Delta_\nu(x,y)=\int \dot\Delta_z(x,y)\,\mathrm{d}\nu(z)$. Then
+\begin{align*}
+  \left.
+  \frac{\partial^2}{\partial\varepsilon\,\partial\eta}
+  T(P_0+\varepsilon\nu+\eta\gamma)
+  \right|_{\varepsilon=\eta=0}
+  &=2\int\!\!\int K(z,z')\,\mathrm{d}\nu(z)\,\mathrm{d}\gamma(z').
+\end{align*}
+The kernel $K$ is canonical in either argument. Therefore equality of these
+bilinear forms over bounded zero-mean densities identifies the canonical
+$L^2(P_0^2)$ quadratic-derivative kernel.
+
+\medskip\noindent
+\emph{Step 2: quadratic projection of the statistic.}
+To connect this derivative with the distinct-index statistic, symmetrize the
+order-$m$ kernels defining $\widehat\theta_{m,w}$ and denote their canonical
+order-$r$ projections relative to $P_0$ by $h_{m,r}$. Differentiating
+$T=\theta_3-2\theta_4+\theta_5$ once gives the first identity below. The
+kernel representing its mixed second derivative is
+$2\{3h_{3,2}-12h_{4,2}+10h_{5,2}\}$, and comparison of the two bilinear forms
+for all $\nu$ and $\gamma$ as above gives the second identity in
+$L^2(P_0^2)$:
+\begin{align*}
+  3h_{3,1}-8h_{4,1}+5h_{5,1}
+  &=0,
+  &
+  3h_{3,2}-12h_{4,2}+10h_{5,2}
+  &=K.
+\end{align*}
+The first identity proves degeneracy. The second identifies the full
+quadratic projection and its normalization.
+
+Put $c_{m,n}=m!e_m(p_1,\ldots,p_n)$ and, for an index set $A$,
+$c_{m-r,n}^{(-A)}=(m-r)!e_{m-r}\bigl((p_i)_{i\notin A}\bigr)$. The canonical
+decomposition of \citet{hoeffding1948u}, with the coefficient of each index
+set replaced by its normalized distinct-tuple mass, gives
+\begin{align*}
+  \widehat\theta_{m,w}-\theta_m
+  &= \sum_{r=1}^m
+     \sum_{\substack{A\subseteq\{1,\ldots,n\}\\|A|=r}}
+     \frac{
+       (m)_r\left(\prod_{i\in A}p_i\right)
+       c_{m-r,n}^{(-A)}
+     }{c_{m,n}}
+     h_{m,r}(Z_A),
+\end{align*}
+where $(m)_r=m!/(m-r)!$. Removing collisions from a fixed number of draws
+gives, uniformly over all $A$ with $|A|\leq5$,
+\begin{align*}
+  |c_{m,n}-1|
+  &\leq C_m s_{2,n},
+  &
+  |c_{m-r,n}^{(-A)}-1|
+  &\leq C_m\left(s_{2,n}+\sum_{i\in A}p_i\right).
+\end{align*}
+Let $\alpha_3=1$, $\alpha_4=-2$, and $\alpha_5=1$, and define
+\begin{align*}
+  R_{1,n}
+  &=\sum_i p_i\sum_{m=3}^5\alpha_m m
+    \left\{
+      \frac{c_{m-1,n}^{(-\{i\})}}{c_{m,n}}-1
+    \right\}h_{m,1}(Z_i),\\
+  R_{2,n}
+  &=\sum_{i<l}p_ip_l\sum_{m=3}^5\alpha_m(m)_2
+    \left\{
+      \frac{c_{m-2,n}^{(-\{i,l\})}}{c_{m,n}}
+      -\frac{1}{1-s_{2,n}}
+    \right\}h_{m,2}(Z_i,Z_l),\\
+  R_{\geq3,n}
+  &=\sum_{m=3}^5\alpha_m
+    \sum_{r=3}^m
+    \sum_{\substack{A\subseteq\{1,\ldots,n\}\\|A|=r}}
+    \frac{
+      (m)_r\left(\prod_{i\in A}p_i\right)
+      c_{m-r,n}^{(-A)}
+    }{c_{m,n}}h_{m,r}(Z_A).
+\end{align*}
+Substitution of the two projection identities gives
+\begin{align}
+  \frac{\widehat D_w}{30}
+  &= \frac{2}{1-s_{2,n}}
+     \sum_{1\leq i<l\leq n}p_ip_lK(Z_i,Z_l)+R_n,
+  \label{eq:hoeffding-quadratic-projection}
+\end{align}
+where $R_n=R_{1,n}+R_{2,n}+R_{\geq3,n}$. Canonical projections of different
+orders or different index sets are orthogonal. The collision bounds, the
+fixed $L^2(P_0^r)$ norms of the kernels, and
+$e_r(p_1^2,\ldots,p_n^2)\leq s_{2,n}^r/r!$ therefore give
+\begin{align*}
+  \mathbb{E}_0(R_{1,n}^2\mid p)
+  &\leq C s_{2,n}(\max_i p_i+s_{2,n})^2,\\
+  \mathbb{E}_0(R_{2,n}^2\mid p)
+  &\leq C s_{2,n}^2(\max_i p_i+s_{2,n})^2,\\
+  \mathbb{E}_0(R_{\geq3,n}^2\mid p)
+  &\leq C s_{2,n}^3.
+\end{align*}
+Consequently,
+\begin{align*}
+  \frac{\mathbb{E}_0(R_n^2\mid p)}{s_{2,n}^2}
+  &\leq C\Biggl[
+    \left\{
+      \frac{\max_i p_i}{\sqrt{s_{2,n}}}+\sqrt{s_{2,n}}
+    \right\}^2
+    +(\max_i p_i+s_{2,n})^2+s_{2,n}
+  \Biggr]
+  \longrightarrow0,
+\end{align*}
+where the three terms come, respectively, from the residual first
+projection, the quadratic coefficient error, and the projections of orders
+three through five. The remainder is thus negligible at the scale $s_{2,n}$
+of the quadratic term.
+
+\medskip\noindent
+\emph{Step 3: limit law of the quadratic projection.}
+The one-dimensional kernel has the cosine expansion
+\begin{align*}
+  k(a,b)
+  &= \sum_{j=1}^{\infty}
+     \frac{2}{\pi^2j^2}\cos(\pi ja)\cos(\pi jb),
+\end{align*}
+so $K$ has orthonormal eigenfunctions and eigenvalues
+\begin{align*}
+  \phi_{jk}(u,v)
+  &=2\cos(\pi ju)\cos(\pi kv),
+  &
+  \lambda_{jk}
+  &=\frac{1}{\pi^4j^2k^2}.
+\end{align*}
+With $a_{i,n}=p_i/\sqrt{s_{2,n}}$, the leading term in
+\eqref{eq:hoeffding-quadratic-projection}, multiplied by
+$(1-s_{2,n})/s_{2,n}$, is
+\begin{align*}
+  \frac{2}{s_{2,n}}\sum_{i<l}p_ip_lK(Z_i,Z_l)
+  &=
+  \sum_{j,k\geq1}\lambda_{jk}
+  \left[
+    \left\{\sum_i a_{i,n}\phi_{jk}(Z_i)\right\}^2
+    -\sum_i a_{i,n}^2\phi_{jk}(Z_i)^2
+  \right].
+\end{align*}
+For any finite set of indices, the weighted Lindeberg central limit theorem
+turns the first sums into independent standard normal variables. Since the
+eigenfunctions are bounded and $\max_i a_{i,n}^2\to0$, the weighted law of
+large numbers makes each second sum converge in probability to one.
+
+It remains to pass from finite truncations to the full series. Let $K_M$
+retain the eigenpairs with $1\leq j,k\leq M$. Canonicality gives the
+uniform identity
+\begin{align*}
+  \mathbb{E}_0\!\left[
+    \left|
+      \frac{2}{s_{2,n}}\sum_{i<l}p_ip_l
+      \{K-K_M\}(Z_i,Z_l)
+    \right|^2
+    \middle|p
+  \right]
+  &=
+  2\left(1-\frac{s_{4,n}}{s_{2,n}^2}\right)
+  \sum_{\substack{j>M\text{ or }k>M}}
+  \lambda_{jk}^2\\
+  &\leq
+  2\sum_{\substack{j>M\text{ or }k>M}}
+  \lambda_{jk}^2.
+\end{align*}
+The corresponding tail of the limiting centered Gaussian series has variance
+twice the same eigenvalue-square sum. Since
+$\sum_{j,k\geq1}\lambda_{jk}^2=1/8100<\infty$, both tail bounds vanish as
+$M\to\infty$, which proves \eqref{eq:hoeffding-centered-limit}. The identity
+$\sum_{j,k\geq1}\lambda_{jk}=1/36$ adds back the mean of the quadratic
+series and proves \eqref{eq:hoeffding-positive-limit}.
+
+\medskip\noindent
+\emph{Step 4: variance expansion.}
+The estimator is exactly unbiased because every normalized distinct tuple has
+the same null expectation. Let $Q_n$ denote the quadratic term on the
+right-hand side of \eqref{eq:hoeffding-quadratic-projection}. Canonicality
+gives
+\begin{align*}
+  \operatorname{Var}_0(Q_n\mid p)
+  &=\frac{s_{2,n}^2-s_{4,n}}
+          {4050(1-s_{2,n})^2},
+\end{align*}
+so in particular $\operatorname{Var}_0(Q_n\mid p)=O(s_{2,n}^2)$. By
+Cauchy--Schwarz,
+\begin{align*}
+  \left|
+    \operatorname{Var}_0(Q_n+R_n\mid p)
+    -\operatorname{Var}_0(Q_n\mid p)
+  \right|
+  &\leq
+  \mathbb{E}_0(R_n^2\mid p)
+  +2\sqrt{
+    \operatorname{Var}_0(Q_n\mid p)
+    \mathbb{E}_0(R_n^2\mid p)
+  }
+  =o(s_{2,n}^2).
+\end{align*}
+Multiplication by $30^2$ completes the variance calculation.
+\end{proof}

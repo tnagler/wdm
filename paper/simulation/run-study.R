@@ -129,6 +129,11 @@ write.csv(
     row.names = FALSE
 )
 
+max_monte_carlo_error <- function(scenarios, repetitions) {
+    rates <- results$rejection_rate[results$scenario %in% scenarios]
+    max(sqrt(rates * (1 - rates) / repetitions))
+}
+
 rejection_rate <- function(scenario, sample_size, weight_profile, method) {
     sprintf(
         "%.3f",
@@ -170,7 +175,11 @@ writeLines(
         "  \\centering",
         "  \\small",
         "  \\setlength{\\tabcolsep}{3.5pt}",
-        "  \\caption{Empirical rejection probabilities under independence at nominal level $0.05$. The Monte Carlo standard error is at most $0.0049$.}",
+        sprintf(
+            "  \\caption{Empirical rejection probabilities under independence at nominal level $0.05$. Each entry uses %d replications and the Monte Carlo standard error is at most $%.4f$.}",
+            null_repetitions,
+            max_monte_carlo_error("null", null_repetitions)
+        ),
         "  \\label{tab:simulation-size}",
         "  \\begin{tabular}{rrcccccc}",
         "    \\toprule",
@@ -194,7 +203,11 @@ writeLines(
         "  \\centering",
         "  \\small",
         "  \\setlength{\\tabcolsep}{3.5pt}",
-        "  \\caption{Empirical power at nominal level $0.05$. The Monte Carlo standard error is at most $0.0158$.}",
+        sprintf(
+            "  \\caption{Empirical power at nominal level $0.05$. Each entry uses %d replications and the Monte Carlo standard error is at most $%.4f$.}",
+            power_repetitions,
+            max_monte_carlo_error(c("linear", "quadratic"), power_repetitions)
+        ),
         "  \\label{tab:simulation-power}",
         "  \\begin{tabular}{rrcccccc}",
         "    \\toprule",

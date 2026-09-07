@@ -1,236 +1,168 @@
 \section{Independence tests}
 \label{sec:independence-tests}
 
-\subsection{Null hypothesis, weights, and calibration}
+\subsection{Null hypothesis and weight regime}
 \label{subsec:test-framework}
 
-All tests in this section concern
+All tests in this section concern the hypothesis
+$H_0\colon \mathbb{P}_{XY}=\mathbb{P}_X\otimes\mathbb{P}_Y$ of independence.
+The finite-sample identities of the preceding sections are conditional on the
+observed weights and need no stochastic model for them. Null distributions do
+depend on such a model, and we distinguish two settings.
 
-\begin{align*}
-  H_0
-  &: \mathbb{P}_{XY}=\mathbb{P}_X\otimes\mathbb{P}_Y.
-\end{align*}
-
-For an asymptotic sequence of normalized masses, write
-
-\begin{align*}
-  s_{r,n}
-  &= \sum_{i=1}^n p_i^r,
-  &
-  n_{\mathrm{eff}}
-  &= s_{2,n}^{-1}.
-\end{align*}
-
-Unless stated otherwise, analytic limits for the symmetric statistics assume
-that the observations are independent and identically distributed and that
-the weights are deterministic, or random but independent of all the
-observations.  We condition on the weights and require
-
+In the first setting, the observations are independent and identically
+distributed and the weights are exogenous: deterministic, or random but
+independent of all observations. We condition on the weights, which then form
+a triangular array, and write $s_{r,n} = \sum_{i=1}^n p_i^r$, so that
+$n_{\mathrm{eff}} = s_{2,n}^{-1}$. The limits below require
 \begin{align}
-  s_{2,n}
-  &\longrightarrow0,
-  &
-  \frac{\max_i p_i}{\sqrt{s_{2,n}}}
-  &\longrightarrow0.
-  \label{eq:weight-diffuseness}
+    s_{2,n}
+    &\longrightarrow0,
+    &
+    \frac{\max_{1\leq i\leq n} p_i}{\sqrt{s_{2,n}}}
+    &\longrightarrow0.
+    \label{eq:weight-diffuseness}
 \end{align}
+The first condition says that the effective sample size grows. The second is a
+Lindeberg-type diffuseness condition: no single case may contribute a
+non-negligible fraction of the standard deviation of a weighted sum. Uniform
+weights satisfy it, whereas a sequence dominated by a fixed number of
+observations does not. It implies, for example,
+$s_{4,n}/s_{2,n}^2\leq(\max_ip_i)^2/s_{2,n}\to0$. This is the setting of the
+Pearson, Spearman, Kendall, Blomqvist, and Hoeffding tests.
 
-The second condition is the Lindeberg condition from
-Section~\ref{sec:framework}.  It implies, for example,
+In the second setting, the weights are functions of the predictor only. Under
+$H_0$ the responses remain conditionally independent and identically
+distributed given the predictors and weights, which is what the weighted
+Chatterjee test in Section~\ref{subsec:chatterjee-test} uses. The distinction
+matters for the symmetric statistics: if $p_i$ is proportional to a function
+of $X_i$, reweighting preserves the null factorization, but a squared-weight
+law enters the sampling variance and Kish scaling need not give a pivotal
+statistic. Weights that use the responses, or both variables jointly, are
+covered by neither argument.
 
-\begin{align*}
-  \frac{s_{4,n}}{s_{2,n}^2}
-  &\leq
-  \frac{(\max_i p_i)^2}{s_{2,n}}
-  \longrightarrow0.
-\end{align*}
+Whenever the weights are fixed or depend only on the predictors, a
+finite-sample alternative is available. Conditional on $(X_i,p_i)_{i=1}^n$
+and on the unordered responses, the assignment of responses to predictors is
+uniform under $H_0$, so recomputing a statistic over random response
+permutations gives an exact conditional test, also for concentrated weights or
+ties. The analytic results below avoid this repeated computation, but their
+conditions must then be respected. In particular, ties caused by atoms of the
+population distribution are distinct from accidental equalities in
+finite-precision data, and results that require continuous marginals are
+labeled as such.
 
-This distinction between exogenous and observation-dependent masses is
-essential.  If $p_i$ is proportional to a function of $X_i$, reweighting
-preserves the null factorization, but a squared-weight law enters the sampling
-variance and Kish scaling need not give a pivotal statistic.  The weighted
-Chatterjee result below is different: it conditions on the predictor order
-and masses and therefore permits masses that are functions of the predictor.
-Weights that use the responses, or jointly use both variables, are not covered
-by either argument.
-
-There is a finite-sample alternative whenever the weights are fixed or depend
-only on the predictors.  Conditional on $(X_i,p_i)_{i=1}^n$ and on the
-unordered responses, the response assignment is uniform under $H_0$.
-Recomputing a statistic over random response permutations therefore gives an
-exact conditional test, including for concentrated weights or ties.  The
-analytic results below avoid this repeated computation, but their stated
-conditions must then be respected.
-
-For a statistic with a standard normal null limit, the upper-, lower-, and
-two-sided asymptotic p-values are respectively
-
-\begin{align*}
-  p_{>}
-  &= 1-\Phi(Z),
-  &
-  p_{<}
-  &= \Phi(Z),
-  &
-  p_{\neq}
-  &= 2\Phi(-|Z|).
-\end{align*}
-
-Hoeffding's test is instead an upper-tail test against nondirectional
-dependence.  Referring to it as ``two-sided'' means only that both increasing
-and decreasing, as well as nonmonotone, alternatives can make the statistic
-large; it does not mean that both tails of its null distribution are used.
+For a statistic $Z$ with a standard normal null limit, the upper-, lower-, and
+two-sided p-values are $1-\Phi(Z)$, $\Phi(Z)$, and $2\Phi(-|Z|)$. Hoeffding's
+test is an upper-tail test against nondirectional dependence; calling it
+two-sided means only that increasing, decreasing, and nonmonotone alternatives
+all make the statistic large.
 
 \subsection{Pearson, Spearman, Kendall, and Blomqvist tests}
 \label{subsec:standard-tests}
 
 The first-order null theory of the four standard coefficients is classical.
-It is recorded here both to collect all tests in one section and to distinguish
-the limiting statistics from finite-sample transformations used by the
-software. A hat denotes the corresponding sample coefficient defined in
-Section~\ref{sec:standard-measures}.
+We record it to collect all tests in one place and to distinguish the limiting
+statistics from the finite-sample transformations used by the software.
 
 \begin{proposition}[First-order weighted null limits]
 \label{prop:standard-null-limits}
 Assume \eqref{eq:weight-diffuseness}, exogenous weights, $H_0$, and continuous,
-nondegenerate marginals.  For Pearson's coefficient, also assume positive
+nondegenerate marginals. For Pearson's coefficient, also assume positive
 finite marginal variances and moments sufficient for the weighted Lindeberg
 condition; for Blomqvist's coefficient, assume unique regular marginal
-medians.  Then
-
+medians. Then
 \begin{align*}
   \sqrt{n_{\mathrm{eff}}}\,\widehat\rho_{P,w}
-  &\mathrel{\Longrightarrow} N(0,1),\\
+  &\mathrel{\Longrightarrow} N(0,1),
+  &
   \sqrt{n_{\mathrm{eff}}}\,\widehat\rho_{S,w}
   &\mathrel{\Longrightarrow} N(0,1),\\
   \frac{3}{2}\sqrt{n_{\mathrm{eff}}}\,\widehat\tau_w
-  &\mathrel{\Longrightarrow} N(0,1),\\
+  &\mathrel{\Longrightarrow} N(0,1),
+  &
   \sqrt{n_{\mathrm{eff}}}\,\widehat\beta_w
   &\mathrel{\Longrightarrow} N(0,1).
 \end{align*}
 \end{proposition}
 
-To see the constants, standardize $X$ and $Y$ for Pearson's coefficient and
-write $U=F_X(X)$ and $V=F_Y(Y)$ for the rank coefficients.  Their first-order
-null scores are
-
+The proof is the weighted triangular-array central limit theorem applied to an
+asymptotic linear representation
+$\widehat\theta_w=\sum_i p_i\psi(Z_i)+o_p(\sqrt{s_{2,n}})$, where $\psi$ is
+the first-order null score of the coefficient. With $X$ and $Y$ standardized
+for Pearson's coefficient and $U=F_X(X)$, $V=F_Y(Y)$ for the rank
+coefficients, the scores are
 \begin{align*}
   \psi_P(X,Y)
   &= \frac{X-\mathbb{E}X}{\sqrt{\operatorname{Var}(X)}}
-     \frac{Y-\mathbb{E}Y}{\sqrt{\operatorname{Var}(Y)}},\\
+     \frac{Y-\mathbb{E}Y}{\sqrt{\operatorname{Var}(Y)}},
+  &
   \psi_S(U,V)
   &= 12(U-1/2)(V-1/2),\\
   \psi_K(U,V)
-  &= 2(2U-1)(2V-1),\\
+  &= 2(2U-1)(2V-1),
+  &
   \psi_B(U,V)
   &= \{2\mathbf{1}(U\leq1/2)-1\}
-     \{2\mathbf{1}(V\leq1/2)-1\}.
+     \{2\mathbf{1}(V\leq1/2)-1\},
 \end{align*}
+and under independence $\psi_P$, $\psi_S$, and $\psi_B$ have variance one
+while $\psi_K$ has variance $4/9$, which explains the four constants. For
+Spearman's coefficient the score is the influence function of its copula
+functional; for Kendall's coefficient it is twice the first projection of the
+concordance kernel; for Blomqvist's coefficient, estimation of the medians has
+no first-order effect under independence because the opposite marginal sign
+has mean zero. The same calculation shows why the limits need more than
+replacing $n$ by $n_{\mathrm{eff}}$ when the weights depend on the
+observations.
 
-Independence gives
-
-\begin{align*}
-  \operatorname{Var}(\psi_P)
-  &= 1,
-  &
-  \operatorname{Var}(\psi_S)
-  &= 1,
-  &
-  \operatorname{Var}(\psi_K)
-  &= \frac{4}{9},
-  &
-  \operatorname{Var}(\psi_B)
-  &= 1.
-\end{align*}
-
-The weighted asymptotic linear representations are
-$\widehat\theta_w=\sum_i p_i\psi(Z_i)+o_p(\sqrt{s_{2,n}})$.
-The triangular-array central limit theorem proves the proposition.  For
-Spearman's coefficient the displayed score is the influence function of its
-copula functional; for Kendall's coefficient it is twice the first projection
-of the concordance kernel.  Estimation of either median in Blomqvist's
-coefficient has no first-order effect under independence because the opposite
-marginal sign has mean zero.  These calculations also show why the four
-limits require more than mechanically replacing $n$ by
-$n_{\mathrm{eff}}$ when the weights depend on the observations.
-
-The software applies the following finite-sample transformations, with
-$N=n_{\mathrm{eff}}$:
-
+The software applies finite-sample transformations rather than the raw
+limits. With $N=n_{\mathrm{eff}}$, it uses
 \begin{align*}
   Z_P^{\mathrm{app}}
-  &= \operatorname{atanh}(\widehat\rho_{P,w})\sqrt{N-3},\\
+  &= \operatorname{atanh}(\widehat\rho_{P,w})\sqrt{N-3},
+  &
   Z_S^{\mathrm{app}}
   &= \operatorname{atanh}(\widehat\rho_{S,w})
-     \sqrt{\frac{N-3}{1.06}},\\
+     \sqrt{\frac{N-3}{1.06}},
+  &
   Z_B^{\mathrm{app}}
   &= \operatorname{atanh}(\widehat\beta_w)\sqrt N.
 \end{align*}
-
-The Pearson and Spearman formulas require $N>3$, and every displayed
-$\operatorname{atanh}$ transformation requires its coefficient to lie
-strictly between $-1$ and $1$. Outside those domains the corresponding
-analytic calibration is unavailable.
-
 The Pearson transformation is Fisher's normal-theory approximation
-\citep{fisher1915}; the Blomqvist transformation is first-order equivalent to
-the statistic in Proposition~\ref{prop:standard-null-limits}.  The factor
-$1.06$ is the finite-sample approximation of
-\citet{fieller1957}, not part of the distribution-free Spearman limit.  In
-fact,
+\citep{fisher1915}, and the Blomqvist transformation is first-order equivalent
+to the statistic in Proposition~\ref{prop:standard-null-limits}. The factor
+$1.06$ is the finite-sample approximation of \citet{fieller1957}; since
+$Z_S^{\mathrm{app}} = \sqrt N\,\widehat\rho_{S,w}/\sqrt{1.06}+o_p(1)$, its
+normal calibration is slightly conservative in the limiting framework of the
+proposition. The Pearson and Spearman formulas require $N>3$, and every
+$\operatorname{atanh}$ transformation requires its coefficient to lie strictly
+between $-1$ and $1$.
 
-\begin{align*}
-  Z_S^{\mathrm{app}}
-  &= \frac{1}{\sqrt{1.06}}
-     \sqrt N\,\widehat\rho_{S,w}+o_p(1),
-\end{align*}
+For Kendall's tau, the tie-free weighted numerator $S_w$ has an exact
+conditional null variance, and with ties the classical permutation variance
+depends on the marginal tie multiplicities \citep{kendall1945,kendall1947}.
+The implementation rescales the masses to fractional pseudo-counts $q_i=Np_i$
+and substitutes weighted pair and triplet masses for the integer tie counts in
+that formula. The resulting studentized statistic $Z_K^{\mathrm{app}}$, given
+in \eqref{eq:kendall-pseudocount-statistic}, has exact conditional variance
+one for uniform masses, is first-order equivalent to
+Proposition~\ref{prop:standard-null-limits} without ties, and has the correct
+first-order limit when ties arise from atoms. For unequal masses it is a
+finite-sample approximation, not an exact permutation identity.
+Appendix~\ref{app:null-asymptotics} records the algebra.
 
-so its normal calibration is slightly conservative in the limiting framework
-of Proposition~\ref{prop:standard-null-limits}.
-
-For reference, the tie-free weighted Kendall numerator has an exact
-conditional null variance.  With $S_w$ as in
-Section~\ref{sec:standard-measures},
-
-\begin{align*}
-  \operatorname{Var}_0(S_w\mid p)
-  &= \sum_{i<j}p_i^2p_j^2
-     +\frac{2}{9}\sum_{i<j<k}
-       p_ip_jp_k(p_i+p_j+p_k).
-\end{align*}
-
-Each pair kernel has variance one, disjoint pair kernels are independent, and
-two kernels that share one observation have covariance $1/9$.  Since
-$\widehat\tau_w=S_w/e_2(p_1,\ldots,p_n)$ without ties, division by
-$e_2(p)^2$ gives the exact variance of $\widehat\tau_w$ and, under
-\eqref{eq:weight-diffuseness},
-
-\begin{align*}
-  \operatorname{Var}_0(\widehat\tau_w\mid p)
-  &\sim \frac{4}{9}s_{2,n}.
-\end{align*}
-
-With ties, the ordinary conditional permutation variance depends on the two
-sets of marginal tie multiplicities \citep{kendall1945,kendall1947}. The
-implementation extends that formula by rescaling the masses to fractional
-pseudo-counts $q_i=Np_i$ and substituting weighted pair and triplet masses for
-integer tie counts.  It is exact for uniform masses and first-order equivalent
-to Proposition~\ref{prop:standard-null-limits} without ties; for unequal
-masses it is a finite-sample approximation, not a new exact permutation
-identity. For uniform masses, only the conditional variance is exact after
-conditioning on both marginal multisets; use of a normal tail remains
-asymptotic. The full algebra is recorded in
-Appendix~\ref{app:null-asymptotics}.
-
-\subsection{The degenerate null limit for weighted Hoeffding D}
+\subsection{Weighted Hoeffding test}
 \label{subsec:hoeffding-test}
 
 Hoeffding's estimator is unbiased under $H_0$, so its null mean is zero. Its
 first projection also vanishes, which makes the statistic second-order
 degenerate and rules out a Gaussian limit at the $\sqrt{n_{\mathrm{eff}}}$
-scale. \citet{hoeffding1948} derived the centered degenerate null limit;
-\citet{blum1961} tabulated the equivalent nonnegative quadratic form used for
-calibration.
+scale. \citet{hoeffding1948} derived the degenerate null limit of the
+unweighted statistic, and \citet{blum1961} tabulated the equivalent
+nonnegative quadratic form used for calibration. The following theorem shows
+that the weighted statistic has the same limit after an explicit
+effective-sample-size correction.
 
 \begin{theorem}[Weighted Hoeffding null limit]
 \label{thm:weighted-hoeffding-null}
@@ -238,7 +170,6 @@ For each $n$, let $(p_1,\ldots,p_n)$ be a deterministic mass vector with at
 least five positive entries, and let $(X_i,Y_i)_{i=1}^n$ be independent and
 identically distributed. Suppose the marginals are continuous and
 \eqref{eq:weight-diffuseness} holds along the triangular array. Under $H_0$,
-
 \begin{align}
   \frac{1-s_{2,n}}{s_{2,n}}\frac{\widehat D_w}{30}
   &\mathrel{\Longrightarrow}
@@ -246,9 +177,7 @@ identically distributed. Suppose the marginals are continuous and
   \frac{G_{jk}^2-1}{\pi^4j^2k^2},
   \label{eq:hoeffding-centered-limit}
 \end{align}
-
-where the $G_{jk}$ are independent standard normal variables.  Equivalently,
-
+where the $G_{jk}$ are independent standard normal variables. Equivalently,
 \begin{align}
   \mathcal H_{n,w}
   &= \frac{\pi^4}{2}
@@ -262,12 +191,11 @@ where the $G_{jk}$ are independent standard normal variables.  Equivalently,
     \frac{G_{jk}^2}{j^2k^2}.
   \label{eq:hoeffding-positive-limit}
 \end{align}
-
 Moreover,
-
 \begin{align*}
   \mathbb{E}_0(\widehat D_w\mid p)
-  &=0,\\
+  &=0,
+  &
   \operatorname{Var}_0(\widehat D_w\mid p)
   &= \frac{2}{9}
      \frac{s_{2,n}^2-s_{4,n}}{(1-s_{2,n})^2}
@@ -275,311 +203,59 @@ Moreover,
 \end{align*}
 \end{theorem}
 
-The same conclusions hold conditionally, path by path, for random exogenous
-weights whose realized triangular array satisfies the assumptions. The test
-rejects at asymptotic level $\alpha$ when $\mathcal H_{n,w}$ exceeds the
-$(1-\alpha)$ quantile of $\mathcal H$. This limit law is continuous: condition
-on every Gaussian variable except $G_{11}$ and use the continuity of a
-noncentral squared-normal distribution. Under a fixed alternative with
-$D>0$, the weighted law of large numbers for each distinct-tuple component
-gives $\widehat D_w\to_p D$, so $\mathcal H_{n,w}\to_p\infty$ and the test is
-consistent.
+The limit $\mathcal H$ is the Blum--Kiefer--Rosenblatt law, so the weighted
+test can use the classical tables. The effective sample size enters through
+the factor $n_{\mathrm{eff}}-1$, which replaces $n-1$ in the unweighted
+statistic, while the centering constant $1/36$ is the same as in the
+unweighted case. The variance expansion shows that the weights enter the
+second-order behavior only through $s_{2,n}$ and a correction $s_{4,n}$ that
+is negligible under \eqref{eq:weight-diffuseness}. The same conclusions hold
+conditionally, path by path, for random exogenous weights whose realized array
+satisfies the assumptions.
 
-\begin{proof}
-Apply the probability integral transform and write
-$Z_i=(U_i,V_i)$, where all coordinates are independent uniform variables.
-Let $T(P)=D(P)/30$ and let $P_0$ be uniform measure on $[0,1]^2$.  For
-$z=(u,v)$, contamination in the direction $\delta_z-P_0$ changes the
-joint-minus-product discrepancy at $(x,y)$ at the rate
+The test rejects at asymptotic level $\alpha$ when $\mathcal H_{n,w}$ exceeds
+the $(1-\alpha)$ quantile of $\mathcal H$. The limit law is continuous:
+conditioning on every Gaussian variable except $G_{11}$ leaves a noncentral
+squared normal, whose distribution is continuous. Under a fixed alternative
+with $D>0$, the weighted law of large numbers for each distinct-index
+component gives $\widehat D_w\to_p D$, so $\mathcal H_{n,w}\to_p\infty$ and
+the test is consistent.
 
+The proof is given in Appendix~\ref{app:hoeffding-null-proof} and proceeds in
+three steps. First, we compute the second-order von Mises expansion of the
+functional $D/30$ at the independence copula. Its first derivative vanishes,
+and its mixed second derivative is the product kernel
+$K(z,z')=k(u,u')k(v,v')$ with $k(a,b)=(a^2+b^2)/2-\max(a,b)+1/3$. Second, we
+apply Hoeffding's canonical decomposition to each distinct-index component
+$\widehat\theta_{m,w}$, with the coefficient of each index set replaced by
+its normalized distinct-tuple mass. Two projection identities that link the
+decomposition to $K$ give
 \begin{align*}
-  \dot\Delta_z(x,y)
-  &= \{\mathbf{1}(u\leq x)-x\}
-     \{\mathbf{1}(v\leq y)-y\}.
-\end{align*}
-
-Because the discrepancy itself is zero at $P_0$, the first derivative of
-$T$ vanishes. The change in the integrating measure contributes only at third
-order, while the mixed second derivative is
-
-\begin{align*}
-  K(z,z')
-  &= \int_0^1\int_0^1
-     \dot\Delta_z(x,y)\dot\Delta_{z'}(x,y)
-     \,\mathrm{d}x\,\mathrm{d}y\\
-  &= k(u,u')k(v,v').
-\end{align*}
-
-More precisely, let $\nu$ and $\gamma$ be zero-mass signed directions with
-bounded densities relative to $P_0$. Then
-
-\begin{align*}
-  \dot\Delta_\nu(x,y)
-  &=\int \dot\Delta_z(x,y)\,\mathrm{d}\nu(z),
-\end{align*}
-
-and hence
-
-\begin{align*}
-  \left.
-  \frac{\partial^2}{\partial\varepsilon\,\partial\eta}
-  T(P_0+\varepsilon\nu+\eta\gamma)
-  \right|_{\varepsilon=\eta=0}
-  &=2\int\!\!\int K(z,z')\,\mathrm{d}\nu(z)\,\mathrm{d}\gamma(z').
-\end{align*}
-
-The kernel $K$ is canonical in either argument. Therefore equality of these
-bilinear forms over bounded zero-mean densities identifies the canonical
-$L^2(P_0^2)$ quadratic-derivative kernel. Direct integration gives
-
-\begin{align*}
-  k(a,b)
-  &= \int_0^1
-     \{\mathbf{1}(a\leq t)-t\}
-     \{\mathbf{1}(b\leq t)-t\}\,\mathrm{d}t\\
-  &= \frac{a^2+b^2}{2}-\max(a,b)+\frac13.
-\end{align*}
-
-To connect this derivative with the distinct-index statistic, symmetrize the
-order-$m$ kernels defining $\widehat\theta_{m,w}$ and denote their canonical
-order-$r$ projections relative to $P_0$ by $h_{m,r}$. Differentiating
-$T=\theta_3-2\theta_4+\theta_5$ once gives the first identity below. The
-kernel representing its mixed second derivative is
-$2\{3h_{3,2}-12h_{4,2}+10h_{5,2}\}$. Comparison of the two bilinear forms for
-all such $\nu$ and $\gamma$ gives the second identity in $L^2(P_0^2)$:
-
-\begin{align*}
-  3h_{3,1}-8h_{4,1}+5h_{5,1}
-  &=0,\\
-  3h_{3,2}-12h_{4,2}+10h_{5,2}
-  &=K.
-\end{align*}
-
-The first identity proves degeneracy. The second identifies the full
-quadratic projection and its normalization.
-
-For completeness, put
-
-\begin{align*}
-  c_{m,n}
-  &=m!e_m(p_1,\ldots,p_n),\\
-  c_{m-r,n}^{(-A)}
-  &=(m-r)!e_{m-r}\bigl((p_i)_{i\notin A}\bigr).
-\end{align*}
-
-The canonical decomposition of \citet{hoeffding1948u}, with the coefficient
-of each index set replaced by its normalized distinct-tuple mass, gives
-
-\begin{align*}
-  \widehat\theta_{m,w}-\theta_m
-  &= \sum_{r=1}^m
-     \sum_{\substack{A\subseteq\{1,\ldots,n\}\\|A|=r}}
-     \frac{
-       (m)_r\left(\prod_{i\in A}p_i\right)
-       c_{m-r,n}^{(-A)}
-     }{c_{m,n}}
-     h_{m,r}(Z_A).
-\end{align*}
-
-Here $(m)_r=m!/(m-r)!$. Removing collisions from a fixed number of draws
-gives, uniformly over all $A$ with $|A|\leq5$,
-
-\begin{align*}
-  |c_{m,n}-1|
-  &\leq C_m s_{2,n},\\
-  |c_{m-r,n}^{(-A)}-1|
-  &\leq C_m\left(s_{2,n}+\sum_{i\in A}p_i\right).
-\end{align*}
-
-To make the remainder calculation explicit, let
-$\alpha_3=1$, $\alpha_4=-2$, and $\alpha_5=1$, and define
-
-\begin{align*}
-  R_{1,n}
-  &=\sum_i p_i\sum_{m=3}^5\alpha_m m
-    \left\{
-      \frac{c_{m-1,n}^{(-\{i\})}}{c_{m,n}}-1
-    \right\}h_{m,1}(Z_i),\\
-  R_{2,n}
-  &=\sum_{i<l}p_ip_l\sum_{m=3}^5\alpha_m(m)_2
-    \left\{
-      \frac{c_{m-2,n}^{(-\{i,l\})}}{c_{m,n}}
-      -\frac{1}{1-s_{2,n}}
-    \right\}h_{m,2}(Z_i,Z_l),\\
-  R_{\geq3,n}
-  &=\sum_{m=3}^5\alpha_m
-    \sum_{r=3}^m
-    \sum_{\substack{A\subseteq\{1,\ldots,n\}\\|A|=r}}
-    \frac{
-      (m)_r\left(\prod_{i\in A}p_i\right)
-      c_{m-r,n}^{(-A)}
-    }{c_{m,n}}h_{m,r}(Z_A).
-\end{align*}
-
-Substitution of the two projection identities gives
-
-\begin{align}
   \frac{\widehat D_w}{30}
   &= \frac{2}{1-s_{2,n}}
      \sum_{1\leq i<l\leq n}p_ip_lK(Z_i,Z_l)+R_n,
-  \label{eq:hoeffding-quadratic-projection}
-\end{align}
-
-where $R_n=R_{1,n}+R_{2,n}+R_{\geq3,n}$. Canonical projections of different
-orders or different index sets are orthogonal. The collision bounds, the
-fixed $L^2(P_0^r)$ norms of the kernels, and
-$e_r(p_1^2,\ldots,p_n^2)\leq s_{2,n}^r/r!$ therefore give
-
-\begin{align*}
-  \mathbb{E}_0(R_{1,n}^2\mid p)
-  &\leq C s_{2,n}(\max_i p_i+s_{2,n})^2,\\
-  \mathbb{E}_0(R_{2,n}^2\mid p)
-  &\leq C s_{2,n}^2(\max_i p_i+s_{2,n})^2,\\
-  \mathbb{E}_0(R_{\geq3,n}^2\mid p)
-  &\leq C s_{2,n}^3.
 \end{align*}
-
-Consequently,
-
-\begin{align*}
-  \frac{\mathbb{E}_0(R_n^2\mid p)}{s_{2,n}^2}
-  &\leq C\Biggl[
-    \left\{
-      \frac{\max_i p_i}{\sqrt{s_{2,n}}}+\sqrt{s_{2,n}}
-    \right\}^2
-    +(\max_i p_i+s_{2,n})^2+s_{2,n}
-  \Biggr]
-  \longrightarrow0.
-\end{align*}
-
-The three displayed terms thus come, respectively, from the residual first
-projection, the quadratic coefficient error, and projections of orders three
-through five.
-
-It remains to identify the law of the quadratic projection.  The
-one-dimensional kernel has the cosine expansion
-
-\begin{align*}
-  k(a,b)
-  &= \sum_{j=1}^{\infty}
-     \frac{2}{\pi^2j^2}\cos(\pi ja)\cos(\pi jb).
-\end{align*}
-
-Consequently, $K$ has orthonormal eigenfunctions and eigenvalues
-
-\begin{align*}
-  \phi_{jk}(u,v)
-  &=2\cos(\pi ju)\cos(\pi kv),
-  &
-  \lambda_{jk}
-  &=\frac{1}{\pi^4j^2k^2}.
-\end{align*}
-
-With $a_{i,n}=p_i/\sqrt{s_{2,n}}$, the leading term in
-\eqref{eq:hoeffding-quadratic-projection}, multiplied by
-$(1-s_{2,n})/s_{2,n}$, is
-
-\begin{align*}
-  &\frac{2}{s_{2,n}}\sum_{i<l}p_ip_lK(Z_i,Z_l)\\
-  &\qquad=
-  \sum_{j,k\geq1}\lambda_{jk}
-  \left[
-    \left\{\sum_i a_{i,n}\phi_{jk}(Z_i)\right\}^2
-    -\sum_i a_{i,n}^2\phi_{jk}(Z_i)^2
-  \right].
-\end{align*}
-
-For any finite set of indices, the weighted Lindeberg central limit theorem
-turns the first sums into independent standard normal variables. Since the
-eigenfunctions are bounded and
-$\max_i a_{i,n}^2\to0$, the weighted law of large numbers makes each second
-sum converge in probability to one.
-
-It remains to justify passage from finite truncations to the full series. Let
-$K_M$ retain the eigenpairs with $1\leq j,k\leq M$. Canonicality gives the
-uniform identity
-
-\begin{align*}
-  &\mathbb{E}_0\!\left[
-    \left|
-      \frac{2}{s_{2,n}}\sum_{i<l}p_ip_l
-      \{K-K_M\}(Z_i,Z_l)
-    \right|^2
-    \middle|p
-  \right]\\
-  &\qquad=
-  2\left(1-\frac{s_{4,n}}{s_{2,n}^2}\right)
-  \sum_{\substack{j>M\text{ or }k>M}}
-  \lambda_{jk}^2
-  \leq
-  2\sum_{\substack{j>M\text{ or }k>M}}
-  \lambda_{jk}^2.
-\end{align*}
-
-The corresponding tail of the limiting centered Gaussian series has variance
-twice the same eigenvalue-square sum. Finally,
-
-\begin{align*}
-  \sum_{j,k\geq1}\lambda_{jk}^2
-  &=\frac{1}{8100},
-\end{align*}
-
-so both tail bounds vanish as $M\to\infty$. This proves
-\eqref{eq:hoeffding-centered-limit}.  The identity
-
-\begin{align*}
-  \sum_{j,k\geq1}\lambda_{jk}
-  &=\frac{1}{36}
-\end{align*}
-
-adds back the mean of the quadratic series and proves
-\eqref{eq:hoeffding-positive-limit}.
-
-The estimator is exactly unbiased because every normalized distinct tuple has
-the same null expectation. Let $Q_n$ denote the quadratic term on the
-right-hand side of \eqref{eq:hoeffding-quadratic-projection}. Canonicality
-gives
-
-\begin{align*}
-  \operatorname{Var}_0\!\left(
-    \frac{2}{1-s_{2,n}}\sum_{i<l}p_ip_lK(Z_i,Z_l)
-  \middle|p\right)
-  &=\frac{s_{2,n}^2-s_{4,n}}
-          {4050(1-s_{2,n})^2}.
-\end{align*}
-
-In particular, $\operatorname{Var}_0(Q_n\mid p)=O(s_{2,n}^2)$. By
-Cauchy--Schwarz,
-
-\begin{align*}
-  &\left|
-    \operatorname{Var}_0(Q_n+R_n\mid p)
-    -\operatorname{Var}_0(Q_n\mid p)
-  \right|\\
-  &\qquad\leq
-  \mathbb{E}_0(R_n^2\mid p)
-  +2\sqrt{
-    \operatorname{Var}_0(Q_n\mid p)
-    \mathbb{E}_0(R_n^2\mid p)
-  }
-  =o(s_{2,n}^2).
-\end{align*}
-
-Multiplication by $30^2$ completes the variance calculation.
-\end{proof}
+where $R_n$ collects the residual first projection, the coefficient error of
+the quadratic term, and the projections of orders three to five;
+orthogonality of canonical projections and \eqref{eq:weight-diffuseness} give
+$\mathbb{E}_0(R_n^2\mid p)=o(s_{2,n}^2)$. Finally, we expand $K$ in its
+eigenfunctions $2\cos(\pi ju)\cos(\pi kv)$ with eigenvalues
+$\lambda_{jk}=1/(\pi^4j^2k^2)$, apply the weighted Lindeberg central limit
+theorem to finitely many eigen-coordinates, and control the spectral tail
+uniformly in $n$ by canonicality. The identities
+$\sum_{j,k}\lambda_{jk}=1/36$ and $\sum_{j,k}\lambda_{jk}^2=1/8100$ supply
+the centering constant and the tail bound.
 
 The survival function of $\mathcal H$ has no elementary form. The software
-linearly interpolates tabulated probabilities for the
-Blum--Kiefer--Rosenblatt limit and uses an exponential formula outside the
-table; both steps are numerical approximations inherited from the software
-implementation, not finite-sample theorems. Its internal convention replaces the
-$1/36$ in \eqref{eq:hoeffding-positive-limit} by
-$(1-s_{2,n})/36$.  The difference is $s_{2,n}/36$ before multiplication by
-$\pi^4/2$ and is asymptotically negligible.
+linearly interpolates tabulated probabilities of the Blum--Kiefer--Rosenblatt
+limit and uses an exponential formula outside the table; both steps are
+numerical approximations. Its internal convention replaces the $1/36$ in
+\eqref{eq:hoeffding-positive-limit} by $(1-s_{2,n})/36$; the difference is
+$s_{2,n}/36$ before multiplication by $\pi^4/2$ and is asymptotically
+negligible.
 
-The theorem does not extend automatically to $p_i\propto w(X_i)$.  For
-example, the horizontal covariance kernel then involves
-
+The theorem does not extend automatically to predictor-dependent weights
+$p_i\propto w(X_i)$. The horizontal covariance kernel then involves
 \begin{align*}
   \Gamma_{X,w}(x,x')
   &=\frac{
@@ -590,46 +266,31 @@ example, the horizontal covariance kernel then involves
     \right]
   }{\mathbb{E}\{w(X)^2\}},
 \end{align*}
-
-where $F_w$ is the distribution induced by first-power weights.  The first-
-and second-power weight laws generally differ, changing both the eigenvalues
-and the centering constant.  Conditional response permutation is the safe
+where $F_w$ is the distribution induced by first-power weights. The first- and
+second-power weight laws generally differ, which changes both the eigenvalues
+and the centering constant. Conditional response permutation is the safe
 calibration in that setting.
 
 \subsection{Weighted Chatterjee test}
 \label{subsec:chatterjee-test}
 
-Put the positive-mass observations in the predictor order used in
-Section~\ref{sec:weighted-chatterjee}.  Under $H_0$ with a continuous response,
-conditional on that order and the masses,
-
-\begin{align*}
-  U_i
-  &=F_Y(Y_i),
-  &i&=1,\ldots,m,
-\end{align*}
-
-are independent uniform variables.  Define their weighted empirical
-distribution and the path statistic by
-
-\begin{align*}
-  F_w(u)
-  &=\sum_{j=1}^m p_j\mathbf{1}(U_j\leq u),\\
-  A_w
-  &=\sum_{i=1}^{m-1}p_i
-    |F_w(U_{i+1})-F_w(U_i)|.
-\end{align*}
-
-The reported coefficient is $1-A_w/C_w$.  For inference it is convenient to
-use
-
+Put the positive-mass observations in the predictor order of
+Section~\ref{sec:weighted-chatterjee}. Under $H_0$ with a continuous
+response, and conditional on that order and the masses, the variables
+$U_i=F_Y(Y_i)$, $i=1,\ldots,m$, are independent and uniform, and the weak
+weighted rank $R_{i,w}$ equals $F_w(U_i)$ for the weighted empirical
+distribution $F_w(u)=\sum_{j=1}^m p_j\mathbf{1}(U_j\leq u)$. The path
+statistic is therefore
+$A_w=\sum_{i=1}^{m-1}p_i|F_w(U_{i+1})-F_w(U_i)|$, and the reported
+coefficient is $\widehat\xi_w=1-A_w/C_w$. For inference we use the surrogate
 \begin{align*}
   \widetilde\xi_w
-  &=1-3A_w.
+  &=1-3A_w,
 \end{align*}
-
-This replacement removes the random weighted-rank denominator and admits a
-closed-form conditional projection variance.
+which replaces the random weighted-rank denominator $C_w$ by its limit $1/3$
+and admits a closed-form conditional projection variance. The following
+theorem gives the exact conditional null mean of $A_w$, its first-order
+variance, and the resulting normal test.
 
 \begin{theorem}[Conditional weighted Chatterjee null theory]
 \label{thm:weighted-chatterjee-null}
@@ -637,7 +298,6 @@ Suppose the observations are independent and identically distributed and the
 response is continuous and independent of the predictor. The weights may be
 fixed or functions only of the predictor. Conditional on the predictor order,
 its response-independent tie breaking, and the $m\geq2$ positive masses, set
-
 \begin{align*}
   s_{2,m}
   &=\sum_{i=1}^m p_i^2,
@@ -652,9 +312,7 @@ its response-independent tie breaking, and the $m\geq2$ positive masses, set
   S_{EN}
   &=\sum_{i=1}^{m-1}p_i(p_i+p_{i+1}).
 \end{align*}
-
 Then the conditional mean of $A_w$ is exactly
-
 \begin{align}
   \mu_{A,w}
   &=\sum_{i=1}^{m-1}p_i
@@ -662,9 +320,7 @@ Then the conditional mean of $A_w$ is exactly
    =\frac{P_E}{3}+\frac{S_{EN}}6.
   \label{eq:chatterjee-null-mean}
 \end{align}
-
 Define the projection variance
-
 \begin{align}
   v_{A,w}^2
   &=\frac{S_E}{18}+\frac{S_A}{90}
@@ -672,366 +328,62 @@ Define the projection variance
     -\frac{P_ES_{EN}}{45}.
   \label{eq:chatterjee-projection-variance}
 \end{align}
-
-If, along the realized triangular array,
-
-\begin{align*}
-  s_{2,m}
-  &\longrightarrow0,
-  &
-  \frac{\max_i p_i}{\sqrt{s_{2,m}}}
-  &\longrightarrow0,
-\end{align*}
-
-then
-
+If, along the realized triangular array, $s_{2,m}\to0$ and
+$\max_ip_i/\sqrt{s_{2,m}}\to0$, then
 \begin{align*}
   \operatorname{Var}_0(A_w\mid X,p)
-  &=v_{A,w}^2+o(s_{2,m}),\\
+  &=v_{A,w}^2+o(s_{2,m}),
+  &
   Z_{\xi,w}
   &=\frac{
-      \widetilde\xi_w-{1-3\mu_{A,w}}
+      \widetilde\xi_w-(1-3\mu_{A,w})
     }{3v_{A,w}}
   \mathrel{\Longrightarrow}N(0,1).
 \end{align*}
-
 Moreover, $\widehat\xi_w-\widetilde\xi_w=o_p(\sqrt{s_{2,m}})$, so the
-reported coefficient and inferential surrogate are first-order equivalent
+reported coefficient and the inferential surrogate are first-order equivalent
 under the same conditions.
 \end{theorem}
 
-\begin{proof}
-For one predictor edge, set
+The mean formula is exact for every $m\geq2$ and every mass vector. Its
+correction $S_{EN}/6$ to the naive value $P_E/3$ is of order $s_{2,m}$, so it
+is asymptotically negligible relative to the standard deviation, but it makes
+the centering of the implemented statistic exact. The variance
+\eqref{eq:chatterjee-projection-variance} is a projection variance: it agrees
+with the exact conditional variance to first order, but it is not the exact
+finite-permutation variance, which
+Appendix~\ref{app:chatterjee-null-moments} gives in closed form. For uniform
+masses, $v_{A,w}^2$ recovers the familiar limiting variance $2/(5m)$ of
+$\widehat\xi$, whereas the exact finite variance of the ordinary coefficient
+is $(m-2)(4m-7)/\{10(m-1)^2(m+1)\}$. Because the argument conditions on the
+predictor, the weights may depend on the predictor, in contrast to
+Theorem~\ref{thm:weighted-hoeffding-null}. The implemented test uses the
+centering $1-3\mu_{A,w}$ and the standard error $3v_{A,w}$.
 
-\begin{align*}
-  \Delta_i
-  &=|F_w(U_{i+1})-F_w(U_i)|\\
-  &=\sum_{j=1}^m p_j
-    \mathbf{1}\!\left\{
-      \min(U_i,U_{i+1})<U_j
-      \leq\max(U_i,U_{i+1})
-    \right\}.
-\end{align*}
+The proof is given in Appendix~\ref{app:chatterjee-null-moments}. The edge
+increment $|F_w(U_{i+1})-F_w(U_i)|$ is the mass of the responses lying
+between the two endpoints, half-open at the upper endpoint, and its exact
+conditional mean follows from counting which of three independent uniforms is
+the middle one. Projecting $A_w-\mu_{A,w}$ onto functions of single edges and
+single nodes gives a one-dependent sum whose variance is $v_{A,w}^2$; the four
+terms in \eqref{eq:chatterjee-projection-variance} are the edge variances,
+the adjacent-edge covariances, the node variances, and the edge--node
+covariances. The remainder has conditional second moment
+$O(s_{2,m}^2+\max_ip_i\,s_{2,m}+\max_ip_i^2)=o(s_{2,m})$, and a central limit
+theorem for one-dependent triangular arrays \citep{janson2021} gives the
+normal limit. The equivalence of $\widehat\xi_w$ and $\widetilde\xi_w$
+follows from the bound $|C_w-1/3|\leq2\max_ip_i$.
 
-For $j\notin\{i,i+1\}$, each of the three variables is equally likely to be
-the middle order statistic, so the indicator has mean $1/3$.  For either
-endpoint it has mean $1/2$, because it is included precisely when that
-endpoint is the larger one.  Therefore
-
-\begin{align*}
-  \mathbb{E}_0(\Delta_i\mid X,p)
-  &=(1-p_i-p_{i+1})\frac13
-    +(p_i+p_{i+1})\frac12\\
-  &=\frac13+\frac{p_i+p_{i+1}}6.
-\end{align*}
-
-Multiplication by $p_i$ and summation prove
-\eqref{eq:chatterjee-null-mean}.
-
-The projection calculation can be made explicit.  For independent uniform
-$U,V,W$, let
-
-\begin{align*}
-  d(U,V)
-  &=|U-V|,
-  &
-  \psi(W)
-  &=2W(1-W)-\frac13.
-\end{align*}
-
-The leading path-and-node projection of $A_w-\mu_{A,w}$ is
-
-\begin{align}
-  L_w
-  &=\sum_{i=1}^{m-1}p_i\{d(U_i,U_{i+1})-1/3\}
-    +P_E\sum_{j=1}^m p_j\psi(U_j).
-  \label{eq:chatterjee-projection}
-\end{align}
-
-The required moments follow by elementary integration:
-
-\begin{align*}
-  \mathbb{E}d(U,V)
-  &=\frac13,
-  &
-  \mathbb{E}d(U,V)^2
-  &=\frac16,\\
-  \mathbb{E}\{d(U,V)d(V,W)\}
-  &=\frac{7}{60},
-  &
-  \mathbb{E}\psi(U)^2
-  &=\frac1{45},\\
-  \mathbb{E}\{d(U,V)\psi(U)\}
-  &=-\frac1{90}.
-\end{align*}
-
-For example,
-
-\begin{align*}
-  \mathbb{E}\{d(U,V)\mid U=u\}
-  &=u^2-u+\frac12
-   =\frac13-\frac12\psi(u),
-\end{align*}
-
-which gives the last covariance.  Nonadjacent path terms are independent;
-adjacent path terms have covariance
-$7/60-(1/3)^2=1/180$.  A path term is correlated with a node term only at
-one of its two endpoints, where the covariance is $-1/90$. Expanding
-$\operatorname{Var}(L_w\mid X,p)$ now gives
-
-\begin{align*}
-  \operatorname{Var}(L_w\mid X,p)
-  &=\frac{S_E}{18}+\frac{S_A}{90}
-    +\frac{P_E^2s_{2,m}}{45}
-    -\frac{P_ES_{EN}}{45},
-\end{align*}
-
-which proves \eqref{eq:chatterjee-projection-variance} and explains all four
-terms in it.
-
-To control the remainder, define
-
-\begin{align*}
-  h(u,v,w)
-  &=\mathbf{1}\{\min(u,v)<w\leq\max(u,v)\},\\
-  \eta(u,v,w)
-  &=h(u,v,w)-d(u,v)-\psi(w).
-\end{align*}
-
-Write $q_m=\max_i p_i$ and abbreviate
-$\eta_{i,j}=\eta(U_i,U_{i+1},U_j)$. The identity for $\Delta_i$ gives the
-exact decomposition
-
-\begin{align*}
-  A_w-\mu_{A,w}
-  &=L_w+R_{\xi,w},\\
-  R_{\xi,w}
-  &=\sum_{i=1}^{m-1}\sum_{j=1}^m
-    p_ip_j\eta_{i,j}-\frac{S_{EN}}6.
-\end{align*}
-
-Separate the terms with three distinct labels from the endpoint collisions:
-
-\begin{align*}
-  R_{\xi,w}^{\mathrm d}
-  &=\sum_{i=1}^{m-1}
-    \sum_{j\notin\{i,i+1\}}p_ip_j\eta_{i,j},\\
-  R_{\xi,w}^{\mathrm c}
-  &=\sum_{i=1}^{m-1}p_i\left[
-      p_i\{\eta_{i,i}-1/6\}
-      +p_{i+1}\{\eta_{i,i+1}-1/6\}
-    \right].
-\end{align*}
-
-For three independent uniforms, direct conditioning gives
-
-\begin{align*}
-  \mathbb E\{h(U,V,W)\mid U,V\}
-  &=d(U,V),\\
-  \mathbb E\{h(U,V,W)\mid W=w\}
-  &=2w(1-w)=\psi(w)+\frac13,\\
-  \mathbb E\{h(U,V,W)\mid U=u\}
-  &=\int_0^1|u-v|\,\mathrm{d}v
-   =\mathbb E\{d(U,V)\mid U=u\}.
-\end{align*}
-
-Since $\mathbb E d(U,V)=1/3$ and $\mathbb E\psi(W)=0$, these identities show
-that $\eta(U,V,W)$ has mean zero conditional on any one argument and that
-$\mathbb E\{\eta(U,V,W)\mid U,V\}=0$. Each collision has mean $1/6$, because
-$\mathbb E h(U,V,U)=\mathbb E h(U,V,V)=1/2$, whereas
-$\mathbb E d(U,V)=1/3$ and $\mathbb E\psi(U)=0$. Hence
-$R_{\xi,w}=R_{\xi,w}^{\mathrm d}+R_{\xi,w}^{\mathrm c}$ is centered. Moreover,
-
-\begin{align*}
-  S_{EN}
-  &=\sum_{i=1}^{m-1}p_i(p_i+p_{i+1})
-  \leq 2s_{2,m},
-\end{align*}
-
-so boundedness of $\eta$ gives the pointwise bound
-$|R_{\xi,w}^{\mathrm c}|\leq C s_{2,m}$.
-
-It remains to enumerate products in
-$\mathbb E\{(R_{\xi,w}^{\mathrm d})^2\mid X,p\}$. Two distinct-label
-summands have zero covariance when their triples share at most one label.
-For the same edge, conditioning on its two endpoints also makes different
-external-node terms uncorrelated, so only identical triples remain; their
-total squared weight is bounded by
-
-\begin{align*}
-  \sum_{i=1}^{m-1}p_i^2
-    \sum_{j\notin\{i,i+1\}}p_j^2
-  &\leq s_{2,m}^2.
-\end{align*}
-
-For adjacent edges $i$ and $i+1$, a second shared label can arise only from
-a common external node, from $j=i+2$, or from the second external node being
-$i$. The corresponding coefficient sums are bounded respectively by
-
-\begin{align*}
-  \sum_{i=1}^{m-2}p_ip_{i+1}\sum_jp_j^2
-  &\leq s_{2,m}^2,\\
-  \sum_{i=1}^{m-2}p_ip_{i+1}p_{i+2}
-  &\leq q_m s_{2,m},\\
-  \sum_{i=1}^{m-2}p_i^2p_{i+1}
-  &\leq q_m s_{2,m}.
-\end{align*}
-
-Here and below, enlarging an external-node sum only increases its weight
-bound. For disjoint edges $i$ and $k$, two labels are shared only if each
-external node is an endpoint of the other edge. Their total coefficient is
-at most
-
-\begin{align*}
-  \sum_{i,k}p_ip_k(p_i+p_{i+1})(p_k+p_{k+1})
-  &\leq4q_m^2,
-\end{align*}
-
-where nonexistent outgoing-edge terms are omitted. Since $|\eta|\leq3$,
-these exhaustive same-edge, adjacent-edge, and disjoint-edge cases yield
-
-\begin{align*}
-  \mathbb{E}_0(R_{\xi,w}^2\mid X,p)
-  &\leq C\left\{
-    s_{2,m}^2+q_ms_{2,m}+q_m^2
-  \right\}
-  =o(s_{2,m}).
-\end{align*}
-
-Appendix~\ref{app:chatterjee-null-moments} enumerates the same-edge,
-adjacent-edge, and disjoint-edge products explicitly and gives the exact
-finite conditional variance.
-
-Since $\operatorname{Var}(L_w\mid X,p)=v_{A,w}^2=O(s_{2,m})$,
-Cauchy--Schwarz also gives
-
-\begin{align*}
-  \left|
-    \operatorname{Var}_0(A_w\mid X,p)-v_{A,w}^2
-  \right|
-  &\leq
-    \mathbb E_0(R_{\xi,w}^2\mid X,p)
-    +2v_{A,w}
-      \sqrt{\mathbb E_0(R_{\xi,w}^2\mid X,p)}\\
-  &=o(s_{2,m}),
-\end{align*}
-
-which proves the variance assertion in the theorem.
-
-To apply a central limit theorem, write $L_w$ as the sum of
-
-\begin{align*}
-  T_{i,w}
-  &=p_i\{d(U_i,U_{i+1})-1/3\}+P_Ep_i\psi(U_i),
-  &&i=1,\ldots,m-1,\\
-  T_{m,w}
-  &=P_Ep_m\psi(U_m).
-\end{align*}
-
-This is a row-wise one-dependent triangular array of centered, bounded
-variables. Its variance is comparable to $s_{2,m}$; one transparent positive
-form is
-
-\begin{align*}
-  v_{A,w}^2
-  &=\frac{2}{45}\sum_{i=1}^{m-1}p_i^2
-    +\frac1{180}\sum_{j=1}^m
-      \{p_{j-1}\mathbf{1}(j>1)
-        +p_j\mathbf{1}(j<m)-2P_Ep_j\}^2.
-\end{align*}
-
-In the last display, an edge-weight term is omitted when its indicated edge
-does not exist. The elementary bound
-
-\begin{align*}
-  \sum_{j=1}^m
-    \{p_{j-1}\mathbf 1(j>1)+p_j\mathbf 1(j<m)-2P_Ep_j\}^2
-  &\leq18s_{2,m}
-\end{align*}
-
-and $p_m^2\leq q_m^2=o(s_{2,m})$ show that
-
-\begin{align*}
-  \frac{2}{45}(s_{2,m}-p_m^2)
-  &\leq v_{A,w}^2
-  \leq C s_{2,m}.
-\end{align*}
-
-Thus $v_{A,w}^2\asymp s_{2,m}$. Also
-$|T_{i,w}|\leq Cp_i$, so
-
-\begin{align*}
-  \max_i\frac{|T_{i,w}|}{v_{A,w}}
-  &\leq C\frac{q_m}{\sqrt{s_{2,m}}}
-  \longrightarrow0.
-\end{align*}
-
-For every $\varepsilon>0$, the indicators in the row-wise Lindeberg sum
-
-\begin{align*}
-  \frac1{v_{A,w}^2}\sum_{i=1}^m
-  \mathbb E_0\left[
-    T_{i,w}^2\mathbf 1\{|T_{i,w}|>\varepsilon v_{A,w}\}
-    \middle|X,p
-  \right]
-\end{align*}
-
-are therefore all zero for sufficiently large $m$. The fixed-dependence
-triangular-array theorem of \citet[Theorem~1.1]{janson2021} now gives
-$L_w/v_{A,w}\Longrightarrow N(0,1)$. The $L^2$ remainder bound gives
-$R_{\xi,w}/v_{A,w}\to_p0$, and
-
-\begin{align*}
-  \frac{\widetilde\xi_w-(1-3\mu_{A,w})}{3v_{A,w}}
-  &=-\frac{A_w-\mu_{A,w}}{v_{A,w}}
-  \mathrel{\Longrightarrow}N(0,1),
-\end{align*}
-
-which proves the stated normal limit.
-
-Finally, in response-rank order, $C_w$ is a Riemann sum for
-
-\begin{align*}
-  2\int_0^1u(1-u)\,\mathrm{d}u
-  &=\frac13.
-\end{align*}
-
-The integrand is Lipschitz, so
-$|C_w-1/3|\leq2\max_i p_i$.  Since $A_w\leq1$, diffuseness implies
-
-\begin{align*}
-  \widehat\xi_w-\widetilde\xi_w
-  &=A_w\left(3-C_w^{-1}\right)
-  =o_p(\sqrt{s_{2,m}}),
-\end{align*}
-
-which completes the proof.
-\end{proof}
-
-The exact centering in the implemented continuous-response inferential
-surrogate is $1-3\mu_{A,w}$ and its standard error is $3v_{A,w}$. Formula
-\eqref{eq:chatterjee-projection-variance} is a projection variance: it is
-asymptotically equivalent to the exact variance under the theorem, but is not
-the exact finite-permutation variance.  For uniform masses it recovers the
-familiar limiting variance $2/(5m)$, whereas the exact finite variance of the
-ordinary reported coefficient is
-
-\begin{align*}
-  \operatorname{Var}_0(\widehat\xi)
-  &=\frac{(m-2)(4m-7)}{10(m-1)^2(m+1)}.
-\end{align*}
-
-The natural Chatterjee alternative is upper-tailed.  A two-sided normal
-p-value can be reported, but a lower-tail rejection should not be interpreted
-as ``negative association,'' because the population coefficient is
-nonnegative and directional.
+The natural alternative is upper-tailed. A two-sided normal p-value can be
+reported, but a lower-tail rejection should not be interpreted as negative
+association, because the population coefficient is nonnegative and
+directional.
 
 If the response is discrete or tied, the library retains
-\eqref{eq:weighted-chatterjee} as the reported coefficient.  For uniform
-masses it uses the known tied-response asymptotic variance of
-\citet{chatterjee2021}; the formula is given in
-Appendix~\ref{app:chatterjee-null-moments}.  Unequally weighted analytic
-inference for a tied or discrete response is not justified by
+\eqref{eq:weighted-chatterjee} as the reported coefficient. For uniform
+masses it uses the tie-adjusted asymptotic variance of \citet{chatterjee2021},
+recorded in Appendix~\ref{app:chatterjee-null-moments}. Analytic inference
+for a tied response with unequal masses is not covered by
 Theorem~\ref{thm:weighted-chatterjee-null} and is deliberately left
 unavailable; conditional permutation remains valid when the weights are fixed
 or predictor-dependent.
@@ -1039,7 +391,7 @@ or predictor-dependent.
 \subsection{Summary of test statistics}
 
 Table~\ref{tab:independence-tests} separates proved asymptotic pivots from
-finite-sample transformations.  Normal entries use the p-value formulas from
+finite-sample transformations. Normal entries use the p-value convention of
 Section~\ref{subsec:test-framework}; Hoeffding uses the upper tail of
 $\mathcal H$.
 

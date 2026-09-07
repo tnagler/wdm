@@ -1,5 +1,5 @@
 wdm version: 0.3.0
 R version: R version 4.6.1 (2026-06-24)
-null repetitions per design point: 2000
-power repetitions per design point: 1000
-elapsed seconds: 50.18
+null repetitions per design point: 20000
+power repetitions per design point: 10000
+elapsed seconds: 452.02
