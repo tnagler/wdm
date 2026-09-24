@@ -78,7 +78,7 @@ jobs:
       shell: bash
       run: >
         cmake -B build -DCMAKE_BUILD_TYPE=Release -DUSE_BOOST=ON
-        -DCMAKE_CXX_FLAGS="-I${{ steps.deps.outputs.BOOST_ROOT }}/include"
+        -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES="${{ steps.deps.outputs.BOOST_ROOT }}/include"
     - name: Build
       run: cmake --build build --config Release
     - name: Test
