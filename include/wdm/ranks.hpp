@@ -11,10 +11,54 @@
 #include "utils.hpp"
 
 #include <memory>
+#include <numeric>
 
 namespace wdm {
 
 namespace impl {
+
+//! draws the order in which one group of tied values receives its ranks.
+//! @param size number of tied values in the group, at least one.
+//! @param generator the random number generator to draw from.
+//! @return a permutation of `0, ..., size - 1`: the value at position
+//!   `ord[k]` of the group, in the order of `utils::get_order()`, receives
+//!   the group's `k`-th smallest rank.
+inline std::vector<size_t>
+draw_tie_order(size_t size, random::RandomGenerator& generator)
+{
+  std::vector<size_t> ord(size);
+  std::iota(ord.begin(), ord.end(), 0);
+  if (size > 1)
+    random::shuffle(ord, generator);
+  return ord;
+}
+
+//! computes the order in which `rank(x, weights, "random", seeds)` breaks
+//! ties, from the sizes of the tie groups alone.
+//!
+//! The groups are the runs of equal values of `x` in ascending order, and a
+//! value without ties is a group of size one. The result lets a caller that
+//! has already sorted `x` reproduce the random ranks without passing `x`.
+//! @param group_sizes sizes of the tie groups, in ascending order of value.
+//! @param seeds seeds of the random number generator, as for `rank()`.
+//! @return the concatenated permutations of the groups: for the group that
+//!   starts at sorted position `o` and has size `m`, the value at sorted
+//!   position `o + ord[o + k]` receives the group's `k`-th smallest rank, for
+//!   `k = 0, ..., m - 1`.
+inline std::vector<size_t>
+tie_order(const std::vector<size_t>& group_sizes,
+          std::vector<int> seeds = std::vector<int>())
+{
+  random::RandomGenerator generator(seeds);
+  std::vector<size_t> ord;
+  for (size_t size : group_sizes) {
+    if (size == 0)
+      throw std::runtime_error("tie group sizes must be positive.");
+    auto group = draw_tie_order(size, generator);
+    ord.insert(ord.end(), group.begin(), group.end());
+  }
+  return ord;
+}
 
 //! computes ranks.
 //! @param x input vector.
@@ -92,7 +136,7 @@ rank(std::vector<double> x,
         std::vector<size_t> ord(reps);
         std::iota(ord.begin(), ord.end(), 0); // 0, 1, 2, ...
         if (ties_method == "random")
-          random::shuffle(ord, *random_gen);
+          ord = draw_tie_order(reps, *random_gen);
 
         double ww = 0.0;
         for (size_t k = 0; k < reps; ++k) {

@@ -123,7 +123,9 @@ invert_permutation(const std::vector<size_t>& perm)
   return inv_perm;
 }
 
-//! computes the permutation that brings a vector into order.
+//! computes the permutation that brings a vector into order. Equal values
+//! keep their order of appearance, so the permutation is the same on every
+//! platform.
 //! @param x inpute vector.
 //! @param ascending whether order ascendingly or descendingly.
 inline std::vector<size_t>
@@ -139,7 +141,7 @@ get_order(const std::vector<double>& x, bool ascending = true)
     else
       return (x[i] > x[j]);
   };
-  std::sort(perm.begin(), perm.end(), sorter);
+  std::stable_sort(perm.begin(), perm.end(), sorter);
 
   return perm;
 }

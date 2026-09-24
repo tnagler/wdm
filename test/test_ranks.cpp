@@ -79,6 +79,93 @@ test_rank_ties()
     sorted(nan_ranks), { 1, 2, 3 }, "random ranks ignore NaNs");
 }
 
+//! 13 tie groups of about 150 values each: large enough that an unstable sort
+//! reorders the values within a group.
+std::vector<double>
+many_ties()
+{
+  std::vector<double> x;
+  for (int i = 0; i < 2000; i++)
+    x.push_back(static_cast<double>((i * 7919) % 13));
+  return x;
+}
+
+void
+test_order_within_ties()
+{
+  auto x = many_ties();
+  auto order = wdm::utils::get_order(x);
+  bool stable = true;
+  for (size_t i = 1; i < order.size(); ++i)
+    if (x[order[i]] == x[order[i - 1]])
+      stable = stable && order[i] > order[i - 1];
+  test::check(stable, "get_order keeps equal values in order of appearance");
+
+  auto first = wdm::impl::rank(x, {}, "first");
+  bool in_input_order = true;
+  for (size_t i = 1; i < x.size(); ++i)
+    for (size_t j = 0; j < i && in_input_order; ++j)
+      if (x[j] == x[i])
+        in_input_order = first[j] < first[i];
+  test::check(in_input_order, "'first' ranks many ties in input order");
+}
+
+void
+test_tie_order()
+{
+  auto x = many_ties();
+  std::vector<int> seeds{ 5 };
+  auto order = wdm::utils::get_order(x);
+
+  std::vector<size_t> sizes;
+  for (size_t i = 0; i < order.size();) {
+    size_t m = 1;
+    while (i + m < order.size() && x[order[i + m]] == x[order[i]])
+      ++m;
+    sizes.push_back(m);
+    i += m;
+  }
+
+  auto ord = wdm::impl::tie_order(sizes, seeds);
+  std::vector<double> ranks(x.size());
+  for (size_t g = 0, o = 0; g < sizes.size(); o += sizes[g++])
+    for (size_t k = 0; k < sizes[g]; ++k)
+      ranks[order[o + ord[o + k]]] = static_cast<double>(o + k + 1);
+  test::check_vector_near(ranks,
+                          wdm::impl::rank(x, {}, "random", seeds),
+                          "tie_order reproduces the random ranks");
+
+  test::check_vector_near(
+    [&] {
+      std::vector<double> v;
+      for (size_t i : wdm::impl::tie_order({ 1, 1, 1 }, seeds))
+        v.push_back(static_cast<double>(i));
+      return v;
+    }(),
+    { 0, 0, 0 },
+    "values without ties keep their place");
+  test::check_throws([&]() { wdm::impl::tie_order({ 2, 0 }, seeds); },
+                     "tie_order refuses an empty group");
+}
+
+#ifdef USE_BOOST
+void
+test_random_ranks_are_portable()
+{
+  // The Boost generator and distributions are specified exactly, so with a
+  // stable order within ties the random ranks are the same on every platform.
+  std::vector<double> x;
+  for (int i = 0; i < 40; i++)
+    x.push_back(static_cast<double>((i * 7) % 4));
+  test::check_vector_near(wdm::impl::rank(x, {}, "random", { 5 }),
+                          { 6,  33, 23, 16, 1,  36, 24, 14, 3,  32,
+                            21, 18, 4,  37, 28, 12, 2,  38, 30, 19,
+                            7,  31, 27, 13, 8,  40, 22, 20, 9,  39,
+                            25, 11, 10, 35, 29, 17, 5,  34, 26, 15 },
+                          "random ranks match the pinned values");
+}
+#endif
+
 void
 test_rank0_ties()
 {
@@ -110,6 +197,11 @@ int
 main()
 {
   test_rank_ties();
+  test_order_within_ties();
+  test_tie_order();
+#ifdef USE_BOOST
+  test_random_ranks_are_portable();
+#endif
   test_rank0_ties();
   return test::finish();
 }

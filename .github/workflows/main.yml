@@ -55,7 +55,8 @@ jobs:
 
   boost:
     # vinecopulib builds wdm with USE_BOOST, whose generator is specified to
-    # give the same stream on every platform.
+    # give the same stream on every platform; test_ranks pins the random ranks
+    # that stream produces, so these jobs check they agree across platforms.
     name: ${{ matrix.os }} with USE_BOOST
     runs-on: ${{ matrix.os }}
     strategy:
@@ -87,6 +88,3 @@ jobs:
       # whose config does not carry the Boost include directory; the other
       # jobs cover installation.
       run: ctest --output-on-failure -C Release -E test_consumer
-    - name: Tie-order fingerprints
-      working-directory: build
-      run: ctest -C Release -V -R tie_order_probe
