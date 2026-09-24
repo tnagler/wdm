@@ -10,6 +10,7 @@
 #include "random.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <numeric>
 
@@ -225,36 +226,49 @@ rank0(std::vector<double> x,
   return x;
 }
 
-//! computes the bivariate rank of a pair of vectors (starting at 0).
+//! computes the bivariate rank of a pair of vectors: for each observation,
+//! the (weighted) number of observations whose `x` and `y` are both strictly
+//! smaller.
 //! @param x first input vector.
 //! @param y second input vecotr.
 //! @param weights (optional), weights for each observation.
 inline std::vector<double>
-bivariate_rank(std::vector<double> x,
-               std::vector<double> y,
+bivariate_rank(const std::vector<double>& x,
+               const std::vector<double>& y,
                std::vector<double> weights = std::vector<double>())
 {
   utils::check_sizes(x, y, weights);
+  size_t n = x.size();
+  if (weights.size() == 0)
+    weights = std::vector<double>(n, 1.0);
 
-  // get inverse of permutation that brings x in ascending order
-  std::vector<size_t> perm_x = utils::get_order(x);
-  perm_x = utils::invert_permutation(perm_x);
+  // Visit the observations by increasing x, and those with equal x by
+  // decreasing y: an observation visited earlier then has a strictly smaller
+  // x whenever it has a strictly smaller y.
+  std::vector<size_t> order(n);
+  std::iota(order.begin(), order.end(), 0);
+  std::stable_sort(order.begin(), order.end(), [&](size_t i, size_t j) {
+    return (x[i] < x[j]) || ((x[i] == x[j]) && (y[i] > y[j]));
+  });
 
-  // sort x, y, and weights according to x, breaking ties with y
-  utils::sort_all(x, y, weights);
+  // Weight accumulated per distinct value of y, in a Fenwick tree indexed by
+  // one plus the value's position among the distinct values.
+  std::vector<double> levels = y;
+  std::sort(levels.begin(), levels.end());
+  levels.erase(std::unique(levels.begin(), levels.end()), levels.end());
+  std::vector<double> tree(levels.size() + 1, 0.0);
 
-  // get inverse of permutation that brings y in descending order
-  std::vector<size_t> perm_y = utils::get_order(y, false);
-  perm_y = utils::invert_permutation(perm_y);
-
-  // sort y in descending order counting inversions
-  std::vector<double> counts(y.size(), 0.0);
-  utils::merge_sort_count_per_element(y, weights, counts);
-
-  // bring counts back in original order
-  std::vector<double> counts_tmp = counts;
-  for (size_t i = 0; i < counts.size(); i++)
-    counts[i] = counts_tmp[perm_y[perm_x[i]]];
+  std::vector<double> counts(n);
+  for (size_t i : order) {
+    size_t level = static_cast<size_t>(
+      std::lower_bound(levels.begin(), levels.end(), y[i]) - levels.begin());
+    double below = 0.0;
+    for (size_t k = level; k > 0; k &= k - 1)
+      below += tree[k];
+    counts[i] = below;
+    for (size_t k = level + 1; k <= levels.size(); k += k & (~k + 1))
+      tree[k] += weights[i];
+  }
 
   return counts;
 }

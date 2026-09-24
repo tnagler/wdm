@@ -2,6 +2,7 @@
 #include <cmath>
 #include <numeric>
 #include <string>
+#include <utility>
 #include <vector>
 #include <wdm.hpp>
 
@@ -407,6 +408,36 @@ test_ties_and_endpoints()
   test::check_near(wdm::wdm(tied_x, tied_y, "blomqvist"),
                    reference_blomqvist(tied_x, tied_y, {}),
                    "Blomqvist median ties");
+  test::check_near(wdm::wdm(tied_x, tied_y, "hoeffding"),
+                   reference_hoeffding(tied_x, tied_y, {}),
+                   "Hoeffding ties");
+  test::check_near(wdm::wdm(tied_x, tied_y, "hoeffding", weights),
+                   reference_hoeffding(tied_x, tied_y, weights),
+                   "weighted Hoeffding ties");
+
+  // Enough observations per tie group that sorting cannot keep them in any
+  // particular order by accident, with ties in x only, y only, and both.
+  std::vector<double> many_x, many_y, many_weights, tied_many_x, tied_many_y;
+  for (int i = 0; i < 200; ++i) {
+    many_x.push_back(std::sin(1.3 * i));
+    many_y.push_back(std::cos(0.7 * i * i));
+    many_weights.push_back(1.0 + (i % 7));
+    tied_many_x.push_back((i * 7) % 5);
+    tied_many_y.push_back((i * 13) % 11);
+  }
+  for (const auto& xy :
+       std::vector<std::pair<std::vector<double>, std::vector<double>>>{
+         { tied_many_x, many_y },
+         { many_x, tied_many_y },
+         { tied_many_x, tied_many_y } }) {
+    test::check_vector_near(
+      wdm::impl::bivariate_rank(xy.first, xy.second, many_weights),
+      reference_bivariate_rank(xy.first, xy.second, many_weights, 1),
+      "bivariate rank with ties");
+    test::check_near(wdm::wdm(xy.first, xy.second, "hoeffding", many_weights),
+                     reference_hoeffding(xy.first, xy.second, many_weights),
+                     "weighted Hoeffding with many ties");
+  }
 
   std::vector<double> increasing{ 1, 2, 3, 4, 5, 6, 7, 8 };
   std::vector<double> decreasing(increasing.rbegin(), increasing.rend());
