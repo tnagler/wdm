@@ -9,6 +9,7 @@ add_wdm_test(test_estimators test_estimators.cpp)
 add_wdm_test(test_input test_input.cpp)
 add_wdm_test(test_inference test_inference.cpp)
 add_wdm_test(test_ranks test_ranks.cpp)
+add_wdm_test(tie_order_probe tie_order_probe.cpp)
 
 set(wdm_headers
     wdm.hpp
