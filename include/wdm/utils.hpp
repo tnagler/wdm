@@ -123,7 +123,9 @@ invert_permutation(const std::vector<size_t>& perm)
   return inv_perm;
 }
 
-//! computes the permutation that brings a vector into order.
+//! computes the permutation that brings a vector into order. Equal values
+//! keep their order of appearance, so the permutation is the same on every
+//! platform.
 //! @param x inpute vector.
 //! @param ascending whether order ascendingly or descendingly.
 inline std::vector<size_t>
@@ -139,7 +141,7 @@ get_order(const std::vector<double>& x, bool ascending = true)
     else
       return (x[i] > x[j]);
   };
-  std::sort(perm.begin(), perm.end(), sorter);
+  std::stable_sort(perm.begin(), perm.end(), sorter);
 
   return perm;
 }
@@ -439,108 +441,6 @@ merge_sort(std::vector<double>& vec,
     merge_sort(vec1, weights1, count);
     merge_sort(vec2, weights2, count);
     merge(vec, vec1, vec2, weights, weights1, weights2, count);
-  }
-}
-
-//! merge operation for a pair of vectors, counting inversions per element.
-//! @param vec container for the sorted elements.
-//! @param vec1, vec2 sorted input vectors to be merged.
-//! @param weights container for the weights corresponding to sorted elements
-//!   in `vec`; can be empty for unweighted counts.
-//! @param weights1, weights2 weights corresponding to input vectors`vec1`,
-//!   `vec2`; can be empty for unweighted counts.
-//! @param counts container for the counts corresponding to sorted elements
-//!   in `vec`.
-//! @param counts1, counts2 counts corresponding to input vectors`vec1`,
-//!   `vec2` to which (weighted) counts are added.
-inline void
-merge_count_per_element(std::vector<double>& vec,
-                        const std::vector<double>& vec1,
-                        const std::vector<double>& vec2,
-                        std::vector<double>& weights,
-                        const std::vector<double>& weights1,
-                        const std::vector<double>& weights2,
-                        std::vector<double>& counts,
-                        const std::vector<double>& counts1,
-                        const std::vector<double>& counts2)
-{
-  double w_acc = 0.0;
-  bool weighted = (weights.size() > 0);
-  double w1_sum = 0.0;
-  if (weighted) {
-    for (size_t i = 0; i < weights1.size(); i++)
-      w1_sum += weights1[i];
-  }
-  size_t i, j, k;
-  for (i = 0, j = 0, k = 0; i < vec1.size() && j < vec2.size(); k++) {
-    if (vec1[i] > vec2[j]) {
-      vec[k] = vec1[i];
-      counts[k] = counts1[i];
-      if (weighted) {
-        weights[k] = weights1[i];
-        w_acc += weights1[i];
-      }
-      i++;
-    } else {
-      vec[k] = vec2[j];
-      if (weighted) {
-        counts[k] = counts2[j] + w1_sum - w_acc;
-        weights[k] = weights2[j];
-      } else {
-        counts[k] = counts2[j] + vec1.size() - i;
-      }
-      j++;
-    }
-  }
-
-  while (i < vec1.size()) {
-    vec[k] = vec1[i];
-    if (weighted)
-      weights[k] = weights1[i];
-    counts[k] = counts1[i];
-    k++;
-    i++;
-  }
-
-  while (j < vec2.size()) {
-    vec[k] = vec2[j];
-    if (weighted)
-      weights[k] = weights2[j];
-    counts[k] = counts2[j];
-    k++;
-    j++;
-  }
-}
-
-//! sorts elements in a vector while counting inversions per element.
-//! @param vec the vector to be sorted.
-//! @param counts vector of counters to which the (weighted) number of
-//! inversions
-//!   (per element) are added.
-//! @param weights vector of weights corresponding to `vec`; can be empty for
-//!   unweighted counts.
-inline void
-merge_sort_count_per_element(std::vector<double>& vec,
-                             std::vector<double>& weights,
-                             std::vector<double>& counts)
-{
-  if (vec.size() > 1) {
-    size_t n = vec.size();
-    std::vector<double> vec1(vec.begin(), vec.begin() + n / 2);
-    std::vector<double> vec2(vec.begin() + n / 2, vec.end());
-
-    n = weights.size();
-    std::vector<double> weights1(weights.begin(), weights.begin() + n / 2);
-    std::vector<double> weights2(weights.begin() + n / 2, weights.end());
-
-    n = counts.size();
-    std::vector<double> counts1(counts.begin(), counts.begin() + n / 2);
-    std::vector<double> counts2(counts.begin() + n / 2, counts.end());
-
-    merge_sort_count_per_element(vec1, weights1, counts1);
-    merge_sort_count_per_element(vec2, weights2, counts2);
-    merge_count_per_element(
-      vec, vec1, vec2, weights, weights1, weights2, counts, counts1, counts2);
   }
 }
 

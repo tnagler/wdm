@@ -10,11 +10,56 @@
 #include "random.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <numeric>
 
 namespace wdm {
 
 namespace impl {
+
+//! draws the order in which one group of tied values receives its ranks.
+//! @param size number of tied values in the group, at least one.
+//! @param generator the random number generator to draw from.
+//! @return a permutation of `0, ..., size - 1`: the value at position
+//!   `ord[k]` of the group, in the order of `utils::get_order()`, receives
+//!   the group's `k`-th smallest rank.
+inline std::vector<size_t>
+draw_tie_order(size_t size, random::RandomGenerator& generator)
+{
+  std::vector<size_t> ord(size);
+  std::iota(ord.begin(), ord.end(), 0);
+  if (size > 1)
+    random::shuffle(ord, generator);
+  return ord;
+}
+
+//! computes the order in which `rank(x, weights, "random", seeds)` breaks
+//! ties, from the sizes of the tie groups alone.
+//!
+//! The groups are the runs of equal values of `x` in ascending order, and a
+//! value without ties is a group of size one. The result lets a caller that
+//! has already sorted `x` reproduce the random ranks without passing `x`.
+//! @param group_sizes sizes of the tie groups, in ascending order of value.
+//! @param seeds seeds of the random number generator, as for `rank()`.
+//! @return the concatenated permutations of the groups: for the group that
+//!   starts at sorted position `o` and has size `m`, the value at sorted
+//!   position `o + ord[o + k]` receives the group's `k`-th smallest rank, for
+//!   `k = 0, ..., m - 1`.
+inline std::vector<size_t>
+tie_order(const std::vector<size_t>& group_sizes,
+          std::vector<int> seeds = std::vector<int>())
+{
+  random::RandomGenerator generator(seeds);
+  std::vector<size_t> ord;
+  for (size_t size : group_sizes) {
+    if (size == 0)
+      throw std::runtime_error("tie group sizes must be positive.");
+    auto group = draw_tie_order(size, generator);
+    ord.insert(ord.end(), group.begin(), group.end());
+  }
+  return ord;
+}
 
 //! computes ranks.
 //! @param x input vector.
@@ -92,7 +137,7 @@ rank(std::vector<double> x,
         std::vector<size_t> ord(reps);
         std::iota(ord.begin(), ord.end(), 0); // 0, 1, 2, ...
         if (ties_method == "random")
-          random::shuffle(ord, *random_gen);
+          ord = draw_tie_order(reps, *random_gen);
 
         double ww = 0.0;
         for (size_t k = 0; k < reps; ++k) {
@@ -181,36 +226,49 @@ rank0(std::vector<double> x,
   return x;
 }
 
-//! computes the bivariate rank of a pair of vectors (starting at 0).
+//! computes the bivariate rank of a pair of vectors: for each observation,
+//! the (weighted) number of observations whose `x` and `y` are both strictly
+//! smaller.
 //! @param x first input vector.
 //! @param y second input vecotr.
 //! @param weights (optional), weights for each observation.
 inline std::vector<double>
-bivariate_rank(std::vector<double> x,
-               std::vector<double> y,
+bivariate_rank(const std::vector<double>& x,
+               const std::vector<double>& y,
                std::vector<double> weights = std::vector<double>())
 {
   utils::check_sizes(x, y, weights);
+  size_t n = x.size();
+  if (weights.size() == 0)
+    weights = std::vector<double>(n, 1.0);
 
-  // get inverse of permutation that brings x in ascending order
-  std::vector<size_t> perm_x = utils::get_order(x);
-  perm_x = utils::invert_permutation(perm_x);
+  // Visit the observations by increasing x, and those with equal x by
+  // decreasing y: an observation visited earlier then has a strictly smaller
+  // x whenever it has a strictly smaller y.
+  std::vector<size_t> order(n);
+  std::iota(order.begin(), order.end(), 0);
+  std::stable_sort(order.begin(), order.end(), [&](size_t i, size_t j) {
+    return (x[i] < x[j]) || ((x[i] == x[j]) && (y[i] > y[j]));
+  });
 
-  // sort x, y, and weights according to x, breaking ties with y
-  utils::sort_all(x, y, weights);
+  // Weight accumulated per distinct value of y, in a Fenwick tree indexed by
+  // one plus the value's position among the distinct values.
+  std::vector<double> levels = y;
+  std::sort(levels.begin(), levels.end());
+  levels.erase(std::unique(levels.begin(), levels.end()), levels.end());
+  std::vector<double> tree(levels.size() + 1, 0.0);
 
-  // get inverse of permutation that brings y in descending order
-  std::vector<size_t> perm_y = utils::get_order(y, false);
-  perm_y = utils::invert_permutation(perm_y);
-
-  // sort y in descending order counting inversions
-  std::vector<double> counts(y.size(), 0.0);
-  utils::merge_sort_count_per_element(y, weights, counts);
-
-  // bring counts back in original order
-  std::vector<double> counts_tmp = counts;
-  for (size_t i = 0; i < counts.size(); i++)
-    counts[i] = counts_tmp[perm_y[perm_x[i]]];
+  std::vector<double> counts(n);
+  for (size_t i : order) {
+    size_t level = static_cast<size_t>(
+      std::lower_bound(levels.begin(), levels.end(), y[i]) - levels.begin());
+    double below = 0.0;
+    for (size_t k = level; k > 0; k &= k - 1)
+      below += tree[k];
+    counts[i] = below;
+    for (size_t k = level + 1; k <= levels.size(); k += k & (~k + 1))
+      tree[k] += weights[i];
+  }
 
   return counts;
 }
