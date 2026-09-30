@@ -93,8 +93,10 @@ main API with:
 ```
 
 Eigen convenience overloads require Eigen and are enabled by including
-`<wdm/eigen.hpp>`. The standard-library random backend is the default; configure
-with `-DUSE_BOOST=ON` to use Boost.Random instead.
+`<wdm/eigen.hpp>`. Randomized tie breaking draws the same values on every
+platform and standard library: its generator and seeding are specified exactly
+by the standard, and its distributions are implemented in wdm. `USE_BOOST` is
+still accepted but no longer changes the draws.
 
 ## Example
 

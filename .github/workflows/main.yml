@@ -54,9 +54,9 @@ jobs:
       run: ctest --output-on-failure -C ${{matrix.config.build_type}}
 
   boost:
-    # vinecopulib builds wdm with USE_BOOST, whose generator is specified to
-    # give the same stream on every platform; test_ranks pins the random ranks
-    # that stream produces, so these jobs check they agree across platforms.
+    # vinecopulib builds wdm with USE_BOOST, which must not change the draws;
+    # test_ranks pins the random ranks, so these jobs check that they agree
+    # with the default build and across platforms.
     name: ${{ matrix.os }} with USE_BOOST
     runs-on: ${{ matrix.os }}
     strategy:
