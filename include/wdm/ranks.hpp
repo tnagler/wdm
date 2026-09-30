@@ -251,23 +251,22 @@ bivariate_rank(const std::vector<double>& x,
     return (x[i] < x[j]) || ((x[i] == x[j]) && (y[i] > y[j]));
   });
 
-  // Weight accumulated per distinct value of y, in a Fenwick tree indexed by
-  // one plus the value's position among the distinct values.
+  // The distinct values of y in increasing order, and the weight seen so far
+  // at each.
   std::vector<double> levels = y;
   std::sort(levels.begin(), levels.end());
   levels.erase(std::unique(levels.begin(), levels.end()), levels.end());
-  std::vector<double> tree(levels.size() + 1, 0.0);
+  utils::FenwickTree seen(levels.size());
 
   std::vector<double> counts(n);
   for (size_t i : order) {
+    // Which distinct y-value does this observation have?
     size_t level = static_cast<size_t>(
       std::lower_bound(levels.begin(), levels.end(), y[i]) - levels.begin());
-    double below = 0.0;
-    for (size_t k = level; k > 0; k &= k - 1)
-      below += tree[k];
-    counts[i] = below;
-    for (size_t k = level + 1; k <= levels.size(); k += k & (~k + 1))
-      tree[k] += weights[i];
+    // How much weight has already been seen at smaller y-values?
+    counts[i] = seen.prefix_sum(level);
+    // Record this observation at its y-value.
+    seen.add(level, weights[i]);
   }
 
   return counts;

@@ -167,6 +167,29 @@ test_random_ranks_are_portable()
 #endif
 
 void
+test_fenwick_tree()
+{
+  for (size_t n : { 0, 1, 2, 7, 64, 100 }) {
+    wdm::utils::FenwickTree tree(n);
+    std::vector<double> values(n, 0.0);
+    bool agrees = tree.prefix_sum(0) == 0.0;
+    for (size_t step = 0; step < 3 * n; ++step) {
+      size_t index = (step * 37) % n;
+      double value = (step % 5 == 0) ? -1.5 : 0.5 * static_cast<double>(step);
+      tree.add(index, value);
+      values[index] += value;
+      for (size_t end = 0; end <= n; ++end) {
+        double expected = 0.0;
+        for (size_t k = 0; k < end; ++k)
+          expected += values[k];
+        agrees = agrees && std::fabs(tree.prefix_sum(end) - expected) < 1e-9;
+      }
+    }
+    test::check(agrees, "FenwickTree prefix sums match the running sums");
+  }
+}
+
+void
 test_rank0_ties()
 {
   std::vector<double> values{ 1, 3, 2, 5, 3, 2, 20, 15 };
@@ -203,5 +226,6 @@ main()
   test_random_ranks_are_portable();
 #endif
   test_rank0_ties();
+  test_fenwick_tree();
   return test::finish();
 }

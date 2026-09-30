@@ -444,6 +444,37 @@ merge_sort(std::vector<double>& vec,
   }
 }
 
+//! A Fenwick tree over `n` values, all zero initially. It supports adding to
+//! one value and summing a prefix of the values, each in O(log n).
+class FenwickTree
+{
+public:
+  //! @param n number of values.
+  explicit FenwickTree(size_t n)
+    : tree_(n, 0.0)
+  {
+  }
+
+  //! adds `value` to the value at `index`, where `index < n`.
+  void add(size_t index, double value)
+  {
+    for (; index < tree_.size(); index |= index + 1)
+      tree_[index] += value;
+  }
+
+  //! sums the values at `0, ..., end - 1`, where `end <= n`.
+  double prefix_sum(size_t end) const
+  {
+    double sum = 0.0;
+    for (; end > 0; end &= end - 1)
+      sum += tree_[end - 1];
+    return sum;
+  }
+
+private:
+  std::vector<double> tree_;
+};
+
 } /// end utils
 
 } // end wdm
