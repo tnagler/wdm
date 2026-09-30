@@ -3,6 +3,7 @@
 ![build status](https://github.com/tnagler/wdm/actions/workflows/main.yml/badge.svg?branch=main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+
 `wdm` is a header-only C++11 library implementing weighted dependence
 measures and related asymptotic independence tests. It primarily provides the
 computational core for higher-level interfaces; users of the R interface
@@ -136,7 +137,8 @@ git ls-files -z '*.h' '*.hpp' '*.ipp' '*.cpp' '*.cc' |
   xargs -0 clang-format --dry-run --Werror
 ```
 
-Regenerate the checked-in API documentation from the repository root with:
+The API documentation is built and deployed on pushes to `main` by the
+[Pages workflow](.github/workflows/pages.yml). To generate it locally, run:
 
 ```sh
 doxygen docs/Doxyfile.in
