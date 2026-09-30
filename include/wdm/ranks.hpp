@@ -11,54 +11,34 @@
 #include "utils.hpp"
 
 #include <algorithm>
-#include <memory>
 #include <numeric>
 
 namespace wdm {
 
 namespace impl {
 
-//! draws the order in which one group of tied values receives its ranks.
-//! @param size number of tied values in the group, at least one.
-//! @param generator the random number generator to draw from.
-//! @return a permutation of `0, ..., size - 1`: the value at position
-//!   `ord[k]` of the group, in the order of `utils::get_order()`, receives
-//!   the group's `k`-th smallest rank.
-inline std::vector<size_t>
-draw_tie_order(size_t size, random::RandomGenerator& generator)
-{
-  std::vector<size_t> ord(size);
-  std::iota(ord.begin(), ord.end(), 0);
-  if (size > 1)
-    random::shuffle(ord, generator);
-  return ord;
-}
-
-//! computes the order in which `rank(x, weights, "random", seeds)` breaks
-//! ties, from the sizes of the tie groups alone.
+//! draws a key for every observation, the order in which `rank(x, weights,
+//! "random", seeds)` breaks ties.
 //!
-//! The groups are the runs of equal values of `x` in ascending order, and a
-//! value without ties is a group of size one. The result lets a caller that
-//! has already sorted `x` reproduce the random ranks without passing `x`.
-//! @param group_sizes sizes of the tie groups, in ascending order of value.
+//! Within a group of tied values, the observations receive the group's ranks
+//! in increasing order of their keys. The keys are a uniformly random
+//! permutation, so every group is ordered uniformly at random, independently
+//! of the others; and an observation's key depends only on `n` and `seeds`, so
+//! a group's order depends only on which observations are in it. Values that
+//! gain or lose a tie leave every other group's order as it was.
+//! @param n number of observations.
 //! @param seeds seeds of the random number generator, as for `rank()`.
-//! @return the concatenated permutations of the groups: for the group that
-//!   starts at sorted position `o` and has size `m`, the value at sorted
-//!   position `o + ord[o + k]` receives the group's `k`-th smallest rank, for
-//!   `k = 0, ..., m - 1`.
+//! @return a permutation of `0, ..., n - 1`: observation `i`'s key.
 inline std::vector<size_t>
-tie_order(const std::vector<size_t>& group_sizes,
-          std::vector<int> seeds = std::vector<int>())
+tie_keys(size_t n, std::vector<int> seeds = std::vector<int>())
 {
-  random::RandomGenerator generator(seeds);
-  std::vector<size_t> ord;
-  for (size_t size : group_sizes) {
-    if (size == 0)
-      throw std::runtime_error("tie group sizes must be positive.");
-    auto group = draw_tie_order(size, generator);
-    ord.insert(ord.end(), group.begin(), group.end());
+  std::vector<size_t> keys(n);
+  std::iota(keys.begin(), keys.end(), 0);
+  if (n > 1) {
+    random::RandomGenerator generator(seeds);
+    random::shuffle(keys, generator);
   }
-  return ord;
+  return keys;
 }
 
 //! computes ranks.
@@ -66,7 +46,8 @@ tie_order(const std::vector<size_t>& group_sizes,
 //! @param weights (optional), weights for each observation.
 //! @param ties_method `"min"` (default) assigns all tied values the minimum
 //!   score; `"average"` assigns the average score, `"first"` ranks them in
-//!   order of occurance, `"random"` randomizes.
+//!   order of occurance, `"random"` in a uniformly random order, drawn as the
+//!   order of the observations' keys (see `tie_keys()`).
 //! @param seeds Seeds of the random number generator; if empty (default),
 //!   the random number generator is seeded randomly.
 //! @return a vector containing the ranks of each element in `x`.
@@ -109,14 +90,20 @@ rank(std::vector<double> x,
     w = w / w_mean;
   }
 
-  // permutation that brings 'x' in ascending order
-  std::vector<size_t> perm = utils::get_order(x);
-
-  // all tie groups draw from the same stream, so that they are shuffled
-  // independently of one another
-  std::unique_ptr<random::RandomGenerator> random_gen;
-  if (ties_method == "random")
-    random_gen.reset(new random::RandomGenerator(seeds));
+  // permutation that brings 'x' in ascending order; under "random", ties are
+  // ordered by the observations' keys, which makes the order total, so that
+  // no sort algorithm can arrange it differently
+  std::vector<size_t> perm;
+  if (ties_method == "random") {
+    const std::vector<size_t> keys = tie_keys(n, seeds);
+    perm.resize(n);
+    std::iota(perm.begin(), perm.end(), 0);
+    std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
+      return (x[a] < x[b]) || ((x[a] == x[b]) && (keys[a] < keys[b]));
+    });
+  } else {
+    perm = utils::get_order(x);
+  }
 
   double w_acc = 0.0, w_batch;
   for (size_t i = 0, reps; i < n; i += reps) {
@@ -133,16 +120,12 @@ rank(std::vector<double> x,
     if (reps > 1) {
       if ((ties_method == "first") || (ties_method == "random")) {
         // break ties by assigning the cumulative weights, in order of
-        // appearance ("first") or in random order ("random")
-        std::vector<size_t> ord(reps);
-        std::iota(ord.begin(), ord.end(), 0); // 0, 1, 2, ...
-        if (ties_method == "random")
-          ord = draw_tie_order(reps, *random_gen);
-
+        // appearance ("first") or of the keys ("random"), which is the order
+        // of `perm` either way
         double ww = 0.0;
         for (size_t k = 0; k < reps; ++k) {
-          ww += weights[perm[i + ord[k]]];
-          x[perm[i + ord[k]]] = w_acc + ww;
+          ww += weights[perm[i + k]];
+          x[perm[i + k]] = w_acc + ww;
         }
       } else if (ties_method == "average") {
         // assign average rank to tied values
