@@ -12,10 +12,10 @@ namespace random {
 
 //! Random-number generator used for reproducible randomized tie breaking.
 //!
-//! The same draws on every platform, with or without Boost: the engine
-//! (`std::mt19937`) and its seeding (`std::seed_seq`) are specified exactly by
-//! the standard, and the distributions are implemented here rather than taken
-//! from the standard library, whose distributions are implementation-defined.
+//! The same draws on every platform: the engine (`std::mt19937`) and its
+//! seeding (`std::seed_seq`) are specified exactly by the standard, and the
+//! distributions are implemented here rather than taken from the standard
+//! library, whose distributions are implementation-defined.
 class RandomGenerator
 {
 public:
@@ -28,15 +28,22 @@ public:
   //! draws a size_t uniformly in [0, n - 1]; `n` must be positive.
   size_t sample_int(size_t n)
   {
-    const uint64_t range = static_cast<uint64_t>(n);
-    // 2^64 mod range: accepting only draws at or above it leaves a multiple
-    // of `range` values, so the remainder is exactly uniform
-    const uint64_t threshold = (0 - range) % range;
-    uint64_t draw;
-    do {
-      draw = next64();
-    } while (draw < threshold);
-    return static_cast<size_t>(draw % range);
+    if (static_cast<uint64_t>(n) > UINT32_MAX) {
+      return static_cast<size_t>(sample_wide(static_cast<uint64_t>(n)));
+    }
+    // Lemire's multiply-shift: the high half of draw * range is uniform once
+    // draws whose low half falls below 2^32 mod range are rejected
+    const uint32_t range = static_cast<uint32_t>(n);
+    uint64_t product = static_cast<uint64_t>(generator()) * range;
+    uint32_t low = static_cast<uint32_t>(product);
+    if (low < range) {
+      const uint32_t threshold = (0u - range) % range;
+      while (low < threshold) {
+        product = static_cast<uint64_t>(generator()) * range;
+        low = static_cast<uint32_t>(product);
+      }
+    }
+    return static_cast<size_t>(product >> 32);
   }
 
   //! draws a double uniformly in [0, 1), on a grid of 2^-53.
@@ -52,6 +59,18 @@ private:
   {
     const uint64_t high = static_cast<uint64_t>(generator());
     return (high << 32) | static_cast<uint64_t>(generator());
+  }
+
+  // `sample_int` past 2^32 - 1: 2^64 mod range is rejected, which leaves a
+  // multiple of `range` values, so the remainder is exactly uniform
+  uint64_t sample_wide(uint64_t range)
+  {
+    const uint64_t threshold = (0 - range) % range;
+    uint64_t draw;
+    do {
+      draw = next64();
+    } while (draw < threshold);
+    return draw % range;
   }
 
   static std::mt19937 initialize_generator(std::vector<int>& seeds)
