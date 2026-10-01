@@ -161,7 +161,7 @@ test_random_ranks_are_portable()
 {
   // The generator, its seeding and its distributions are specified exactly,
   // and the order within ties is total, so the random ranks are the same on
-  // every platform, with or without Boost.
+  // every platform.
   std::vector<double> x;
   for (int i = 0; i < 40; i++)
     x.push_back(static_cast<double>((i * 7) % 4));
