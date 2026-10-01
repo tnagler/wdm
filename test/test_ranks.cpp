@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 #include <wdm/ranks.hpp>
 
@@ -221,6 +222,73 @@ test_rank0_ties()
                           "weighted rank0 average ties");
 }
 
+void
+test_soft_ranks()
+{
+  const std::vector<std::string> methods{ "min", "average", "first", "random" };
+  const double scale = 1.5e-8;
+
+  // without near-ties, the soft ranks are the ranks by value, bit for bit
+  std::vector<double> x{ 3, 1, 2, 2, 5, 3, 2, 4, 1, 2 };
+  std::vector<double> w{ 1, 2, 1, 1, 3, 1, 2, 1, 1, 1 };
+  bool same = true;
+  for (const auto& method : methods) {
+    for (const auto& weights : { std::vector<double>(), w }) {
+      same = same && (wdm::impl::rank(x, weights, method, { 7 }, scale) ==
+                      wdm::impl::rank(x, weights, method, { 7 }));
+    }
+  }
+  test::check(same, "soft ranks equal the ranks by value without near-ties");
+
+  // a crowd of distinct values within rounding of each other: shifting it by
+  // far less than the scale moves the soft ranks by a negligible amount, where
+  // the ranks by value reorder it
+  std::vector<double> a, b;
+  for (int i = 0; i < 400; ++i) {
+    const double v = static_cast<double>(i % 50) / 50.0;
+    a.push_back(v + static_cast<double>((i % 7) - 3) * 1e-13);
+    b.push_back(v + static_cast<double>((i % 5) - 2) * 1e-13);
+  }
+  for (const auto& method : { "average", "first", "random" }) {
+    const auto ra = wdm::impl::rank(a, {}, method, { 3 }, scale);
+    const auto rb = wdm::impl::rank(b, {}, method, { 3 }, scale);
+    const auto ha = wdm::impl::rank(a, {}, method, { 3 });
+    const auto hb = wdm::impl::rank(b, {}, method, { 3 });
+    double soft_move = 0.0, hard_move = 0.0;
+    for (size_t i = 0; i < a.size(); ++i) {
+      soft_move = std::max(soft_move, std::fabs(ra[i] - rb[i]));
+      hard_move = std::max(hard_move, std::fabs(ha[i] - hb[i]));
+    }
+    test::check(soft_move < 1e-3,
+                std::string("soft ranks move continuously, ") + method);
+    test::check(hard_move >= 1.0,
+                std::string("ranks by value reorder the crowd, ") + method);
+    // every pair splits its weight between the two orders
+    double total = 0.0;
+    for (double r : ra)
+      total += r;
+    test::check_near(total,
+                     400.0 * 401.0 / 2.0,
+                     std::string("soft ranks sum to n(n + 1) / 2, ") + method,
+                     1e-8);
+  }
+
+  // missing values stay missing, and the scale must be a distance
+  auto with_nan = wdm::impl::rank(
+    { 0.5, std::numeric_limits<double>::quiet_NaN(), 0.5 + 1e-12 },
+    {},
+    "average",
+    {},
+    scale);
+  test::check(std::isnan(with_nan[1]) && !std::isnan(with_nan[0]) &&
+                (std::fabs(with_nan[0] + with_nan[2] - 3.0) < 1e-12),
+              "soft ranks skip missing values");
+  for (double bad : { -1.0,
+                      std::numeric_limits<double>::infinity(),
+                      std::numeric_limits<double>::quiet_NaN() })
+    test::check_throws([&]() { wdm::impl::rank(x, {}, "average", {}, bad); },
+                       "rank rejects a scale that is not a finite distance");
+}
 }
 
 int
@@ -232,6 +300,7 @@ main()
   test_random_ties_are_local();
   test_random_ranks_are_portable();
   test_rank0_ties();
+  test_soft_ranks();
   test_fenwick_tree();
   return test::finish();
 }
