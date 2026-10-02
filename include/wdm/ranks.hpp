@@ -206,17 +206,11 @@ rank(std::vector<double> x,
   // permutation that brings 'x' in ascending order; under "random", ties are
   // ordered by the observations' keys, which makes the order total, so that
   // no sort algorithm can arrange it differently
-  std::vector<size_t> perm;
+  std::vector<size_t> perm = utils::get_order(x);
   std::vector<size_t> keys;
   if (ties_method == "random") {
     keys = tie_keys(n, seeds);
-    perm.resize(n);
-    std::iota(perm.begin(), perm.end(), 0);
-    std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
-      return (x[a] < x[b]) || ((x[a] == x[b]) && (keys[a] < keys[b]));
-    });
-  } else {
-    perm = utils::get_order(x);
+    utils::order_ties_by_key(perm, x, keys);
   }
 
   // the values are overwritten by their ranks below

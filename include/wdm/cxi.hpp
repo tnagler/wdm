@@ -37,10 +37,7 @@ sort_chatterjee_observations(std::vector<double>& x,
   for (size_t k = 1; k < order.size(); ++k)
     tied = tied || (x[order[k]] == x[order[k - 1]]);
   if (tied) {
-    const std::vector<size_t> keys = tie_keys(x.size(), seeds);
-    std::sort(order.begin(), order.end(), [&](size_t a, size_t b) {
-      return (x[a] < x[b]) || ((x[a] == x[b]) && (keys[a] < keys[b]));
-    });
+    utils::order_ties_by_key(order, x, tie_keys(x.size(), seeds));
   }
 
   std::vector<double> sorted_x(x.size()), sorted_y(y.size()),
