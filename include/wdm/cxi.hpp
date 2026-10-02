@@ -8,7 +8,6 @@
 
 #include "ranks.hpp"
 #include "utils.hpp"
-#include <memory>
 #include <tuple>
 
 namespace wdm {
@@ -24,7 +23,9 @@ default_tie_seeds()
 }
 
 //! Sort observations by the predictor and break predictor ties uniformly at
-//! random, independently of the response.
+//! random, independently of the response: in the order of the observations'
+//! keys (`tie_keys()`), so that a tie group's order depends only on its
+//! members.
 inline void
 sort_chatterjee_observations(std::vector<double>& x,
                              std::vector<double>& y,
@@ -32,19 +33,11 @@ sort_chatterjee_observations(std::vector<double>& x,
                              const std::vector<int>& seeds)
 {
   std::vector<size_t> order = utils::get_order(x);
-  std::unique_ptr<random::RandomGenerator> tie_generator;
-  for (size_t begin = 0, end; begin < order.size(); begin = end) {
-    end = begin + 1;
-    while (end < order.size() && x[order[end]] == x[order[begin]])
-      ++end;
-    if (end - begin > 1) {
-      if (!tie_generator)
-        tie_generator.reset(new random::RandomGenerator(seeds));
-      std::vector<size_t> tied_order(order.begin() + begin,
-                                     order.begin() + end);
-      random::shuffle(tied_order, *tie_generator);
-      std::copy(tied_order.begin(), tied_order.end(), order.begin() + begin);
-    }
+  bool tied = false;
+  for (size_t k = 1; k < order.size(); ++k)
+    tied = tied || (x[order[k]] == x[order[k - 1]]);
+  if (tied) {
+    utils::order_ties_by_key(order, x, tie_keys(x.size(), seeds));
   }
 
   std::vector<double> sorted_x(x.size()), sorted_y(y.size()),

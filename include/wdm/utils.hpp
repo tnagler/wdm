@@ -146,6 +146,35 @@ get_order(const std::vector<double>& x, bool ascending = true)
   return perm;
 }
 
+//! orders the ties of an ascending permutation by keys.
+//! @param perm a permutation that sorts `x` ascendingly; its runs of ties are
+//!   reordered in place.
+//! @param x the sorted vector.
+//! @param keys the keys of the elements of `x`, a permutation of
+//!   `0, ..., n - 1`.
+//! Ordering by (value, key) is then total, so this is the one permutation
+//! every sort algorithm would give. It takes linear time: the elements are
+//! visited in key order and each is appended to its run of ties.
+inline void
+order_ties_by_key(std::vector<size_t>& perm,
+                  const std::vector<double>& x,
+                  const std::vector<size_t>& keys)
+{
+  const size_t n = perm.size();
+  // each element's run of ties, and the next free slot of every run
+  std::vector<size_t> run(n), next;
+  for (size_t j = 0; j < n; ++j) {
+    if ((j == 0) || (x[perm[j]] != x[perm[j - 1]]))
+      next.push_back(j);
+    run[perm[j]] = next.size() - 1;
+  }
+  std::vector<size_t> by_key(n);
+  for (size_t i = 0; i < n; ++i)
+    by_key[keys[i]] = i;
+  for (const size_t i : by_key)
+    perm[next[run[i]]++] = i;
+}
+
 //! sorts x, y, and weights in x order; break ties in according to y.
 //! @param x, y, weights input vectors.
 inline void
