@@ -1,84 +1,86 @@
 
 #pragma once
 
-#include <vector>
-
-#ifdef USE_BOOST
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/seed_seq.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-#endif
-
 #include <algorithm> // For std::generate
-#include <random>    // For std::random_device
+#include <cstdint>
+#include <random> // For std::mt19937, std::seed_seq, std::random_device
+#include <vector>
 
 namespace wdm {
 
 namespace random {
 
 //! Random-number generator used for reproducible randomized tie breaking.
+//!
+//! The same draws on every platform: the engine (`std::mt19937`) and its
+//! seeding (`std::seed_seq`) are specified exactly by the standard, and the
+//! distributions are implemented here rather than taken from the standard
+//! library, whose distributions are implementation-defined.
 class RandomGenerator
 {
 public:
-  // Constructor with optional seeds
+  //! @param seeds seeds of the generator; if empty, it is seeded randomly.
   explicit RandomGenerator(std::vector<int> seeds = std::vector<int>())
-#ifdef USE_BOOST
-    : generator(initialize_boost_generator(seeds)){}
-#else
-    : generator(initialize_std_generator(seeds))
+    : generator(initialize_generator(seeds))
   {
   }
-#endif
 
-    // Sample a size_t in [0, n-1]
-    size_t sample_int(size_t n)
+  //! draws a size_t uniformly in [0, n - 1]; `n` must be positive.
+  size_t sample_int(size_t n)
   {
-#ifdef USE_BOOST
-    boost::random::uniform_int_distribution<size_t> distribution(0, n - 1);
-#else
-    std::uniform_int_distribution<size_t> distribution(0, n - 1);
-#endif
-    return distribution(generator);
+    if (static_cast<uint64_t>(n) > UINT32_MAX) {
+      return static_cast<size_t>(sample_wide(static_cast<uint64_t>(n)));
+    }
+    // Lemire's multiply-shift: the high half of draw * range is uniform once
+    // draws whose low half falls below 2^32 mod range are rejected
+    const uint32_t range = static_cast<uint32_t>(n);
+    uint64_t product = static_cast<uint64_t>(generator()) * range;
+    uint32_t low = static_cast<uint32_t>(product);
+    if (low < range) {
+      const uint32_t threshold = (0u - range) % range;
+      while (low < threshold) {
+        product = static_cast<uint64_t>(generator()) * range;
+        low = static_cast<uint32_t>(product);
+      }
+    }
+    return static_cast<size_t>(product >> 32);
   }
 
-  // Sample a double in [0.0, 1.0)
+  //! draws a double uniformly in [0, 1), on a grid of 2^-53.
   double sample_double()
   {
-#ifdef USE_BOOST
-    boost::random::uniform_real_distribution<double> distribution(0.0, 1.0);
-#else
-    std::uniform_real_distribution<double> distribution(0.0, 1.0);
-#endif
-    return distribution(generator);
+    return static_cast<double>(next64() >> 11) / 9007199254740992.0;
   }
 
 private:
-#ifdef USE_BOOST
-  boost::random::mt19937 generator;
+  std::mt19937 generator;
 
-  // Initialize Boost generator with seeds
-  boost::random::mt19937 initialize_boost_generator(std::vector<int>& seeds)
+  uint64_t next64()
   {
-    if (seeds.empty()) {
-      seeds = generate_random_seeds();
-    }
-    boost::random::seed_seq seq(seeds.begin(), seeds.end());
-    return boost::random::mt19937(seq);
+    const uint64_t high = static_cast<uint64_t>(generator());
+    return (high << 32) | static_cast<uint64_t>(generator());
   }
-#else
-  std::default_random_engine generator;
 
-  // Initialize std generator with seeds
-  std::default_random_engine initialize_std_generator(std::vector<int>& seeds)
+  // `sample_int` past 2^32 - 1: 2^64 mod range is rejected, which leaves a
+  // multiple of `range` values, so the remainder is exactly uniform
+  uint64_t sample_wide(uint64_t range)
+  {
+    const uint64_t threshold = (0 - range) % range;
+    uint64_t draw;
+    do {
+      draw = next64();
+    } while (draw < threshold);
+    return draw % range;
+  }
+
+  static std::mt19937 initialize_generator(std::vector<int>& seeds)
   {
     if (seeds.empty()) {
       seeds = generate_random_seeds();
     }
     std::seed_seq seq(seeds.begin(), seeds.end());
-    return std::default_random_engine(seq);
+    return std::mt19937(seq);
   }
-#endif
 
   // Generate random seeds using std::random_device
   static std::vector<int> generate_random_seeds()
