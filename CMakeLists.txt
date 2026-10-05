@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_CXX_STANDARD 11)
 
-project(wdm VERSION 0.3.1)
+project(wdm VERSION 0.3.2)
 
 include(cmake/options.cmake               REQUIRED)
 
